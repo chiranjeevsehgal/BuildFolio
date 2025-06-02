@@ -20,9 +20,9 @@ const LandingPage = () => {
               <a href="#pricing" className="text-slate-600 hover:text-slate-800 transition-colors">Pricing</a>
             </nav>
             <div className="flex items-center space-x-4">
-              <button className="text-slate-600 hover:text-slate-800 transition-colors">
+              <a href="/signin" className="text-slate-600 hover:text-slate-800 transition-colors">
                 Sign In
-              </button>
+              </a>
               <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm">
                 Get Started
               </button>
