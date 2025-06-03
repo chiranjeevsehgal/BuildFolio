@@ -24,12 +24,12 @@ const userSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    required: [true, 'Username is required'],
+    // required: [true, 'Username is required'],
     unique: true,
     lowercase: true,
     minlength: [3, 'Username must be at least 3 characters'],
     maxlength: [30, 'Username cannot exceed 30 characters'],
-    match: [/^[a-z0-9-]+$/, 'Username can only contain letters, numbers, and hyphens']
+    match: [/^[a-z0-9-]+$/, 'Username can only contain letters, numbers, and hyphens'],
   },
   password: {
     type: String,

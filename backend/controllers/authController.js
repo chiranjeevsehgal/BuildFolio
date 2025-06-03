@@ -28,6 +28,14 @@ const register = async (req, res) => {
         message: 'User already exists with this email'
       });
     }
+    
+    const existingUserName = await User.findOne({ username });
+    if (existingUserName) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this username'
+      });
+    }
 
     // Create user
     const user = await User.create({
