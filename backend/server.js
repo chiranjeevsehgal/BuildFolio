@@ -1,10 +1,12 @@
 const express = require('express');
+const session = require('express-session');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
 require('dotenv').config();
+const passport = require('./config/auth');
 
 const app = express();
 
@@ -17,6 +19,20 @@ app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true
 }));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -40,7 +56,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/users', require('./routes/user'));
+app.use('/api/profiles', require('./routes/profile'));
 // app.use('/api/portfolios', require('./routes/portfolio'));
 // app.use('/api/templates', require('./routes/template'));
 

@@ -31,7 +31,8 @@ passport.use(new GoogleStrategy({
     if (user) {
       return done(null, user);
     }
-
+    console.log(profile);
+    
     // Check if email exists
     user = await User.findOne({ email: profile.emails[0].value });
     if (user) {
@@ -41,12 +42,14 @@ passport.use(new GoogleStrategy({
       await user.save();
       return done(null, user);
     }
+    const username = profile.emails[0].value.split('@')[0];
 
     // Create new user
     user = await User.create({
       firstName: profile.name.givenName,
       lastName: profile.name.familyName,
       email: profile.emails[0].value,
+      username: username,
       oauthProvider: 'google',
       oauthId: profile.id,
       isEmailVerified: true,
@@ -58,7 +61,5 @@ passport.use(new GoogleStrategy({
     done(error, null);
   }
 }));
-
-// LinkedIn and GitHub strategies
 
 module.exports = passport;

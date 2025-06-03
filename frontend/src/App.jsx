@@ -5,6 +5,8 @@ import AuthPage from './pages/AuthPage';
 import UsernameOnboarding from './pages/UsernameOnboarding';
 import TemplateSelection from './pages/TemplateSelection';
 import PortfolioDeployment from './pages/PortfolioDeployment';
+import ProfileDataCollection from './pages/ProfileDataCollection';
+import AuthSuccess from './pages/AuthSuccess';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/onboarding" element={<UsernameOnboarding />}/>
           <Route path="/templates" element={<TemplateSelection />}/>
           <Route path="/portfolio" element={<PortfolioDeployment />}/>
+          <Route path="/profile" element={<ProfileDataCollection />}/>
+          <Route path="/auth/success" element={<AuthSuccess />} />
         </Routes>
       </BrowserRouter>
     </>
