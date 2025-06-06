@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const passport = require('passport');
-const { register, login, getMe, oauthSuccess, oauthFailure } = require('../controllers/authController');
+const { register, login, getMe, oauthSuccess, oauthFailure, markProfileCompleted } = require('../controllers/authController');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -50,6 +50,7 @@ const loginValidation = [
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/profile', auth, getMe);
+router.patch('/profile/complete', auth, markProfileCompleted);
 
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

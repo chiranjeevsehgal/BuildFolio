@@ -12,7 +12,7 @@ const AuthSuccess = () => {
       // Store the token in localStorage
       localStorage.setItem('authToken', token);
       
-      // Redirect to dashboard or home page
+      // Redirect to templates page
       navigate('/templates', { replace: true });
     } else {
       // No token found, redirect to login

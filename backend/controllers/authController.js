@@ -138,7 +138,7 @@ const login = async (req, res) => {
 };
 
 // @desc    Get current user
-// @route   GET /api/auth/me
+// @route   GET /api/auth/profile
 // @access  Private
 const getMe = async (req, res) => {
   try {
@@ -152,6 +152,7 @@ const getMe = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         username: user.username,
+        isProfileCompleted: user.isProfileCompleted,
         isEmailVerified: user.isEmailVerified,
         profilePhoto: user.profilePhoto,
         title: user.title,
@@ -167,6 +168,45 @@ const getMe = async (req, res) => {
     });
   }
 };
+
+// @desc    Mark profile as completed
+// @route   PATCH /api/auth/profile/complete
+// @access  Private
+const markProfileCompleted = async (req, res) => {
+    try {
+        const { isProfileCompleted } = req.body;
+        
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { isProfileCompleted },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Profile completion status updated',
+            user: {
+                id: user._id,
+                isProfileCompleted: user.isProfileCompleted
+            }
+        });
+    } catch (error) {
+        console.error('Mark profile completed error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update profile completion status',
+            error: error.message
+        });
+    }
+};
+
 
 // OAuth Success
 const oauthSuccess = async (req, res) => {
@@ -190,6 +230,7 @@ module.exports = {
   register,
   login,
   getMe,
+  markProfileCompleted,
   oauthSuccess,
   oauthFailure
 };
