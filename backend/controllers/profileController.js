@@ -157,105 +157,27 @@ const uploadProfilePhoto = async (req, res) => {
   }
 };
 
-// @desc    Import LinkedIn profile
-// @route   POST /api/profiles/linkedin-import
-// @access  Private
-const importLinkedInProfile = async (req, res) => {
+// PATCH /api/user/template - Update user's selected template
+const updateUserTemplate = async (req, res) => {
   try {
-    const { accessToken } = req.body;
-    
-    if (!accessToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'LinkedIn access token is required'
-      });
-    }
+    const { selectedTemplate } = req.body;
+    const userId = req.user.id;
 
-    // Get LinkedIn profile data
-    const linkedinData = await linkedinService.getProfile(accessToken);
-    
-    if (!linkedinData) {
-      return res.status(400).json({
-        success: false,
-        message: 'Failed to fetch LinkedIn profile'
-      });
-    }
-
-    let profile = await Profile.findOne({ user: req.user.id });
-    if (!profile) {
-      profile = new Profile({ user: req.user.id });
-    }
-
-    // Map LinkedIn data to profile
-    if (linkedinData.firstName && linkedinData.lastName) {
-      await User.findByIdAndUpdate(req.user.id, {
-        firstName: linkedinData.firstName,
-        lastName: linkedinData.lastName
-      });
-    }
-
-    if (linkedinData.headline) profile.title = linkedinData.headline;
-    if (linkedinData.summary) profile.summary = linkedinData.summary;
-    if (linkedinData.location) profile.location = linkedinData.location;
-    if (linkedinData.profilePicture) profile.profilePhoto = linkedinData.profilePicture;
-    
-    // Import skills
-    if (linkedinData.skills && linkedinData.skills.length > 0) {
-      profile.skills = [...new Set([...profile.skills, ...linkedinData.skills])];
-    }
-
-    // Import experience
-    if (linkedinData.experience && linkedinData.experience.length > 0) {
-      profile.experience = linkedinData.experience.map(exp => ({
-        title: exp.title,
-        company: exp.company,
-        location: exp.location,
-        startDate: new Date(exp.startDate),
-        endDate: exp.endDate ? new Date(exp.endDate) : null,
-        current: exp.current || false,
-        description: exp.description
-      }));
-    }
-
-    // Import education
-    if (linkedinData.education && linkedinData.education.length > 0) {
-      profile.education = linkedinData.education.map(edu => ({
-        degree: edu.degree,
-        school: edu.school,
-        location: edu.location,
-        startDate: new Date(edu.startDate),
-        endDate: edu.endDate ? new Date(edu.endDate) : null,
-        description: edu.description
-      }));
-    }
-
-    // Set LinkedIn import data
-    profile.linkedinData = {
-      imported: true,
-      importDate: new Date(),
-      profileId: linkedinData.id
-    };
-
-    // Set social links
-    if (!profile.socialLinks) profile.socialLinks = {};
-    profile.socialLinks.linkedin = linkedinData.publicProfileUrl;
-
-    // Calculate completion percentage
-    profile.calculateCompletion();
-    
-    await profile.save();
-    await profile.populate('user', 'firstName lastName email username');
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { selectedTemplate },
+      { new: true }
+    );
 
     res.json({
       success: true,
-      message: 'LinkedIn profile imported successfully',
-      profile
+      message: 'Template selection updated',
+      selectedTemplate: user.selectedTemplate
     });
   } catch (error) {
-    console.error('LinkedIn import error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to import LinkedIn profile',
+      message: 'Failed to update template selection',
       error: error.message
     });
   }
@@ -265,5 +187,5 @@ module.exports = {
   getMyProfile,
   updateProfile,
   uploadProfilePhoto,
-  importLinkedInProfile
+  updateUserTemplate
 };

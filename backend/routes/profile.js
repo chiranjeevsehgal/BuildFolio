@@ -5,7 +5,8 @@ const {
   getMyProfile,
   updateProfile,
   uploadProfilePhoto,
-  importLinkedInProfile
+  importLinkedInProfile,
+  updateUserTemplate
 } = require('../controllers/profileController');
 const auth = require('../middleware/auth');
 
@@ -58,6 +59,6 @@ const profileValidation = [
 router.get('/me', auth, getMyProfile);
 router.put('/me', auth, profileValidation, updateProfile);
 router.post('/photo', auth, upload.single('photo'), uploadProfilePhoto);
-router.post('/linkedin-import', auth, importLinkedInProfile);
+router.patch('/template', auth, updateUserTemplate);
 
 module.exports = router;

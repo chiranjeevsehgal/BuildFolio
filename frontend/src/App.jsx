@@ -8,6 +8,8 @@ import PortfolioDeployment from './pages/PortfolioDeployment';
 import ProfileDataCollection from './pages/ProfileDataCollection';
 import AuthSuccess from './pages/AuthSuccess';
 import ProtectedRoute from './auth/ProtectedRoute';
+import TemplatePreview from './pages/TemplatePreview';
+import TemplatePreview1 from './pages/TemplatePreview1';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
               <TemplateSelection />
             </ProtectedRoute>
           } />
+          <Route path="/preview/:templateId" element={<TemplatePreview />} />
+          <Route path="/preview1/:templateId" element={<TemplatePreview1 />} />
           {/* <Route path="/portfolio" element={<PortfolioDeployment />} /> */}
         </Routes>
       </BrowserRouter>

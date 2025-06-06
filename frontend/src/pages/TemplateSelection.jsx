@@ -1,91 +1,56 @@
-import React, { useState } from 'react';
+// TemplateSelection.jsx - Updated with real template data
+import React, { useState, useEffect } from 'react';
 import { Eye, ArrowRight, Palette, Monitor, Smartphone, Tablet, Check, Star, Zap, Heart, Grid, Layout, Code, Briefcase, User, Crown } from 'lucide-react';
+import axios from 'axios';
 
 const TemplateSelection = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [viewMode, setViewMode] = useState('desktop'); // 'desktop', 'tablet', 'mobile'
-  const [filterCategory, setFilterCategory] = useState('all'); // 'all', 'minimal', 'creative', 'professional', 'developer'
+  const [viewMode, setViewMode] = useState('desktop');
+  const [filterCategory, setFilterCategory] = useState('all');
   const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-//   Mock template data for now
-  const templates = [
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Real template data that will be fetched from DB
+  const templateData = [
     {
-      id: 'minimal-pro',
-      name: 'Minimal Professional',
-      category: 'minimal',
-      description: 'Clean, minimal design perfect for corporate professionals',
-      features: ['Clean Typography', 'Minimal Layout', 'Fast Loading', 'Mobile Responsive'],
-      preview: '/api/placeholder/400/300',
+      id: 'modern-professional',
+      name: 'Modern Professional',
+      category: 'professional',
+      description: 'Ultra-modern design with gradient backgrounds, animated elements, and glass-morphism effects. Perfect for showcasing professional experience and technical skills.',
+      features: [
+        'Animated Hero Section',
+        'Gradient Backgrounds', 
+        'Glass-morphism Effects',
+        'Interactive Skill Bars',
+        'Timeline Experience Layout',
+        'Project Showcase Cards',
+        'Responsive Design',
+        'Print-Ready Export'
+      ],
+      preview: '/templates/previews/modern-professional.jpg',
       isPremium: false,
       rating: 4.9,
       downloads: '12.5k',
-      colors: ['#2563eb', '#1e40af', '#3b82f6'],
-      tags: ['Corporate', 'Clean', 'Professional']
-    },
-    {
-      id: 'creative-showcase',
-      name: 'Creative Showcase',
-      category: 'creative',
-      description: 'Bold design for creative professionals and artists',
-      features: ['Visual Focus', 'Animation Effects', 'Portfolio Gallery', 'Custom Colors'],
-      preview: '/api/placeholder/400/300',
-      isPremium: true,
-      rating: 4.8,
-      downloads: '8.2k',
-      colors: ['#7c3aed', '#8b5cf6', '#a78bfa'],
-      tags: ['Creative', 'Visual', 'Modern']
-    },
-    {
-      id: 'developer-focus',
-      name: 'Developer Focus',
-      category: 'developer',
-      description: 'Technical design highlighting code projects and skills',
-      features: ['Code Syntax Highlighting', 'GitHub Integration', 'Project Showcase', 'Tech Stack Display'],
-      preview: '/api/placeholder/400/300',
-      isPremium: false,
-      rating: 4.9,
-      downloads: '15.7k',
-      colors: ['#059669', '#10b981', '#34d399'],
-      tags: ['Developer', 'Technical', 'GitHub']
-    },
-    {
-      id: 'business-executive',
-      name: 'Business Executive',
-      category: 'professional',
-      description: 'Sophisticated design for executives and business leaders',
-      features: ['Executive Summary', 'Achievement Focus', 'Professional Network', 'Industry Insights'],
-      preview: '/api/placeholder/400/300',
-      isPremium: true,
-      rating: 4.7,
-      downloads: '6.3k',
-      colors: ['#1f2937', '#374151', '#4b5563'],
-      tags: ['Executive', 'Business', 'Leadership']
-    },
-    {
-      id: 'modern-grid',
-      name: 'Modern Grid',
-      category: 'creative',
-      description: 'Contemporary grid-based layout with visual impact',
-      features: ['Grid Layout', 'Visual Hierarchy', 'Interactive Elements', 'Smooth Animations'],
-      preview: '/api/placeholder/400/300',
-      isPremium: false,
-      rating: 4.6,
-      downloads: '9.8k',
-      colors: ['#dc2626', '#ef4444', '#f87171'],
-      tags: ['Modern', 'Grid', 'Interactive']
-    },
-    {
-      id: 'elegant-timeline',
-      name: 'Elegant Timeline',
-      category: 'professional',
-      description: 'Timeline-based design showcasing career progression',
-      features: ['Timeline Layout', 'Career Journey', 'Milestone Highlights', 'Professional Story'],
-      preview: '/api/placeholder/400/300',
-      isPremium: true,
-      rating: 4.8,
-      downloads: '7.1k',
-      colors: ['#0891b2', '#06b6d4', '#22d3ee'],
-      tags: ['Timeline', 'Story', 'Career']
+      colors: ['#3b82f6', '#8b5cf6', '#06b6d4'],
+      tags: ['Modern', 'Professional', 'Animated', 'Glass-morphism'],
+      sections: [
+        'Hero with Contact Info',
+        'Skills & Expertise',
+        'Professional Experience',
+        'Featured Projects', 
+        'Education',
+        'Contact Footer'
+      ],
+      responsive: true,
+      loadTime: 'Fast',
+      customizable: true,
+      exportFormats: ['HTML', 'PDF'],
+      technologies: ['React', 'Tailwind CSS', 'Lucide Icons'],
+      demoUrl: '/preview/modern-professional',
+      componentPath: 'templates/ModernTemplate'
     }
   ];
 
@@ -97,35 +62,89 @@ const TemplateSelection = () => {
     { id: 'developer', name: 'Developer', icon: Code }
   ];
 
+  useEffect(() => {
+    // Set up axios defaults
+    axios.defaults.baseURL = API_BASE_URL;
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+
+    loadTemplates();
+  }, [API_BASE_URL]);
+
+  const loadTemplates = async () => {
+    try {
+      setLoading(true);
+      
+      // For now, use local data. Later this will be:
+      // const response = await axios.get('/api/templates');
+      // setTemplates(response.data.templates);
+      
+      // Simulate API call
+      setTimeout(() => {
+        setTemplates(templateData);
+        setLoading(false);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Failed to load templates:', error);
+      setLoading(false);
+    }
+  };
+
   const filteredTemplates = filterCategory === 'all' 
     ? templates 
     : templates.filter(template => template.category === filterCategory);
 
-  const handleTemplateSelect = (template) => {
+  const handleTemplateSelect = async (template) => {
     setSelectedTemplate(template.id);
+    
+    // Save selection to backend
+    try {
+      await axios.patch('/api/user/template', {
+        selectedTemplate: template.id
+      });
+    } catch (error) {
+      console.error('Failed to save template selection:', error);
+    }
   };
 
-  // Backend integration to generate preview with user data
   const handlePreview = (template) => {
     setPreviewTemplate(template);
-    console.log('Preview template:', template.id);
+    // Open preview in new window/modal
+    window.open(`/preview/${template.id}`, '_blank', 'width=1200,height=800');
   };
 
-  // Backend integration to save template selection and proceed
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedTemplate) {
-      console.log('Selected template:', selectedTemplate);
+      try {
+        // Update user's template selection and mark profile as ready for deployment
+        await axios.patch('/api/user/template/confirm', {
+          selectedTemplate,
+          readyForDeployment: true
+        });
+        
+        // Navigate to portfolio deployment page
+        window.location.href = '/portfolio';
+      } catch (error) {
+        console.error('Failed to confirm template selection:', error);
+      }
     }
   };
 
-  const getViewModeIcon = () => {
-    switch (viewMode) {
-      case 'desktop': return <Monitor className="w-5 h-5" />;
-      case 'tablet': return <Tablet className="w-5 h-5" />;
-      case 'mobile': return <Smartphone className="w-5 h-5" />;
-      default: return <Monitor className="w-5 h-5" />;
-    }
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading templates...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -188,7 +207,7 @@ const TemplateSelection = () => {
         </div>
 
         {/* Template Grid */}
-        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+        <div className="grid lg:grid-cols-1 xl:grid-cols-1 gap-8 mb-12">
           {filteredTemplates.map((template) => (
             <div
               key={template.id}
@@ -199,125 +218,178 @@ const TemplateSelection = () => {
               }`}
             >
               {/* Template Preview */}
-              <div className="relative">
-                <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 rounded-t-2xl overflow-hidden">
-                  {/* Simulated template preview */}
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                        <Layout className="w-8 h-8 text-white" />
+              <div className="lg:flex">
+                <div className="lg:w-1/2">
+                  <div className="aspect-[4/3] lg:aspect-[3/2] bg-gradient-to-br from-slate-100 to-slate-200 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none overflow-hidden relative">
+                    {/* Enhanced template preview */}
+                    <div className="w-full h-full flex items-center justify-center p-8">
+                      <div className="text-center">
+                        <div className="w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+                          <Layout className="w-10 h-10 text-white" />
+                        </div>
+                        <h3 className="font-bold text-xl text-slate-800 mb-3">{template.name}</h3>
+                        <div className="flex justify-center space-x-2 mb-4">
+                          {template.colors.map((color, index) => (
+                            <div
+                              key={index}
+                              className="w-4 h-4 rounded-full shadow-sm"
+                              style={{ backgroundColor: color }}
+                            ></div>
+                          ))}
+                        </div>
+                        <div className="text-sm text-slate-600 space-y-1">
+                          <div className="flex items-center justify-center">
+                            <Monitor className="w-4 h-4 mr-1" />
+                            {template.responsive ? 'Fully Responsive' : 'Desktop Only'}
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <Zap className="w-4 h-4 mr-1" />
+                            {template.loadTime} Loading
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-slate-700">{template.name}</h3>
-                      <div className="flex justify-center space-x-1 mt-2">
-                        {template.colors.map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: color }}
-                          ></div>
-                        ))}
+                    </div>
+
+                    {/* Premium Badge */}
+                    {template.isPremium && (
+                      <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                        <Crown className="w-4 h-4 mr-1" />
+                        Premium
                       </div>
+                    )}
+
+                    {/* Quick Actions */}
+                    <div className="absolute top-4 left-4 flex space-x-2">
+                      <button
+                        onClick={() => handlePreview(template)}
+                        className="bg-white/90 backdrop-blur-sm text-slate-700 p-2 rounded-lg hover:bg-white transition-all duration-200 shadow-sm"
+                        title="Preview Template"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Premium Badge */}
-                {template.isPremium && (
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                    <Crown className="w-4 h-4 mr-1" />
-                    Premium
-                  </div>
-                )}
-
-                {/* Quick Actions */}
-                <div className="absolute top-4 left-4 flex space-x-2">
-                  <button
-                    onClick={() => handlePreview(template)}
-                    className="bg-white/90 backdrop-blur-sm text-slate-700 p-2 rounded-lg hover:bg-white transition-all duration-200 shadow-sm"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Template Info */}
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-1">{template.name}</h3>
-                    <div className="flex items-center space-x-4 text-sm text-slate-500">
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 mr-1" />
-                        {template.rating}
-                      </div>
-                      <div className="flex items-center">
-                        <Zap className="w-4 h-4 text-blue-500 mr-1" />
-                        {template.downloads}
+                {/* Template Info */}
+                <div className="lg:w-1/2 p-8">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-2">{template.name}</h3>
+                      <div className="flex items-center space-x-4 text-sm text-slate-500 mb-3">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                          {template.rating}
+                        </div>
+                        <div className="flex items-center">
+                          <Zap className="w-4 h-4 text-blue-500 mr-1" />
+                          {template.downloads} downloads
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <p className="text-slate-600 mb-4 text-sm leading-relaxed">
-                  {template.description}
-                </p>
+                  <p className="text-slate-600 mb-6 leading-relaxed">
+                    {template.description}
+                  </p>
 
-                {/* Features */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Key Features</h4>
-                  <div className="grid grid-cols-2 gap-1">
-                    {template.features.map((feature, index) => (
-                      <div key={index} className="flex items-center text-xs text-slate-600">
-                        <Check className="w-3 h-3 text-green-500 mr-1 flex-shrink-0" />
-                        {feature}
-                      </div>
+                  {/* Sections Included */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Template Sections</h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      {template.sections.map((section, index) => (
+                        <div key={index} className="flex items-center text-sm text-slate-600">
+                          <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+                          {section}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Key Features */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Key Features</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {template.features.slice(0, 6).map((feature, index) => (
+                        <div key={index} className="flex items-center text-sm text-slate-600">
+                          <Check className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+                          {feature}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {template.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"
+                      >
+                        {tag}
+                      </span>
                     ))}
                   </div>
-                </div>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {template.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md"
+                  {/* Action Buttons */}
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleTemplateSelect(template)}
+                      className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
+                        selectedTemplate === template.id
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
                     >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                      {selectedTemplate === template.id ? (
+                        <div className="flex items-center justify-center">
+                          <Check className="w-5 h-5 mr-2" />
+                          Selected
+                        </div>
+                      ) : (
+                        'Select Template'
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={() => handlePreview(template)}
+                      className="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all duration-200 font-semibold"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                  </div>
 
-                {/* Selection Button */}
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleTemplateSelect(template)}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                      selectedTemplate === template.id
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {selectedTemplate === template.id ? (
-                      <div className="flex items-center justify-center">
-                        <Check className="w-4 h-4 mr-2" />
-                        Selected
+                  {/* Technical Details */}
+                  <div className="mt-6 pt-6 border-t border-slate-200">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-slate-500">Export Formats:</span>
+                        <div className="font-medium text-slate-700">
+                          {template.exportFormats.join(', ')}
+                        </div>
                       </div>
-                    ) : (
-                      'Select Template'
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={() => handlePreview(template)}
-                    className="px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
+                      <div>
+                        <span className="text-slate-500">Customizable:</span>
+                        <div className="font-medium text-slate-700">
+                          {template.customizable ? 'Yes' : 'No'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* No Templates Found */}
+        {filteredTemplates.length === 0 && (
+          <div className="text-center py-12">
+            <Layout className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-slate-600 mb-2">No templates found</h3>
+            <p className="text-slate-500">Try adjusting your filters to see more templates.</p>
+          </div>
+        )}
 
         {/* Selected Template Info */}
         {selectedTemplate && (
@@ -350,7 +422,6 @@ const TemplateSelection = () => {
             <ArrowRight className="ml-2 w-5 h-5" />
           </button>
         </div>
-
       </div>
     </div>
   );
