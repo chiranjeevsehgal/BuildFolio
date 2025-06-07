@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, ArrowRight, Palette, Monitor, Smartphone, Tablet, Check, Star, Zap, Heart, Grid, Layout, Code, Briefcase, User, Crown, AlertCircle, Edit3 } from 'lucide-react';
 import axios from 'axios';
+import Navbar from '../components/Navbar';
 
 const TemplateSelection = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -218,6 +219,9 @@ const TemplateSelection = () => {
   }
 
   return (
+        <>
+      <Navbar />
+
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -553,6 +557,7 @@ const TemplateSelection = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
