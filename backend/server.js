@@ -57,7 +57,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profiles', require('./routes/profile'));
-// app.use('/api/portfolios', require('./routes/portfolio'));
+app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/templates', require('./routes/template'));
 
 // Global error handler

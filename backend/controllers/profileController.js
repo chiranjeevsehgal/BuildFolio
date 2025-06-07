@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const cloudinary = require('../config/cloudinary');
 const linkedinService = require('../utils/linkedin');
+const PortfolioDeployment = require('../models/PortfolioDeployment');
 
 // @desc    Get user profile
 // @route   GET /api/profiles/me
@@ -163,19 +164,79 @@ const updateUserTemplate = async (req, res) => {
     const { selectedTemplate } = req.body;
     const userId = req.user.id;
 
+    console.log('Updating template for user:', userId);
+    console.log('New template:', selectedTemplate);
+
+    if (!selectedTemplate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Template selection is required'
+      });
+    }
+
+    // Get current user to check if template is actually changing
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const isTemplateChanging = currentUser.selectedTemplate !== selectedTemplate;
+    const wasDeployed = currentUser.portfolioDeployed;
+    
+    // Update data object
+    const updateData = { selectedTemplate };
+    
+    // If template is changing and user had a deployed portfolio, reset deployment
+    if (isTemplateChanging && wasDeployed) {
+      console.log('Template changed, resetting deployment status');
+      updateData.portfolioDeployed = false;
+      updateData.portfolioUrl = null;
+      updateData.deployedAt = null;
+      
+      // Also deactivate the portfolio deployment record if it exists
+      try {
+        await PortfolioDeployment.findOneAndUpdate(
+          { userId },
+          { 
+            isActive: false,
+            templateId: selectedTemplate, // Update to new template
+            updatedAt: new Date()
+          }
+        );
+      } catch (deploymentError) {
+        console.log('No existing deployment record to update');
+      }
+    }
+
+    // Update user record
     const user = await User.findByIdAndUpdate(
       userId,
-      { selectedTemplate },
-      { new: true }
+      updateData,
+      { new: true, runValidators: true }
     );
-    console.log(user);
+
+    console.log('Updated user:', user);
     
+    const responseMessage = isTemplateChanging && wasDeployed
+      ? 'Template updated! Your portfolio needs to be redeployed with the new design.'
+      : 'Template selection updated';
+
     res.json({
       success: true,
-      message: 'Template selection updated',
-      selectedTemplate: user.selectedTemplate
+      message: responseMessage,
+      selectedTemplate: user.selectedTemplate,
+      data: {
+        selectedTemplate: user.selectedTemplate,
+        portfolioDeployed: user.portfolioDeployed,
+        needsRedeployment: isTemplateChanging && wasDeployed
+      }
     });
+
   } catch (error) {
+    console.error('Update template error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update template selection',

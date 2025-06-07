@@ -62,7 +62,6 @@ const TemplateSelection = () => {
       // Handle templates response
       if (templatesResponse.data.success) {
         setTemplates(templatesResponse.data.data);
-        console.log('Loaded templates:', templatesResponse.data.data);
       } else {
         throw new Error(templatesResponse.data.message || 'Failed to load templates');
       }
@@ -70,13 +69,10 @@ const TemplateSelection = () => {
       // Handle user response and set selected template (without showing message)
       if (userResponse.data.success && userResponse.data.user) {
         const user = userResponse.data.user;
-        console.log(user);
         
         if (user.selectedTemplate) {
           setSelectedTemplate(user.selectedTemplate);
           setUserSelectedTemplate(user.selectedTemplate);
-          console.log('User already has selected template:', user.selectedTemplate);
-          // Removed the message display for better UX
         }
       }
 
@@ -89,7 +85,6 @@ const TemplateSelection = () => {
           const templatesResponse = await axios.get('/templates');
           if (templatesResponse.data.success) {
             setTemplates(templatesResponse.data.data);
-            console.log('Loaded templates (fallback):', templatesResponse.data.data);
           }
         } catch (templateError) {
           console.error('Failed to load templates:', templateError);
@@ -135,7 +130,6 @@ const TemplateSelection = () => {
           type: 'success',
           content: 'Template selected and saved successfully!'
         });
-        console.log('Template saved successfully:', templateId);
       } else {
         throw new Error(response.data.message || 'Failed to save template');
       }

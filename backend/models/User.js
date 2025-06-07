@@ -33,13 +33,13 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
+    required: function () {
       return !this.oauthProvider;
     },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
-  
+
   // OAuth Info
   oauthProvider: {
     type: String,
@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  
+
   // Profile Data
   profilePhoto: {
     type: String,
@@ -93,14 +93,17 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
-  
+  portfolioDeployed: { type: Boolean, default: false },
+  portfolioUrl: String,
+  deployedAt: Date,
+
   // Subscription
   subscriptionType: {
     type: String,
     enum: ['free', 'premium'],
     default: 'free'
   },
-  
+
   // Tokens
   emailVerificationToken: String,
   passwordResetToken: String,
@@ -110,9 +113,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Password hashing middleware
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -123,12 +126,12 @@ userSchema.pre('save', async function(next) {
 });
 
 // Password comparison method
-userSchema.methods.matchPassword = async function(enteredPassword) {
+userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Generate full name
-userSchema.virtual('fullName').get(function() {
+userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 

@@ -157,7 +157,10 @@ const getMe = async (req, res) => {
         isEmailVerified: user.isEmailVerified,
         profilePhoto: user.profilePhoto,
         title: user.title,
-        bio: user.bio
+        bio: user.bio,
+         portfolioDeployed: user.portfolioDeployed,
+        portfolioUrl: user.portfolioUrl,
+        deployedAt: user.deployedAt
       }
     });
   } catch (error) {

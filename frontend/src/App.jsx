@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import UsernameOnboarding from './pages/UsernameOnboarding';
@@ -10,6 +10,7 @@ import AuthSuccess from './pages/AuthSuccess';
 import ProtectedRoute from './auth/ProtectedRoute';
 import TemplatePreview from './pages/TemplatePreview';
 import TemplatePreview1 from './pages/TemplatePreview1';
+import PublicPortfolio from './pages/PublicPortfolio';
 
 function App() {
   return (
@@ -31,7 +32,12 @@ function App() {
           } />
           <Route path="/preview/:templateId" element={<TemplatePreview />} />
           <Route path="/preview1/:templateId" element={<TemplatePreview1 />} />
-          {/* <Route path="/portfolio" element={<PortfolioDeployment />} /> */}
+
+          <Route path="/portfolio" element={<PortfolioDeployment />} />
+          <Route path="/portfolio/:username" element={<PublicPortfolio />} />
+
+          {/* Catch all route for 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </>
