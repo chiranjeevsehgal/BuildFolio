@@ -1,0 +1,149 @@
+// templates/TemplateRegistry.js - Central registry for template ID to component mapping
+import ModernTemplate from './ModernTemplate';
+import MinimalTemplate from './MinimalTemplate';
+import CreativeTemplate from './CreativeTemplate';
+import DeveloperTemplate from './DeveloperTemplate';
+import ExecutiveTemplate from './ExecutiveTemplate';
+
+/**
+ * Template Registry - Maps template IDs from database to React components
+ * 
+ * Structure:
+ * templateId (from database) -> React Component
+ * 
+ * When adding new templates:
+ * 1. Create the template JSX file in /templates/ folder
+ * 2. Import it at the top of this file
+ * 3. Add mapping entry below with the exact templateId from database
+ * 4. Add the template data to your database with the same templateId
+ */
+const TEMPLATE_REGISTRY = {
+  // Modern Professional Template
+  'modern-professional': {
+    component: ModernTemplate,
+    name: 'Modern Professional',
+    category: 'modern',
+    description: 'Ultra-modern design with gradient backgrounds and animations'
+  },
+  
+  // Minimal Clean Template
+  'minimal-clean': {
+    component: MinimalTemplate,
+    name: 'Minimal Clean',
+    category: 'minimal', 
+    description: 'Clean and minimal design focusing on typography and white space'
+  },
+  
+  // Creative Portfolio Template
+  'creative-portfolio': {
+    component: CreativeTemplate,
+    name: 'Creative Portfolio',
+    category: 'creative',
+    description: 'Bold and vibrant design with creative layouts and animations'
+  },
+  
+  // Developer Focused Template
+  'developer-focused': {
+    component: DeveloperTemplate,
+    name: 'Developer Focused',
+    category: 'developer',
+    description: 'Technical design highlighting code projects and GitHub integration'
+  },
+  
+  // Executive Suite Template
+  'executive-suite': {
+    component: ExecutiveTemplate,
+    name: 'Executive Suite',
+    category: 'executive',
+    description: 'Sophisticated design for executives and business leaders'
+  }
+};
+
+/**
+ * Get template component and metadata by template ID
+ * @param {string} templateId - The template ID from database
+ * @returns {Object|null} Template object with component and metadata, or null if not found
+ */
+export const getTemplateComponent = (templateId) => {
+  if (!templateId) {
+    console.error('Template ID is required');
+    return null;
+  }
+  
+  const template = TEMPLATE_REGISTRY[templateId];
+  
+  if (!template) {
+    console.error(`Template not found for ID: ${templateId}`);
+    console.log('Available template IDs:', Object.keys(TEMPLATE_REGISTRY));
+    return null;
+  }
+  
+  return template;
+};
+
+/**
+ * Get all available templates
+ * @returns {Array} Array of template objects with IDs
+ */
+export const getAllTemplates = () => {
+  return Object.keys(TEMPLATE_REGISTRY).map(id => ({
+    id,
+    ...TEMPLATE_REGISTRY[id]
+  }));
+};
+
+/**
+ * Check if a template ID exists in the registry
+ * @param {string} templateId - The template ID to check
+ * @returns {boolean} True if template exists, false otherwise
+ */
+export const isValidTemplateId = (templateId) => {
+  return templateId && TEMPLATE_REGISTRY.hasOwnProperty(templateId);
+};
+
+/**
+ * Get templates by category
+ * @param {string} category - The category to filter by
+ * @returns {Array} Array of templates in the specified category
+ */
+export const getTemplatesByCategory = (category) => {
+  return Object.entries(TEMPLATE_REGISTRY)
+    .filter(([_, template]) => template.category === category)
+    .map(([id, template]) => ({ id, ...template }));
+};
+
+/**
+ * Template loading with error handling
+ * @param {string} templateId - The template ID to load
+ * @returns {Promise<Object>} Promise that resolves to template object or throws error
+ */
+export const loadTemplate = async (templateId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const template = getTemplateComponent(templateId);
+      
+      if (!template) {
+        reject(new Error(`Template "${templateId}" not found in registry`));
+        return;
+      }
+      
+      // Simulate async loading (useful for future dynamic imports)
+      setTimeout(() => {
+        resolve(template);
+      }, 100);
+      
+    } catch (error) {
+      reject(new Error(`Failed to load template: ${error.message}`));
+    }
+  });
+};
+
+// Export the registry for debugging purposes (only in development)
+export const getRegistry = () => {
+  if (process.env.NODE_ENV === 'development') {
+    return TEMPLATE_REGISTRY;
+  }
+  return null;
+};
+
+export default TEMPLATE_REGISTRY;

@@ -168,7 +168,8 @@ const updateUserTemplate = async (req, res) => {
       { selectedTemplate },
       { new: true }
     );
-
+    console.log(user);
+    
     res.json({
       success: true,
       message: 'Template selection updated',

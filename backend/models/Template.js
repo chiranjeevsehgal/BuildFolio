@@ -1,42 +1,66 @@
+// models/Template.js - MongoDB Schema for Templates
+const mongoose = require('mongoose');
+
 const templateSchema = new mongoose.Schema({
-  id: {
+  templateId: {
     type: String,
-    required: true,
-    unique: true
+    required: [true, 'Template ID is required'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [/^[a-z0-9-]+$/, 'Template ID can only contain lowercase letters, numbers, and hyphens']
   },
   name: {
     type: String,
-    required: true
-  },
-  category: {
-    type: String,
-    enum: ['minimal', 'creative', 'professional', 'developer'],
-    required: true
+    required: [true, 'Template name is required'],
+    trim: true,
+    maxLength: [100, 'Template name cannot exceed 100 characters']
   },
   description: {
     type: String,
-    required: true
+    required: [true, 'Template description is required'],
+    maxLength: [500, 'Description cannot exceed 500 characters']
   },
-  features: [String],
-  sections: [String],
-  preview: String, // URL to preview image
+  category: {
+    type: String,
+    required: [true, 'Template category is required'],
+    enum: {
+      values: ['minimal', 'creative', 'professional', 'developer', 'executive', 'modern'],
+      message: 'Invalid template category'
+    }
+  },
+  features: [{
+    type: String,
+    required: true,
+    trim: true
+  }],
+  sections: [{
+    type: String,
+    required: true,
+    trim: true
+  }],
   isPremium: {
     type: Boolean,
     default: false
   },
-  rating: {
-    type: Number,
-    min: 0,
-    max: 5,
-    default: 0
+  featured: {
+    type: Boolean,
+    default: false
   },
-  downloads: {
+  colors: [{
     type: String,
-    default: '0'
-  },
-  colors: [String], // Hex color codes
-  tags: [String],
-  componentPath: String, // Path to React component
+    validate: {
+      validator: function (v) {
+        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(v);
+      },
+      message: 'Color must be a valid hex color code'
+    }
+  }],
+  tags: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -45,6 +69,15 @@ const templateSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-const Template = mongoose.model('Template', templateSchema);
+// Index for better query performance
+templateSchema.index({ category: 1, featured: -1 });
+templateSchema.index({ templateId: 1 });
+templateSchema.index({ tags: 1 });
+
+module.exports = mongoose.model('Template', templateSchema);

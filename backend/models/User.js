@@ -71,7 +71,11 @@ const userSchema = new mongoose.Schema({
     maxlength: [500, 'Bio cannot exceed 500 characters'],
     default: null
   },
-  
+  selectedTemplate: {
+    type: String,
+    enum: ['modern-professional', 'minimal-clean', 'creative-portfolio', 'developer-focused', 'executive-suite'],
+    default: null
+  },
   // Account Status
   isProfileCompleted: {
     type: Boolean,
