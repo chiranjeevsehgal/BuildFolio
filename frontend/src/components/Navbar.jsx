@@ -17,19 +17,41 @@ import {
   Zap,
   ExternalLink
 } from 'lucide-react';
+import axios from 'axios';
 
-const Navbar = () => {
+const Navbar = ({current}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    profilePhoto: null,
-    selectedTemplate: 'creative-portfolio',
-    portfolioDeployed: true,
-    portfolioUrl: 'https://mysite.com/johndoe'
-  });
+  const [currentUser, setCurrentUser] = useState();
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Set up axios defaults
+  useEffect(() => {
+    axios.defaults.baseURL = API_BASE_URL;
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    getUserData()
+  }, []);
+
+  const getUserData = async () => {
+    try {
+      const response = await axios.get('/auth/profile');
+      
+      if (response.data.success && response.data.user) {
+        const user = response.data.user;
+        setCurrentUser(user);
+        console.log(user);
+        
+      } else {
+        throw new Error('Failed to load user data');
+      }
+    } catch (error) {
+      console.error('Error response:', error.response?.data);
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -43,15 +65,14 @@ const Navbar = () => {
   }, []);
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, current: false },
-    { name: 'Profile', href: '/profile', icon: User, current: false },
-    { name: 'Templates', href: '/templates', icon: Palette, current: true },
-    { name: 'Portfolio', href: '/portfolio', icon: Globe, current: false },
+    { name: 'Dashboard', href: '/dashboard', icon: Home, current: current === '/dashboard'  },
+    { name: 'Templates', href: '/templates', icon: Palette, current: current === '/templates'  },
+    { name: 'Portfolio', href: '/portfolio', icon: Globe, current: current === '/portfolio'  },
   ];
 
   const userNavigation = [
     { name: 'Edit Profile', href: '/profile', icon: Edit3 },
-    { name: 'View Portfolio', href: currentUser.portfolioUrl, icon: Eye, external: true },
+    { name: 'View Portfolio', href: currentUser?.portfolioUrl, icon: Eye, external: true },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Sign out', href: '/logout', icon: LogOut },
   ];
@@ -104,19 +125,15 @@ const Navbar = () => {
           {/* Right side - User menu and actions */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
             {/* Portfolio Status */}
-            {currentUser.portfolioDeployed && (
+            {currentUser?.portfolioDeployed && (
               <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Live</span>
+                <span>Portfolio is Live</span>
               </div>
             )}
 
-            {/* Notifications */}
-            <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-              <Bell className="w-5 h-5" />
-            </button>
-
             {/* Quick Deploy Button */}
+            {!currentUser?.portfolioDeployed && (
             <a
               href="/portfolio"
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-medium text-sm flex items-center space-x-2"
@@ -124,6 +141,7 @@ const Navbar = () => {
               <Globe className="w-4 h-4" />
               <span>Deploy</span>
             </a>
+            )}
 
             {/* Profile dropdown */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -132,24 +150,22 @@ const Navbar = () => {
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  {currentUser.profilePhoto ? (
+                  {currentUser?.profilePhoto ? (
                     <img
-                      src={currentUser.profilePhoto}
-                      alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                      src={currentUser?.profilePhoto}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="text-white text-sm font-medium">
-                      {currentUser.firstName[0]}{currentUser.lastName[0]}
-                    </span>
+                      <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
+
                   )}
                 </div>
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium text-slate-900">
-                    {currentUser.firstName} {currentUser.lastName}
+                    {currentUser?.firstName} {currentUser?.lastName}
                   </p>
                   <p className="text-xs text-slate-500 truncate max-w-32">
-                    {currentUser.email}
+                    {currentUser?.email}
                   </p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
@@ -162,26 +178,24 @@ const Navbar = () => {
                   <div className="px-4 py-3 border-b border-slate-100">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        {currentUser.profilePhoto ? (
+                        {currentUser?.profilePhoto ? (
                           <img
-                            src={currentUser.profilePhoto}
-                            alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                            src={currentUser?.profilePhoto}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <span className="text-white font-medium">
-                            {currentUser.firstName[0]}{currentUser.lastName[0]}
-                          </span>
+                            <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
+
                         )}
                       </div>
                       <div>
                         <p className="font-medium text-slate-900">
-                          {currentUser.firstName} {currentUser.lastName}
+                          {currentUser?.firstName} {currentUser?.lastName}
                         </p>
-                        <p className="text-sm text-slate-500">{currentUser.email}</p>
-                        {currentUser.selectedTemplate && (
+                        <p className="text-sm text-slate-500">{currentUser?.email}</p>
+                        {currentUser?.selectedTemplate && (
                           <p className="text-xs text-blue-600 font-medium mt-1">
-                            {currentUser.selectedTemplate.replace('-', ' ')}
+                            {currentUser?.selectedTemplate.replace('-', ' ')}
                           </p>
                         )}
                       </div>
@@ -256,16 +270,14 @@ const Navbar = () => {
           <div className="pt-4 pb-3 border-t border-slate-200">
             <div className="flex items-center px-4 space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                {currentUser.profilePhoto ? (
+                {currentUser?.profilePhoto ? (
                   <img
                     src={currentUser.profilePhoto}
-                    alt={`${currentUser.firstName} ${currentUser.lastName}`}
                     className="w-10 h-10 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-white font-medium">
-                    {currentUser.firstName[0]}{currentUser.lastName[0]}
-                  </span>
+                    <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
+
                 )}
               </div>
               <div>

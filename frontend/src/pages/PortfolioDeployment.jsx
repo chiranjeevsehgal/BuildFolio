@@ -6,6 +6,7 @@ import {
   Monitor, Tablet, Smartphone, RefreshCw
 } from 'lucide-react';
 import axios from 'axios';
+import Navbar from '../components/Navbar';
 
 const PortfolioDeployment = () => {
   const [deploymentStatus, setDeploymentStatus] = useState('checking');
@@ -263,6 +264,8 @@ const PortfolioDeployment = () => {
   };
 
   return (
+    <>
+      <Navbar current={"/portfolio"}/>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -490,6 +493,7 @@ const PortfolioDeployment = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
