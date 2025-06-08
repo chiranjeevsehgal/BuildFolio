@@ -18,11 +18,37 @@ import {
   ExternalLink
 } from 'lucide-react';
 import axios from 'axios';
+import FeedbackModal from './FeedbackModal';
 
 const Navbar = ({current}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState();
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "Portfolio Deployed Successfully",
+      message: "Your portfolio is now live and accessible to visitors",
+      time: "2 minutes ago",
+      read: false
+    },
+    {
+      id: 2,
+      title: "Template Updated",
+      message: "Your selected template has been updated with new features",
+      time: "1 hour ago",
+      read: false
+    },
+    {
+      id: 3,
+      title: "Profile Completed",
+      message: "Great! You've completed your profile setup",
+      time: "2 hours ago",
+      read: true
+    }
+  ]);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -58,16 +84,32 @@ const Navbar = ({current}) => {
     const handleClickOutside = () => {
       setIsProfileOpen(false);
       setIsMenuOpen(false);
+      setIsNotificationOpen(false);
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, current: current === '/dashboard'  },
-    { name: 'Templates', href: '/templates', icon: Palette, current: current === '/templates'  },
-    { name: 'Portfolio', href: '/portfolio', icon: Globe, current: current === '/portfolio'  },
+  const unreadCount = notifications.filter(notif => !notif.read).length;
+
+  const handleMarkAsRead = (id) => {
+    setNotifications(notifications.map(notif => 
+      notif.id === id ? { ...notif, read: true } : notif
+    ));
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+  };
+
+  const handleFeedbackClick = (e) => {
+    e.preventDefault();
+    setIsFeedbackModalOpen(true);
+  };
+
+  const leftNavigation = [
+    { name: 'Portfolio', href: '/portfolio', icon: Globe, current: current === '/portfolio' },
   ];
 
   const userNavigation = [
@@ -85,11 +127,12 @@ const Navbar = ({current}) => {
   return (
     <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Left side - Logo and Navigation */}
-          <div className="flex">
+        <div className="flex justify-between items-center h-16">
+          {/* Left side - Logo and Left Navigation */}
+          <div className="flex items-center space-x-8">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center">
+            <div className="flex-shrink-0">
+              <a href='/portfolio'>
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-white" />
@@ -98,11 +141,12 @@ const Navbar = ({current}) => {
                   PortfolioPro
                 </h1>
               </div>
+              </a>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden sm:ml-8 sm:flex sm:space-x-1">
-              {navigation.map((item) => {
+            {/* Left Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
+              {leftNavigation.map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <a
@@ -119,54 +163,137 @@ const Navbar = ({current}) => {
                   </a>
                 );
               })}
+
+              {/* Portfolio Status */}
+              {currentUser?.portfolioDeployed && (
+                <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>Portfolio is Live</span>
+                </div>
+              )}
             </div>
           </div>
+            
 
-          {/* Right side - User menu and actions */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-            {/* Portfolio Status */}
-            {currentUser?.portfolioDeployed && (
-              <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Portfolio is Live</span>
-              </div>
-            )}
-
-            {/* Quick Deploy Button */}
-            {!currentUser?.portfolioDeployed && (
+          {/* Right side - Actions and User menu */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Templates Link */}
             <a
-              href="/portfolio"
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-medium text-sm flex items-center space-x-2"
+              href="/templates"
+              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-slate-300 ${
+                current === '/templates'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
             >
-              <Globe className="w-4 h-4" />
-              <span>Deploy</span>
+              <Palette className="w-4 h-4 mr-2" />
+              Templates
             </a>
-            )}
+
+            {/* Feedback Link */}
+            <button
+              onClick={handleFeedbackClick}
+              className="text-slate-600 border-slate-300 border hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Feedback
+            </button>
+
+            {/* Notifications */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <button 
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notifications Dropdown */}
+              {isNotificationOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 py-2 max-h-96 overflow-y-auto">
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-900">Notifications</h3>
+                    {notifications.length > 0 && (
+                      <button 
+                        onClick={handleClearAll}
+                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="py-1">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center">
+                        <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                        <p className="text-slate-500 text-sm">No notifications</p>
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          onClick={() => handleMarkAsRead(notification.id)}
+                          className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${
+                            notification.read 
+                              ? 'border-transparent bg-white' 
+                              : 'border-blue-500 bg-blue-50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className={`text-sm font-medium ${
+                                notification.read ? 'text-slate-700' : 'text-slate-900'
+                              }`}>
+                                {notification.title}
+                              </p>
+                              <p className={`text-xs mt-1 ${
+                                notification.read ? 'text-slate-500' : 'text-slate-600'
+                              }`}>
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {notification.time}
+                              </p>
+                            </div>
+                            {!notification.read && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile dropdown */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                   {currentUser?.profilePhoto ? (
                     <img
                       src={currentUser?.profilePhoto}
                       className="w-8 h-8 rounded-full object-cover"
+                      alt="Profile"
                     />
                   ) : (
-                      <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
-
+                    <img 
+                      src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" 
+                      className="w-8 h-8 rounded-full object-cover"
+                      alt="Default Profile"
+                    />
                   )}
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-slate-900">
-                    {currentUser?.firstName} {currentUser?.lastName}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate max-w-32">
-                    {currentUser?.email}
-                  </p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -182,10 +309,14 @@ const Navbar = ({current}) => {
                           <img
                             src={currentUser?.profilePhoto}
                             className="w-10 h-10 rounded-full object-cover"
+                            alt="Profile"
                           />
                         ) : (
-                            <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
-
+                          <img 
+                            src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" 
+                            className="w-10 h-10 rounded-full object-cover"
+                            alt="Default Profile"
+                          />
                         )}
                       </div>
                       <div>
@@ -228,7 +359,7 @@ const Navbar = ({current}) => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="sm:hidden flex items-center">
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50"
@@ -245,26 +376,64 @@ const Navbar = ({current}) => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-slate-200">
+        <div className="md:hidden bg-white border-t border-slate-200">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navigation.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors ${
-                    item.current
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <IconComponent className="w-5 h-5 mr-3" />
-                  {item.name}
-                </a>
-              );
-            })}
+            {/* Portfolio Link */}
+            <a
+              href="/portfolio"
+              className={`flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+                current === '/portfolio'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Globe className="w-5 h-5 mr-3" />
+              Portfolio
+            </a>
+
+            {/* Templates Link */}
+            <a
+              href="/templates"
+              className={`flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+                current === '/templates'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Palette className="w-5 h-5 mr-3" />
+              Templates
+            </a>
+
+            {/* Feedback Link */}
+            <button
+              onClick={handleFeedbackClick}
+              className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+            >
+              <FileText className="w-5 h-5 mr-3" />
+              Feedback
+            </button>
+
+            {/* Notifications */}
+            <button className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full">
+              <Bell className="w-5 h-5 mr-3" />
+              Notifications
+              {unreadCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
           </div>
+
+          {/* Portfolio Status - Mobile */}
+          {currentUser?.portfolioDeployed && (
+            <div className="px-2 pb-2">
+              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Portfolio is Live</span>
+              </div>
+            </div>
+          )}
 
           {/* Mobile user section */}
           <div className="pt-4 pb-3 border-t border-slate-200">
@@ -274,17 +443,21 @@ const Navbar = ({current}) => {
                   <img
                     src={currentUser.profilePhoto}
                     className="w-10 h-10 rounded-full object-cover"
+                    alt="Profile"
                   />
                 ) : (
-                    <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" />
-
+                  <img 
+                    src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png" 
+                    className="w-10 h-10 rounded-full object-cover"
+                    alt="Default Profile"
+                  />
                 )}
               </div>
               <div>
                 <div className="text-base font-medium text-slate-900">
-                  {currentUser.firstName} {currentUser.lastName}
+                  {currentUser?.firstName} {currentUser?.lastName}
                 </div>
-                <div className="text-sm text-slate-500">{currentUser.email}</div>
+                <div className="text-sm text-slate-500">{currentUser?.email}</div>
               </div>
             </div>
             <div className="mt-3 space-y-1">
@@ -308,6 +481,14 @@ const Navbar = ({current}) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <FeedbackModal 
+          isOpen={isFeedbackModalOpen} 
+          onClose={() => setIsFeedbackModalOpen(false)} 
+        />
       )}
     </nav>
   );
