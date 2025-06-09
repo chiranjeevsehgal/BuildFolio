@@ -3,6 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const User = require('../models/User');
+const { sendWelcomeEmail } = require('../utils/emailService');
 
 // Serializing user
 passport.serializeUser((user, done) => {
@@ -27,12 +28,10 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ oauthId: profile.id, oauthProvider: 'google' });
-    
+
     if (user) {
       return done(null, user);
     }
-    console.log(profile);
-    
     // Check if email exists
     user = await User.findOne({ email: profile.emails[0].value });
     if (user) {
@@ -55,6 +54,22 @@ passport.use(new GoogleStrategy({
       isEmailVerified: true,
       // profilePhoto: profile.photos[0]?.value
     });
+
+    // Send welcome email
+    try {
+      const emailData = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt
+      };
+
+      // Send welcome email to user
+      await sendWelcomeEmail(emailData);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+    }
 
     done(null, user);
   } catch (error) {

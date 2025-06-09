@@ -11,8 +11,9 @@ const userSchema = new mongoose.Schema({
   },
   lastName: {
     type: String,
-    required: [true, 'Last name is required'],
+    required: false,
     trim: true,
+    default: null,
     maxlength: [50, 'Last name cannot exceed 50 characters']
   },
   email: {
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     minlength: [3, 'Username must be at least 3 characters'],
     maxlength: [30, 'Username cannot exceed 30 characters'],
-    match: [/^[a-z0-9-]+$/, 'Username can only contain letters, numbers, and hyphens'],
+    match: [/^[a-z0-9._-]+$/, 'Username can only contain letters, numbers, dots, underscores, and hyphens']
   },
   password: {
     type: String,

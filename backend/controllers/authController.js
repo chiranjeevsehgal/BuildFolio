@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { sendWelcomeEmail } = require('../utils/emailService');
 const generateToken = require('../utils/generateToken');
 const { validationResult } = require('express-validator');
 const passport = require('passport');
@@ -28,7 +29,7 @@ const register = async (req, res) => {
         message: 'User already exists with this email'
       });
     }
-    
+
     const existingUserName = await User.findOne({ username });
     if (existingUserName) {
       return res.status(400).json({
@@ -49,10 +50,27 @@ const register = async (req, res) => {
     // Generate token
     // const token = generateToken(user._id);
 
+    // Send welcome email
+    try {
+      const emailData = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt
+      };
+
+      // Send welcome email to user
+      await sendWelcomeEmail(emailData);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+    }
+
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-    //   token,
+      //   token,
       user: {
         // id: user._id,
         firstName: user.firstName,
@@ -143,7 +161,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    
+
     res.json({
       success: true,
       user: {
@@ -159,7 +177,7 @@ const getMe = async (req, res) => {
         profilePhoto: user.profilePhoto,
         title: user.title,
         bio: user.bio,
-         portfolioDeployed: user.portfolioDeployed,
+        portfolioDeployed: user.portfolioDeployed,
         portfolioUrl: user.portfolioUrl,
         deployedAt: user.deployedAt
       }
@@ -178,38 +196,38 @@ const getMe = async (req, res) => {
 // @route   PATCH /api/auth/profile/complete
 // @access  Private
 const markProfileCompleted = async (req, res) => {
-    try {
-        const { isProfileCompleted } = req.body;
-        
-        const user = await User.findByIdAndUpdate(
-            req.user.id,
-            { isProfileCompleted },
-            { new: true }
-        );
+  try {
+    const { isProfileCompleted } = req.body;
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { isProfileCompleted },
+      { new: true }
+    );
 
-        res.json({
-            success: true,
-            message: 'Profile completion status updated',
-            user: {
-                id: user._id,
-                isProfileCompleted: user.isProfileCompleted
-            }
-        });
-    } catch (error) {
-        console.error('Mark profile completed error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to update profile completion status',
-            error: error.message
-        });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
+
+    res.json({
+      success: true,
+      message: 'Profile completion status updated',
+      user: {
+        id: user._id,
+        isProfileCompleted: user.isProfileCompleted
+      }
+    });
+  } catch (error) {
+    console.error('Mark profile completed error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile completion status',
+      error: error.message
+    });
+  }
 };
 
 
@@ -217,7 +235,7 @@ const markProfileCompleted = async (req, res) => {
 const oauthSuccess = async (req, res) => {
   try {
     const token = generateToken(req.user._id);
-    
+
     // Redirect to frontend with token
     res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token}`);
   } catch (error) {

@@ -1,13 +1,21 @@
 import { useState } from "react";
 import {
     X,
-    ChevronDown
+    ChevronDown,
+    Send,
+    CheckCircle,
+    AlertCircle,
+    Loader2
 } from 'lucide-react';
+import axios from 'axios';
+import { useEffect } from "react";
 
 const FeedbackModal = ({ isOpen, onClose }) => {
     const [selectedTopic, setSelectedTopic] = useState('');
     const [feedback, setFeedback] = useState('');
     const [rating, setRating] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ type: '', content: '' });
 
     const topics = [
         'Bug Report',
@@ -18,17 +26,87 @@ const FeedbackModal = ({ isOpen, onClose }) => {
         'Other'
     ];
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // TODO: Add send logic here
-        console.log('Feedback submitted:', { selectedTopic, feedback, rating });
-        onClose();
-    };
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+    // Setting up axios defaults
+    useEffect(() => {
+        axios.defaults.baseURL = API_BASE_URL;
+        axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+    }, [API_BASE_URL]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage({ type: '', content: '' });
+
+        // Validate rating
+        if (rating === 0) {
+            setMessage({
+                type: 'error',
+                content: 'Please rate your experience before submitting.'
+            });
+            setLoading(false);
+            return
+        }
+
+        try {
+            let userData = null;
+            try {
+                const profileResponse = await axios.get('/auth/profile');
+                if (profileResponse.data.success && profileResponse.data.user) {
+                    userData = profileResponse.data.user;
+                }
+            } catch (profileError) {
+                console.warn('Failed to fetch user profile, sending anonymous feedback:', profileError);
+            }
+
+            // Prepare feedback data
+            const feedbackData = {
+                subject: selectedTopic,
+                message: feedback,
+                type: selectedTopic.toLowerCase().replace(/\s+/g, '-'),
+                rating: rating || null,
+                // Add user data if available
+                name: userData ? `${userData.firstName || ''} ${userData.lastName || ''}`.trim() : 'Anonymous',
+                email: userData?.email || 'Anonymous'
+            };
+
+            const response = await axios.post('/email/feedback', feedbackData);
+
+            if (response.data.success) {
+                setMessage({
+                    type: 'success',
+                    content: 'Feedback sent successfully!'
+                });
+
+                // Reset form and close after delay
+                setTimeout(() => {
+                    setSelectedTopic('');
+                    setFeedback('');
+                    setRating(0);
+                    setMessage({ type: '', content: '' });
+                    onClose();
+                }, 2000);
+            }
+
+        } catch (error) {
+            console.error('Feedback submission error:', error);
+            setMessage({
+                type: 'error',
+                content: error.response?.data?.message || 'Failed to send feedback. Please try again.'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
     if (!isOpen) return null;
 
     return (
-        // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
         <div className="fixed inset-0 bg-white/20 backdrop-blur-xl shadow-2xl shadow shadow-gray-800  flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
 
@@ -38,6 +116,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        disabled={loading}
                     >
                         <X className="w-5 h-5 text-slate-500" />
                     </button>
@@ -45,6 +124,21 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    {/* Message */}
+                    {message.content && (
+                        <div className={`p-3 rounded-lg flex items-center ${message.type === 'error'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                            }`}>
+                            {message.type === 'error' ? (
+                                <AlertCircle className="w-4 h-4 mr-2" />
+                            ) : (
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                            )}
+                            <span className="text-sm">{message.content}</span>
+                        </div>
+                    )}
+
                     {/* Topic Selection */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -56,6 +150,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                                 onChange={(e) => setSelectedTopic(e.target.value)}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-slate-700"
                                 required
+                                disabled={loading}
                             >
                                 <option value="">Select a topic...</option>
                                 {topics.map((topic) => (
@@ -80,6 +175,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                             rows={4}
                             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-slate-700"
                             required
+                            disabled={loading}
                         />
                     </div>
 
@@ -94,10 +190,11 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
+                                    disabled={loading}
                                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${star <= rating
-                                            ? 'bg-yellow-100 text-yellow-500'
-                                            : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                                        }`}
+                                        ? 'bg-green-200 text-yellow-500'
+                                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                                        } disabled:opacity-50`}
                                 >
                                     {star === 1 && '😞'}
                                     {star === 2 && '😕'}
@@ -107,14 +204,23 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                                 </button>
                             ))}
                         </div>
+                        
                     </div>
 
                     {/* Send Button */}
                     <button
                         type="submit"
-                        className="w-full bg-slate-900 text-white py-2.5 px-4 rounded-lg hover:bg-slate-800 transition-colors font-medium"
+                        disabled={loading}
+                        className="w-full bg-slate-900 text-white py-2.5 px-4 rounded-lg hover:bg-slate-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
-                        Send
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Sending...
+                            </>
+                        ) : (
+                            'Send'
+                        )}
                     </button>
                 </form>
             </div>

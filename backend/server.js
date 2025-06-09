@@ -60,6 +60,7 @@ app.use('/api/profiles', require('./routes/profile'));
 app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/templates', require('./routes/template'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/email', require('./routes/email'));
 
 // Admin routes
 app.use('/api/admin', require('./routes/admin'));
