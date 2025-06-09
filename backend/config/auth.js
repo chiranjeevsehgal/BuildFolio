@@ -53,7 +53,7 @@ passport.use(new GoogleStrategy({
       oauthProvider: 'google',
       oauthId: profile.id,
       isEmailVerified: true,
-      profilePhoto: profile.photos[0]?.value
+      // profilePhoto: profile.photos[0]?.value
     });
 
     done(null, user);

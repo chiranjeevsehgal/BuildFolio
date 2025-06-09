@@ -33,7 +33,7 @@ const Navbar = ({ current }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState();
-  
+
   // Real notification states
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -55,8 +55,8 @@ const Navbar = ({ current }) => {
 
   useEffect(() => {
     console.log(unreadCount);
-    
-  },[unreadCount])
+
+  }, [unreadCount])
 
   const getUserData = async () => {
     try {
@@ -79,17 +79,17 @@ const Navbar = ({ current }) => {
     try {
       setNotificationLoading(true);
       const response = await axios.get(`/notifications?page=${pageNum}&limit=10`);
-      
+
       if (response.data.success) {
         const newNotifications = response.data.data.notifications;
-        
+
         if (reset) {
           setNotifications(newNotifications);
         } else {
           setNotifications(prev => [...prev, ...newNotifications]);
         }
         console.log(response.data);
-        
+
         setUnreadCount(response.data.data.unreadCount);
         setHasMoreNotifications(response.data.data.pagination.hasNext);
       }
@@ -114,15 +114,15 @@ const Navbar = ({ current }) => {
   const markAsRead = async (notificationId) => {
     try {
       await axios.patch(`/notifications/${notificationId}/read`);
-      
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification._id === notificationId 
+
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification._id === notificationId
             ? { ...notification, isRead: true, readAt: new Date() }
             : notification
         )
       );
-      
+
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Failed to mark as read:', error);
@@ -132,15 +132,15 @@ const Navbar = ({ current }) => {
   const markAllAsRead = async () => {
     try {
       await axios.patch('/notifications/read-all');
-      
-      setNotifications(prev => 
-        prev.map(notification => ({ 
-          ...notification, 
-          isRead: true, 
-          readAt: new Date() 
+
+      setNotifications(prev =>
+        prev.map(notification => ({
+          ...notification,
+          isRead: true,
+          readAt: new Date()
         }))
       );
-      
+
       setUnreadCount(0);
     } catch (error) {
       console.error('Failed to mark all as read:', error);
@@ -165,7 +165,7 @@ const Navbar = ({ current }) => {
     const now = new Date();
     const notificationDate = new Date(date);
     const diffInMinutes = Math.floor((now - notificationDate) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
@@ -347,29 +347,27 @@ const Navbar = ({ current }) => {
                           <div
                             key={notification._id}
                             onClick={() => !notification.isRead && markAsRead(notification._id)}
-                            className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${
-                              notification.isRead
-                                ? 'border-transparent bg-white'
-                                : 'border-blue-500 bg-blue-50'
-                            }`}
+                            className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${notification.isRead
+                              ? 'border-transparent bg-white'
+                              : 'border-blue-500 bg-blue-50'
+                              }`}
                           >
                             <div className="flex items-start space-x-3">
                               <div className="flex-shrink-0 mt-1">
                                 {getNotificationIcon(notification.type)}
                               </div>
-                              
+
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <h4 className={`text-sm font-medium ${
-                                      !notification.isRead ? 'text-slate-900' : 'text-slate-700'
-                                    }`}>
+                                    <h4 className={`text-sm font-medium ${!notification.isRead ? 'text-slate-900' : 'text-slate-700'
+                                      }`}>
                                       {notification.title}
                                     </h4>
                                     <p className="text-sm text-slate-600 mt-1">
                                       {notification.message}
                                     </p>
-                                    
+
                                     {/* Action Button */}
                                     {notification.actionUrl && notification.actionText && (
                                       <a
@@ -384,7 +382,7 @@ const Navbar = ({ current }) => {
                                       </a>
                                     )}
                                   </div>
-                                  
+
                                   <div className="flex items-center space-x-2 ml-2">
                                     <span className="text-xs text-slate-500">
                                       {formatTime(notification.createdAt)}
@@ -438,7 +436,8 @@ const Navbar = ({ current }) => {
                 className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  {currentUser?.profilePhoto ? (
+                  {/* Profile photo */}
+                  {/* {currentUser?.profilePhoto ? (
                     <img
                       src={currentUser?.profilePhoto}
                       className="w-8 h-8 rounded-full object-cover"
@@ -450,7 +449,10 @@ const Navbar = ({ current }) => {
                       className="w-8 h-8 rounded-full object-cover"
                       alt="Default Profile"
                     />
-                  )}
+                  )} */}
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
+                  </div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -462,7 +464,8 @@ const Navbar = ({ current }) => {
                   <div className="px-4 py-3 border-b border-slate-100">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        {currentUser?.profilePhoto ? (
+                        {/* Profile photo */}
+                        {/* {currentUser?.profilePhoto ? (
                           <img
                             src={currentUser?.profilePhoto}
                             className="w-10 h-10 rounded-full object-cover"
@@ -474,7 +477,11 @@ const Navbar = ({ current }) => {
                             className="w-10 h-10 rounded-full object-cover"
                             alt="Default Profile"
                           />
-                        )}
+                        )} */}
+                        <span className="text-white font-semibold text-base">
+                          {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
+                        </span>
+
                       </div>
                       <div>
                         <p className="font-medium text-slate-900">
@@ -569,7 +576,7 @@ const Navbar = ({ current }) => {
             </button>
 
             {/* Notifications - Mobile */}
-            <button 
+            <button
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
               className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full"
             >
@@ -597,7 +604,8 @@ const Navbar = ({ current }) => {
           <div className="pt-4 pb-3 border-t border-slate-200">
             <div className="flex items-center px-4 space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                {currentUser?.profilePhoto ? (
+                {/* Profile photo */}
+                {/* {currentUser?.profilePhoto ? (
                   <img
                     src={currentUser.profilePhoto}
                     className="w-10 h-10 rounded-full object-cover"
@@ -609,7 +617,10 @@ const Navbar = ({ current }) => {
                     className="w-10 h-10 rounded-full object-cover"
                     alt="Default Profile"
                   />
-                )}
+                )} */}
+                <span className="text-white font-semibold text-base">
+                  {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
+                </span>
               </div>
               <div>
                 <div className="text-base font-medium text-slate-900">
