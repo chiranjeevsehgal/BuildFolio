@@ -68,11 +68,6 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/signin" replace />;
   }
 
-  // Authenticated but profile not completed - redirect to profile
-  if (!authStatus.isProfileCompleted) {
-    return <Navigate to="/profile" replace />;
-  }
-
   // Authenticated and profile completed - render children
   return children;
 };

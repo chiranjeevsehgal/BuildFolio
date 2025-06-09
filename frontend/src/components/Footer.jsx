@@ -27,7 +27,7 @@ function Footer() {
             
               <div className="text-center mt-8 pt-8 border-t border-white/10">
                 <p className="text-blue-200 text-sm">
-                  © 2025 PortfolioPro. Empowering professionals to showcase their best work.
+                  © 2025 BuildFolio. Empowering professionals to showcase their best work.
                 </p>
               </div>
             </div>

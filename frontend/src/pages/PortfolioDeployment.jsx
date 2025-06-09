@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Globe, Copy, ExternalLink, Settings, Eye, Download, 
+import {
+  Globe, Copy, ExternalLink, Settings, Eye, Download,
   Share2, CheckCircle, AlertCircle, Loader2, Edit3,
   Monitor, Tablet, Smartphone, RefreshCw, ArrowRight,
   Zap, Sparkles, Rocket, Clock, Users, BarChart3,
@@ -36,26 +36,26 @@ const PortfolioDeployment = () => {
   }, []);
 
   useEffect(() => {
-  // Only reset progress when not deploying
-  if (deploymentStatus !== 'deploying') {
-    setDeploymentProgress(deploymentStatus === 'deployed' ? 100 : 0);
-  }
-}, [deploymentStatus]);
+    // Only reset progress when not deploying
+    if (deploymentStatus !== 'deploying') {
+      setDeploymentProgress(deploymentStatus === 'deployed' ? 100 : 0);
+    }
+  }, [deploymentStatus]);
 
   // Check if portfolio is already deployed
   const checkDeploymentStatus = async () => {
     try {
       setDeploymentStatus('checking');
-      
+
       const response = await axios.get('/auth/profile');
-      
+
       if (response.data.success && response.data.user) {
         const user = response.data.user;
-        
+
         setUserData(user);
         setUsername(user.username);
         setSelectedTemplate(user.selectedTemplate);
-        
+
         // Check if portfolio is deployed
         if (user.portfolioDeployed || user.isPortfolioDeployed) {
           setDeploymentStatus('deployed');
@@ -64,7 +64,7 @@ const PortfolioDeployment = () => {
           setDeploymentProgress(100);
         } else if (user.selectedTemplate) {
           setDeploymentStatus('ready');
-          
+
           if (user.deployedAt && !user.portfolioDeployed) {
             // setMessage({
             //   type: 'warning',
@@ -72,11 +72,11 @@ const PortfolioDeployment = () => {
             // });
           }
         } else {
-          setDeploymentStatus('error');
-          setMessage({
-            type: 'error',
-            content: 'No template selected. Please go back and select a template.'
-          });
+          setDeploymentStatus('no-template');
+          // setMessage({
+          //   type: 'warning',
+          //   content: 'Please select a template first before deploying your portfolio.'
+          // });
         }
       } else {
         throw new Error('Failed to load user data');
@@ -98,7 +98,7 @@ const PortfolioDeployment = () => {
       setDeploymentStatus('deploying');
       setDeploymentProgress(0);
       setMessage({ type: 'info', content: 'Deploying your portfolio...' });
-      
+
       // Simulate deployment steps
       const steps = [
         { progress: 20, message: 'Preparing your portfolio...' },
@@ -113,30 +113,30 @@ const PortfolioDeployment = () => {
         setDeploymentProgress(step.progress);
         setMessage({ type: 'info', content: step.message });
       }
-      
+
       const response = await axios.post('/portfolio/deploy', {
         templateId: selectedTemplate,
         username: username
       });
-      
+
       if (response.data.success) {
         setDeploymentStatus('deployed');
         setDeploymentProgress(100);
-        
+
         const deployedUrl = response.data.portfolioUrl || `${PORTFOLIO_BASE_URL}/portfolio/${username}`;
         setPortfolioUrl(deployedUrl);
-        
+
         setMessage({
           type: 'success',
           content: 'Portfolio deployed successfully!'
         });
-        
+        window.location.reload();
         setUserData(prev => ({
           ...prev,
           portfolioDeployed: true,
           portfolioUrl: deployedUrl
         }));
-        
+
       } else {
         throw new Error(response.data.message || 'Deployment failed');
       }
@@ -158,24 +158,24 @@ const PortfolioDeployment = () => {
 
     setMessage({
       type: 'success',
-      content:"This feature will be rolled out soon!"
+      content: "This feature will be rolled out soon!"
     })
     return;
 
     try {
       setIsDeploying(true);
       setMessage({ type: 'info', content: 'Updating your portfolio...' });
-      
+
       const response = await axios.post('/portfolio/redeploy', {
         username: username
       });
-      
+
       if (response.data.success) {
         setMessage({
           type: 'success',
           content: 'Portfolio updated successfully!'
         });
-        
+
         if (response.data.portfolioUrl) {
           setPortfolioUrl(response.data.portfolioUrl);
         }
@@ -216,7 +216,7 @@ const PortfolioDeployment = () => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      
+
       setMessage({
         type: 'success',
         content: 'Portfolio URL copied to clipboard!'
@@ -225,36 +225,36 @@ const PortfolioDeployment = () => {
   };
 
   // Unpublish portfolio
-const unpublishPortfolio = async () => {
-  try {
-    setIsDeploying(true);
-    setMessage({ type: 'info', content: 'Unpublishing your portfolio...' });
-    
-    const response = await axios.patch('/portfolio/unpublish');
-    
-    if (response.data.success) {
+  const unpublishPortfolio = async () => {
+    try {
+      setIsDeploying(true);
+      setMessage({ type: 'info', content: 'Unpublishing your portfolio...' });
+
+      const response = await axios.patch('/portfolio/unpublish');
+
+      if (response.data.success) {
+        setMessage({
+          type: 'success',
+          content: 'Portfolio unpublished successfully!'
+        });
+
+        window.location.reload();
+      } else {
+        throw new Error(response.data.message || 'Unpublish failed');
+      }
+    } catch (error) {
+      console.error('Unpublish failed:', error);
       setMessage({
-        type: 'success',
-        content: 'Portfolio unpublished successfully!'
+        type: 'error',
+        content: error.response?.data?.message || 'Failed to unpublish portfolio.'
       });
-      
-      window.location.reload();
-    } else {
-      throw new Error(response.data.message || 'Unpublish failed');
+    } finally {
+      setIsDeploying(false);
     }
-  } catch (error) {
-    console.error('Unpublish failed:', error);
-    setMessage({
-      type: 'error',
-      content: error.response?.data?.message || 'Failed to unpublish portfolio.'
-    });
-  } finally {
-    setIsDeploying(false);
-  }
-};
+  };
 
 
-// Auto-dismiss messages
+  // Auto-dismiss messages
   useEffect(() => {
     if (message.content) {
       const timer = setTimeout(() => {
@@ -298,6 +298,14 @@ const unpublishPortfolio = async () => {
           bgGradient: 'from-red-500/10 to-pink-500/10',
           borderColor: 'border-red-200'
         };
+      case 'no-template':
+        return {
+          icon: <Settings className="w-12 h-12 text-orange-500" />,
+          title: 'Template Required',
+          subtitle: 'Please select a template before deploying your portfolio',
+          bgGradient: 'from-orange-500/10 to-yellow-500/10',
+          borderColor: 'border-orange-200'
+        };
       default:
         return {
           icon: <Globe className="w-12 h-12 text-blue-500" />,
@@ -313,7 +321,7 @@ const unpublishPortfolio = async () => {
 
   return (
     <>
-      <Navbar current={"/portfolio"}/>
+      <Navbar current={"/portfolio"} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
@@ -338,15 +346,14 @@ const unpublishPortfolio = async () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
           {/* Message Toast */}
           {message.content && (
-            <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${
-              message.type === 'success'
+            <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${message.type === 'success'
                 ? 'bg-green-500/90 text-white'
                 : message.type === 'error'
-                ? 'bg-red-500/90 text-white'
-                : message.type === 'warning'
-                ? 'bg-yellow-500/90 text-white'
-                : 'bg-blue-500/90 text-white'
-            }`}>
+                  ? 'bg-red-500/90 text-white'
+                  : message.type === 'warning'
+                    ? 'bg-yellow-500/90 text-white'
+                    : 'bg-blue-500/90 text-white'
+              }`}>
               {message.type === 'success' ? (
                 <CheckCircle className="w-5 h-5 flex-shrink-0" />
               ) : (
@@ -374,7 +381,7 @@ const unpublishPortfolio = async () => {
               <p className="text-lg text-slate-600 mb-6">
                 {statusConfig.subtitle}
               </p>
-              
+
               {/* User Info Cards */}
               <div className="flex flex-wrap justify-center gap-4 mb-6">
                 {username && (
@@ -390,10 +397,10 @@ const unpublishPortfolio = async () => {
                   </div>
                 )}
                 {deploymentStatus === 'deployed' && (
-                  <div className="bg-green-100/60 backdrop-blur-sm rounded-xl px-4 py-2 border border-green-200/40">
-                    <span className="text-sm text-green-600">Status</span>
-                    <div className="font-semibold text-green-800 flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/40">
+                    <span className="text-sm text-slate-600">Status</span>
+                    <div className="font-semibold text-green-800 flex items-center ">
+                      <div className="w-2 h-2 bg-green-500  rounded-full mr-2 animate-pulse"></div>
                       Live
                     </div>
                   </div>
@@ -404,7 +411,7 @@ const unpublishPortfolio = async () => {
               {deploymentStatus === 'deploying' && (
                 <div className="w-full max-w-md mx-auto mb-6">
                   <div className="bg-white/40 rounded-full h-3 overflow-hidden">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-300 ease-out"
                       style={{ width: `${deploymentProgress}%` }}
                     ></div>
@@ -505,6 +512,17 @@ const unpublishPortfolio = async () => {
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </button>
               )}
+
+              {deploymentStatus === 'no-template' && (
+                <button
+                  onClick={checkDeploymentStatus}
+                  className="group bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center justify-center transform hover:scale-105"
+                >
+                  <RefreshCw className="w-6 h-6 mr-3 group-hover:rotate-180 transition-transform duration-500" />
+                  Try Again
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -516,7 +534,7 @@ const unpublishPortfolio = async () => {
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">Portfolio Preview</h3>
                   <p className="text-slate-600">See how your portfolio looks across devices</p>
                 </div>
-                
+
                 {/* View Mode Controls */}
                 <div className="flex items-center space-x-1 bg-slate-100 rounded-2xl p-1 mt-4 lg:mt-0">
                   {[
@@ -527,11 +545,10 @@ const unpublishPortfolio = async () => {
                     <button
                       key={mode}
                       onClick={() => setViewMode(mode)}
-                      className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
-                        viewMode === mode
+                      className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${viewMode === mode
                           ? 'bg-white text-slate-800 shadow-lg'
                           : 'text-slate-600 hover:text-slate-800 hover:bg-white/50'
-                      }`}
+                        }`}
                       title={label}
                     >
                       <Icon className="w-5 h-5" />
@@ -543,10 +560,9 @@ const unpublishPortfolio = async () => {
 
               {/* Iframe Preview */}
               <div className="relative">
-                <div className={`mx-auto transition-all duration-500 ease-in-out ${
-                  viewMode === 'tablet' ? 'max-w-3xl' : 
-                  viewMode === 'mobile' ? 'max-w-md' : 'w-full'
-                }`}>
+                <div className={`mx-auto transition-all duration-500 ease-in-out ${viewMode === 'tablet' ? 'max-w-3xl' :
+                    viewMode === 'mobile' ? 'max-w-md' : 'w-full'
+                  }`}>
                   <div className="bg-slate-900 rounded-2xl p-2 shadow-2xl">
                     <div className="bg-white rounded-xl overflow-hidden">
                       <div className="bg-slate-100 px-4 py-2 flex items-center space-x-2">
@@ -621,7 +637,7 @@ const unpublishPortfolio = async () => {
                   <Clock className="w-8 h-8 text-blue-500" />
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-2xl p-6 border border-green-200/40">
                 <div className="flex items-center justify-between">
                   <div>
@@ -631,7 +647,7 @@ const unpublishPortfolio = async () => {
                   <Zap className="w-8 h-8 text-green-500" />
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-6 border border-purple-200/40">
                 <div className="flex items-center justify-between">
                   <div>
@@ -646,7 +662,7 @@ const unpublishPortfolio = async () => {
         </div>
 
         {/* Footer Section */}
-        <Footer/>
+        <Footer />
       </div>
     </>
   );

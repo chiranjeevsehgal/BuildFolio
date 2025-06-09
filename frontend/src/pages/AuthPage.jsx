@@ -205,7 +205,7 @@ const AuthPage = () => {
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-slate-800">PortfolioGenerator</span>
+            <span className="text-2xl font-bold text-slate-800">BuildFolio</span>
           </div> */}
           
           <h2 className="text-3xl font-bold text-slate-800 mb-2">
@@ -513,7 +513,6 @@ const AuthPage = () => {
 
         {/* Trust Indicators */}
         <div className="text-center">
-          <p className="text-sm text-slate-500 mb-4">Trusted by professionals worldwide</p>
           <div className="flex justify-center items-center space-x-6 opacity-60">
           <div className="text-xs text-slate-400">🔒 SSL Secured</div>
             <div className="text-xs text-slate-400">⚡ Instant Setup</div>

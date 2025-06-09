@@ -214,7 +214,14 @@ const Navbar = ({ current }) => {
 
   const userNavigation = [
     { name: 'Edit Profile', href: '/profile', icon: Edit3 },
-    { name: 'View Portfolio', href: currentUser?.portfolioUrl, icon: Eye, external: true },
+    {
+      name: 'View Portfolio',
+      href: currentUser?.portfolioUrl || '#',
+      icon: Eye,
+      external: !!currentUser?.portfolioUrl,
+      disabled: !currentUser?.portfolioDeployed ,
+      tooltip: currentUser?.portfolioDeployed ? null : 'Portfolio not deployed yet'
+    },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Sign out', href: '/logout', icon: LogOut },
   ];
@@ -238,7 +245,7 @@ const Navbar = ({ current }) => {
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                    PortfolioPro
+                    BuildFolio
                   </h1>
                 </div>
               </a>
@@ -487,8 +494,15 @@ const Navbar = ({ current }) => {
                         <p className="font-medium text-slate-900">
                           {currentUser?.firstName} {currentUser?.lastName}
                         </p>
-                        <p className="text-sm text-slate-500">{currentUser?.email}</p>
-                        {currentUser?.selectedTemplate && (
+                        <p
+                          className="text-sm text-slate-500 truncate"
+                          title={currentUser?.email}
+                        >
+                          {currentUser?.email && currentUser.email.length > 18
+                            ? `${currentUser.email.substring(0, 18)}...`
+                            : currentUser?.email
+                          }
+                        </p>                        {currentUser?.selectedTemplate && (
                           <p className="text-xs text-blue-600 font-medium mt-1">
                             {currentUser?.selectedTemplate.replace('-', ' ')}
                           </p>
@@ -501,6 +515,24 @@ const Navbar = ({ current }) => {
                   <div className="py-1">
                     {userNavigation.map((item) => {
                       const IconComponent = item.icon;
+
+                      if (item.disabled) {
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex items-center px-4 py-2 text-sm text-slate-400 cursor-not-allowed relative group"
+                            title={item.tooltip}
+                          >
+                            <IconComponent className="w-4 h-4 mr-3 text-slate-300" />
+                            {item.name}
+                            {/* Tooltip
+                            <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              {item.tooltip}
+                            </div> */}
+                          </div>
+                        );
+                      }
+
                       return (
                         <a
                           key={item.name}
