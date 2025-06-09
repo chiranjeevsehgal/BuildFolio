@@ -59,6 +59,10 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profiles', require('./routes/profile'));
 app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/templates', require('./routes/template'));
+app.use('/api/notifications', require('./routes/notifications'));
+
+// Admin routes
+app.use('/api/admin', require('./routes/admin'));
 
 // Global error handler
 app.use((err, req, res, next) => {

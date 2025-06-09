@@ -11,6 +11,8 @@ import ProtectedRoute from './auth/ProtectedRoute';
 import TemplatePreview from './pages/TemplatePreview';
 import TemplatePreview1 from './pages/TemplatePreview1';
 import PublicPortfolio from './pages/PublicPortfolio';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedAdminRoute from './auth/ProtectedAdminRoute';
 
 function App() {
   return (
@@ -36,8 +38,16 @@ function App() {
           <Route path="/portfolio" element={<PortfolioDeployment />} />
           <Route path="/portfolio/:username" element={<PublicPortfolio />} />
 
+          {/* Admin Route */}
+          <Route path="/admin" element={
+              <ProtectedAdminRoute>
+                <AdminDashboard />
+              </ProtectedAdminRoute>
+            }
+          />
+          
           {/* Catch all route for 404 */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </>

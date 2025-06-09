@@ -9,7 +9,8 @@ const {
   updatePortfolioStatus,
   getPortfolioAnalytics,
   checkUsernameAvailability,
-  updateSelectedTemplate
+  updateSelectedTemplate,
+  unpublishPortfolio
 } = require('../controllers/portfolioController');
 const { protect } = require('../middleware/auth');
 const auth = require('../middleware/auth');
@@ -18,6 +19,11 @@ const auth = require('../middleware/auth');
 // @route   POST /api/portfolio/deploy
 // @access  Private
 router.post('/deploy', auth, deployPortfolio);
+
+// @desc    Unpublish deployment for user's portfolio
+// @route   POST /api/portfolio/unpublish
+// @access  Private
+router.patch('/unpublish', auth, unpublishPortfolio);
 
 // @desc    Redeploy/update user's portfolio
 // @route   POST /api/portfolio/redeploy
@@ -48,7 +54,7 @@ router.patch('/status',  updatePortfolioStatus);
 // @desc    Get portfolio analytics
 // @route   GET /api/portfolio/analytics
 // @access  Private
-router.get('/analytics',  getPortfolioAnalytics);
+router.get('/analytics',  auth, getPortfolioAnalytics);
 
 // @desc    Check username availability
 // @route   GET /api/portfolio/check-username/:username

@@ -151,6 +151,7 @@ const getMe = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
         selectedTemplate: user.selectedTemplate,
         username: user.username,
         isProfileCompleted: user.isProfileCompleted,

@@ -166,6 +166,70 @@ const deployPortfolio = async (req, res) => {
   }
 };
 
+// @desc    Unpublish user's portfolio (make it inactive and private)
+// @route   PATCH /api/portfolio/unpublish
+// @access  Private
+const unpublishPortfolio = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log('Unpublishing portfolio for user:', userId);
+
+    // Find existing deployment
+    const deployment = await PortfolioDeployment.findOne({ userId });
+
+    if (!deployment) {
+      return res.status(404).json({
+        success: false,
+        message: 'No portfolio deployment found'
+      });
+    }
+
+    // Check if portfolio is already unpublished
+    if (!deployment.isActive && !deployment.isPublic) {
+      return res.status(400).json({
+        success: false,
+        message: 'Portfolio is already unpublished'
+      });
+    }
+
+    // Update deployment to unpublished state
+    deployment.isActive = false;
+    // deployment.isPublic = false;
+    deployment.unpublishedAt = new Date();
+    deployment.updatedAt = new Date();
+    await deployment.save();
+
+    // Update user record
+    await User.findByIdAndUpdate(userId, {
+      portfolioDeployed: false
+    });
+
+    console.log('Portfolio unpublished successfully');
+
+    res.json({
+      success: true,
+      message: 'Portfolio unpublished successfully',
+      data: {
+        username: deployment.username,
+        isActive: deployment.isActive,
+        isPublic: deployment.isPublic,
+        unpublishedAt: deployment.unpublishedAt,
+        updatedAt: deployment.updatedAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Unpublish portfolio error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to unpublish portfolio',
+      error: error.message
+    });
+  }
+};
+
+
 // @desc    Redeploy/update user's portfolio
 // @route   POST /api/portfolio/redeploy
 // @access  Private
@@ -597,6 +661,7 @@ const checkUsernameAvailability = async (req, res) => {
 
 module.exports = {
   deployPortfolio,
+  unpublishPortfolio,
   redeployPortfolio,
   getPublicPortfolio,
   getUserPortfolio,

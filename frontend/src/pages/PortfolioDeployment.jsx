@@ -3,7 +3,8 @@ import {
   Globe, Copy, ExternalLink, Settings, Eye, Download, 
   Share2, CheckCircle, AlertCircle, Loader2, Edit3,
   Monitor, Tablet, Smartphone, RefreshCw, ArrowRight,
-  Zap, Sparkles, Rocket, Clock, Users, BarChart3
+  Zap, Sparkles, Rocket, Clock, Users, BarChart3,
+  EyeOff
 } from 'lucide-react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
@@ -34,21 +35,12 @@ const PortfolioDeployment = () => {
     checkDeploymentStatus();
   }, []);
 
-  // Simulate deployment progress
   useEffect(() => {
-    if (deploymentStatus === 'deploying') {
-      const interval = setInterval(() => {
-        setDeploymentProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 15;
-        });
-      }, 200);
-      
-      return () => clearInterval(interval);
-    } else {
-      setDeploymentProgress(0);
-    }
-  }, [deploymentStatus]);
+  // Only reset progress when not deploying
+  if (deploymentStatus !== 'deploying') {
+    setDeploymentProgress(deploymentStatus === 'deployed' ? 100 : 0);
+  }
+}, [deploymentStatus]);
 
   // Check if portfolio is already deployed
   const checkDeploymentStatus = async () => {
@@ -76,7 +68,7 @@ const PortfolioDeployment = () => {
           if (user.deployedAt && !user.portfolioDeployed) {
             setMessage({
               type: 'warning',
-              content: 'Template was changed. Portfolio needs to be redeployed with the new design.'
+              content: 'Deploy your portfolio to see it live.'
             });
           }
         } else {
@@ -163,6 +155,13 @@ const PortfolioDeployment = () => {
 
   // Redeploy portfolio
   const redeployPortfolio = async () => {
+
+    setMessage({
+      type: 'success',
+      content:"This feature will be rolled out soon!"
+    })
+    return;
+
     try {
       setIsDeploying(true);
       setMessage({ type: 'info', content: 'Updating your portfolio...' });
@@ -225,32 +224,37 @@ const PortfolioDeployment = () => {
     }
   };
 
-  // Share portfolio
-  const sharePortfolio = async () => {
-    if (!portfolioUrl) {
+  // Unpublish portfolio
+const unpublishPortfolio = async () => {
+  try {
+    setIsDeploying(true);
+    setMessage({ type: 'info', content: 'Unpublishing your portfolio...' });
+    
+    const response = await axios.patch('/portfolio/unpublish');
+    
+    if (response.data.success) {
       setMessage({
-        type: 'error',
-        content: 'No portfolio URL available to share.'
+        type: 'success',
+        content: 'Portfolio unpublished successfully!'
       });
-      return;
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${userData?.firstName} ${userData?.lastName} - Portfolio`,
-          text: 'Check out my professional portfolio!',
-          url: portfolioUrl
-        });
-      } catch (error) {
-        console.log('Share cancelled');
-      }
+      
+      window.location.reload();
     } else {
-      copyPortfolioUrl();
+      throw new Error(response.data.message || 'Unpublish failed');
     }
-  };
+  } catch (error) {
+    console.error('Unpublish failed:', error);
+    setMessage({
+      type: 'error',
+      content: error.response?.data?.message || 'Failed to unpublish portfolio.'
+    });
+  } finally {
+    setIsDeploying(false);
+  }
+};
 
-  // Auto-dismiss messages
+
+// Auto-dismiss messages
   useEffect(() => {
     if (message.content) {
       const timer = setTimeout(() => {
@@ -469,17 +473,17 @@ const PortfolioDeployment = () => {
                   </a>
 
                   <button
-                    onClick={sharePortfolio}
-                    className="bg-white/80 backdrop-blur-sm border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-2xl hover:bg-white hover:border-slate-400 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-105"
+                    onClick={unpublishPortfolio}
+                    className="bg-white/80 backdrop-blur-sm border-2 cursor-pointer border-slate-300 text-slate-700 px-8 py-4 rounded-2xl hover:bg-white hover:border-slate-400 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-105"
                   >
-                    <Share2 className="w-6 h-6 mr-3" />
-                    Share Portfolio
+                    <EyeOff className="w-6 h-6 mr-3" />
+                    Unpublish Portfolio
                   </button>
 
                   <button
                     onClick={redeployPortfolio}
                     disabled={isDeploying}
-                    className="bg-white/80 backdrop-blur-sm border-2 border-blue-300 text-blue-700 px-8 py-4 rounded-2xl hover:bg-blue-50 hover:border-blue-400 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 transform hover:scale-105"
+                    className="bg-white/80 backdrop-blur-sm border-2 cursor-pointer border-blue-300 text-blue-700 px-8 py-4 rounded-2xl hover:bg-blue-50 hover:border-blue-400 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 transform hover:scale-105"
                   >
                     {isDeploying ? (
                       <Loader2 className="w-6 h-6 mr-3 animate-spin" />
