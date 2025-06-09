@@ -66,10 +66,10 @@ const PortfolioDeployment = () => {
           setDeploymentStatus('ready');
           
           if (user.deployedAt && !user.portfolioDeployed) {
-            setMessage({
-              type: 'warning',
-              content: 'Deploy your portfolio to see it live.'
-            });
+            // setMessage({
+            //   type: 'warning',
+            //   content: 'Deploy your portfolio to see it live.'
+            // });
           }
         } else {
           setDeploymentStatus('error');
@@ -576,7 +576,7 @@ const unpublishPortfolio = async () => {
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <button
               onClick={() => window.location.href = '/profile'}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
             >
               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Edit3 className="w-8 h-8 text-white" />
@@ -587,7 +587,7 @@ const unpublishPortfolio = async () => {
 
             <button
               onClick={() => window.location.href = '/templates'}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
             >
               <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Settings className="w-8 h-8 text-white" />
@@ -599,7 +599,7 @@ const unpublishPortfolio = async () => {
             <button
               onClick={() => portfolioUrl && window.open(portfolioUrl, '_blank')}
               disabled={!portfolioUrl}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="bg-gradient-to-br from-green-500 to-emerald-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Eye className="w-8 h-8 text-white" />

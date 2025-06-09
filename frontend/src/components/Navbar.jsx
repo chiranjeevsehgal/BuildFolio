@@ -278,7 +278,7 @@ const Navbar = ({ current }) => {
             {/* Templates Link */}
             <a
               href="/templates"
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/templates'
+              className={`inline-flex items-center cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/templates'
                 ? 'bg-blue-50 text-blue-700 border border-blue-200'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
@@ -290,7 +290,7 @@ const Navbar = ({ current }) => {
             {/* Feedback Link */}
             <button
               onClick={handleFeedbackClick}
-              className="text-slate-600 border-slate-300 border hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              className=" cursor-pointer text-slate-600 border-slate-300 border hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
             >
               Feedback
             </button>
@@ -299,7 +299,7 @@ const Navbar = ({ current }) => {
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                className="p-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -327,7 +327,7 @@ const Navbar = ({ current }) => {
                       )}
                       <button
                         onClick={() => setIsNotificationOpen(false)}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="cursor-pointer text-slate-400 hover:text-slate-600"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -433,7 +433,7 @@ const Navbar = ({ current }) => {
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                className="cursor-pointer flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                   {/* Profile photo */}
@@ -557,7 +557,7 @@ const Navbar = ({ current }) => {
             {/* Templates Link */}
             <a
               href="/templates"
-              className={`flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors ${current === '/templates'
+              className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-base font-medium transition-colors ${current === '/templates'
                 ? 'bg-blue-50 text-blue-700 border border-blue-200'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
@@ -569,7 +569,7 @@ const Navbar = ({ current }) => {
             {/* Feedback Link */}
             <button
               onClick={handleFeedbackClick}
-              className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
             >
               <FileText className="w-5 h-5 mr-3" />
               Feedback
@@ -578,7 +578,7 @@ const Navbar = ({ current }) => {
             {/* Notifications - Mobile */}
             <button
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-              className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full"
+              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full"
             >
               <Bell className="w-5 h-5 mr-3" />
               Notifications
