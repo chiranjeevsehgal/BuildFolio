@@ -127,12 +127,6 @@ portfolioDeploymentSchema.virtual('portfolioUrl').get(function() {
   return `${process.env.FRONTEND_URL}/${this.username}`;
 });
 
-// Indexes for better performance
-portfolioDeploymentSchema.index({ username: 1 });
-portfolioDeploymentSchema.index({ userId: 1 });
-portfolioDeploymentSchema.index({ isActive: 1, isPublic: 1 });
-portfolioDeploymentSchema.index({ views: -1 });
-
 // Middleware to update updatedAt on save
 portfolioDeploymentSchema.pre('save', function(next) {
   this.updatedAt = new Date();

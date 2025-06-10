@@ -75,9 +75,4 @@ const templateSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Index for better query performance
-templateSchema.index({ category: 1, featured: -1 });
-templateSchema.index({ templateId: 1 });
-templateSchema.index({ tags: 1 });
-
 module.exports = mongoose.model('Template', templateSchema);
