@@ -66,13 +66,6 @@ router.get('/linkedin/callback',
   oauthSuccess
 );
 
-// GitHub OAuth
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
-router.get('/github/callback',
-  passport.authenticate('github', { failureRedirect: '/auth/failure' }),
-  oauthSuccess
-);
-
 // OAuth callbacks
 router.get('/success', oauthSuccess);
 router.get('/failure', oauthFailure);

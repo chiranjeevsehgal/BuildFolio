@@ -53,11 +53,6 @@ const Navbar = ({ current }) => {
     getUserData();
   }, []);
 
-  useEffect(() => {
-    console.log(unreadCount);
-
-  }, [unreadCount])
-
   const getUserData = async () => {
     try {
       const response = await axios.get('/auth/profile');
@@ -97,6 +92,20 @@ const Navbar = ({ current }) => {
       console.error('Failed to fetch notifications:', error);
     } finally {
       setNotificationLoading(false);
+    }
+  };
+
+  const handleNotificationClick = () => {
+    setIsNotificationOpen(prev => !prev);
+    if (!isNotificationOpen) {
+      setIsProfileOpen(false);
+    }
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(prev => !prev);
+    if (!isProfileOpen) {
+      setIsNotificationOpen(false); // Close notification when opening profile
     }
   };
 
@@ -219,7 +228,7 @@ const Navbar = ({ current }) => {
       href: currentUser?.portfolioUrl || '#',
       icon: Eye,
       external: !!currentUser?.portfolioUrl,
-      disabled: !currentUser?.portfolioDeployed ,
+      disabled: !currentUser?.portfolioDeployed,
       tooltip: currentUser?.portfolioDeployed ? null : 'Portfolio not deployed yet'
     },
     { name: 'Settings', href: '/settings', icon: Settings },
@@ -245,7 +254,7 @@ const Navbar = ({ current }) => {
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center">
                     {/* <Zap className="w-5 h-5 text-white" /> */}
                     {/* <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749526426/4.1_fbfish.png" className=''/> */}
-                    <img src="logo.svg" className='Logo'/>
+                    <img src="logo.svg" className='Logo' />
                   </div>
                   <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                     BuildFolio
@@ -305,10 +314,10 @@ const Navbar = ({ current }) => {
               Feedback
             </button>
 
-            {/* Real Notifications */}
+            {/* Notifications */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                onClick={handleNotificationClick}
                 className="p-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 <Bell className="w-5 h-5" />
@@ -442,7 +451,7 @@ const Navbar = ({ current }) => {
             {/* Profile dropdown */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                onClick={handleProfileClick}
                 className="cursor-pointer flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">

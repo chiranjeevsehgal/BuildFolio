@@ -1,4 +1,4 @@
-// TemplatePreview.jsx - Updated with API integration and proper template mapping
+// TemplatePreview.jsx - Updated with correct data mapping
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Monitor, Tablet, Smartphone, Download, Share2, Settings, Eye, ExternalLink, AlertCircle } from 'lucide-react';
@@ -10,34 +10,15 @@ const TemplatePreview = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('desktop');
   const [message, setMessage] = useState({ type: "", content: "" });
-  const [profilePhoto, setProfilePhoto] = useState(null);
   const [templateData, setTemplateData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState({
-    personalInfo: {
-      phone: "",
-      location: "",
-      socialLinks: {
-        linkedin: "",
-        github: "",
-      },
-    },
-    professional: {
-      title: "",
-      summary: "",
-      skills: [],
-    },
-    experience: [],
-    education: [],
-    projects: [],
-    certifications: [],
-  });
+  const [userData, setUserData] = useState(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-  // Load user profile data
+  // Load user profile data and map to expected format
   const loadProfile = async () => {
     setIsLoading(true);
     try {
@@ -53,8 +34,57 @@ const TemplatePreview = () => {
         const data = await response.json();
         if (data.success && data.profile) {
           const profile = data.profile;
-          setUserData(profile);
-          setProfilePhoto(profile.profilePhoto);
+          console.log('Profile data received:', profile);
+          
+          // Map the API response to the expected template format
+          const mappedUserData = {
+            // Basic user info
+            firstName: profile.user?.firstName || '',
+            lastName: profile.user?.lastName || '',
+            email: profile.user?.email || '',
+            username: profile.user?.username || '',
+            profilePhoto: profile.profilePhoto || null,
+            
+            // Personal info structure
+            personalInfo: {
+              phone: profile.phone || '',
+              location: profile.location || '',
+              socialLinks: {
+                linkedin: profile.socialLinks?.linkedin || '',
+                github: profile.socialLinks?.github || '',
+                twitter: profile.socialLinks?.twitter || '',
+                website: profile.socialLinks?.website || ''
+              }
+            },
+            
+            // Professional info structure
+            professional: {
+              title: profile.title || '',
+              summary: profile.summary || '',
+              skills: profile.skills || []
+            },
+            
+            // Direct arrays (already in correct format)
+            experience: profile.experience || [],
+            education: profile.education || [],
+            projects: profile.projects || [],
+            certifications: profile.certifications || [],
+            
+            // Additional metadata
+            isPublic: profile.isPublic || false,
+            completionPercentage: profile.completionPercentage || 0,
+            showContactInfo: profile.showContactInfo !== false, // Default to true
+            
+            // SEO data if available
+            seoData: {
+              title: profile.user ? `${profile.user.firstName} ${profile.user.lastName} - Portfolio` : 'Portfolio',
+              description: profile.summary || 'Professional portfolio',
+              keywords: profile.skills ? profile.skills.join(', ') : ''
+            }
+          };
+          
+          console.log('Mapped user data:', mappedUserData);
+          setUserData(mappedUserData);
         }
       } else {
         throw new Error("Failed to load profile");
@@ -175,7 +205,7 @@ const TemplatePreview = () => {
 
   const handleSelectTemplate = async () => {
     try {
-      await axios.patch('/user/template', {
+      await axios.patch('/profiles/template', {
         selectedTemplate: templateId
       });
       
@@ -200,32 +230,6 @@ const TemplatePreview = () => {
   const handleExportPreview = () => {
     // Export current preview as HTML/PDF
     window.print();
-  };
-
-  const handleSharePreview = async () => {
-    const shareUrl = `${window.location.origin}/preview/${templateId}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${templateData?.name} Template Preview`,
-          url: shareUrl
-        });
-      } catch (error) {
-        console.log('Share cancelled');
-      }
-    } else {
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        setMessage({
-          type: 'success',
-          content: 'Preview link copied to clipboard!'
-        });
-      }catch (error) {
-        console.log('Share cancelled');
-      }
-    }
   };
 
   const toggleFullscreen = () => {
@@ -254,7 +258,7 @@ const TemplatePreview = () => {
   }, [message.content]);
 
   // Loading state
-  if (loading) {
+  if (loading || !userData) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -312,7 +316,7 @@ const TemplatePreview = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Unable to Load Template</h2>
           <p className="text-gray-600 mb-4">The template component could not be initialized.</p>
           <button
-            onClick={() => navigate('/templates')}
+            onClick={() => {navigate('/templates')}}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Back to Templates
@@ -356,7 +360,7 @@ const TemplatePreview = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => navigate('/templates')}
-                  className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                  className="cursor-pointer flex items-center text-gray-600 hover:text-gray-800 transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />
                   Back to Templates
@@ -378,7 +382,7 @@ const TemplatePreview = () => {
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 ${
+                    className={`cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 ${
                       viewMode === mode
                         ? 'bg-white text-gray-800 shadow-sm'
                         : 'text-gray-600 hover:text-gray-800'
@@ -395,31 +399,15 @@ const TemplatePreview = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={toggleFullscreen}
-                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="cursor-pointer p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                   title="Toggle Fullscreen"
                 >
                   <Eye className="w-5 h-5" />
                 </button>
 
                 <button
-                  onClick={handleSharePreview}
-                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Share Preview"
-                >
-                  <Share2 className="w-5 h-5" />
-                </button>
-
-                <button
-                  onClick={handleExportPreview}
-                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Export as PDF"
-                >
-                  <Download className="w-5 h-5" />
-                </button>
-
-                <button
                   onClick={handleSelectTemplate}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="cursor-pointer bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   Select This Template
                 </button>
@@ -443,7 +431,7 @@ const TemplatePreview = () => {
       {isFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all z-50"
+          className="fixed cursor-pointer top-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all z-50"
           title="Exit Fullscreen"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -530,17 +518,10 @@ const TemplatePreview = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <button
-                    onClick={() => window.open(`/portfolio/${templateId}`, '_blank')}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Live Demo
-                  </button>
-
+                  
                   <button
                     onClick={handleExportPreview}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download Preview
@@ -548,7 +529,7 @@ const TemplatePreview = () => {
 
                   <button
                     onClick={() => navigate('/profile')}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile Data

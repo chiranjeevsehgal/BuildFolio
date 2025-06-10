@@ -7,24 +7,23 @@ import {
 } from 'lucide-react';
 
 const ModernTemplate = ({ userData }) => {
-  // Comprehensive validation helpers
-  const hasPersonalInfo = userData?.personalInfo;
-  const hasBasicInfo = userData?.user?.firstName || userData?.user?.lastName || userData?.user?.email;
-  const hasProfessional = userData?.professional;
-  const hasTitle = userData?.title;
-  const hasSummary = userData?.summary;
+  // Fixed comprehensive validation helpers based on actual data structure
+  const hasBasicInfo = userData?.firstName || userData?.lastName || userData?.email;
+  const hasTitle = userData?.professional?.title;
+  const hasSummary = userData?.professional?.summary;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasExperience = userData?.experience?.length > 0;
   const hasEducation = userData?.education?.length > 0;
   const hasProjects = userData?.projects?.length > 0;
   const hasCertifications = userData?.certifications?.length > 0;
-  const hasSocialLinks = userData?.socialLinks && 
-    (userData?.socialLinks?.linkedin || 
-     userData?.socialLinks?.github || 
-     userData?.socialLinks?.twitter);
-  const hasContactInfo = userData?.phone || 
-                        userData?.location || 
-                        userData?.user?.email;
+  const hasSocialLinks = userData?.personalInfo?.socialLinks && 
+    (userData?.personalInfo?.socialLinks?.linkedin || 
+     userData?.personalInfo?.socialLinks?.github || 
+     userData?.personalInfo?.socialLinks?.twitter ||
+     userData?.personalInfo?.socialLinks?.website);
+  const hasContactInfo = userData?.personalInfo?.phone || 
+                        userData?.personalInfo?.location || 
+                        userData?.email;
 
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
@@ -37,8 +36,7 @@ const ModernTemplate = ({ userData }) => {
 
   useEffect(() => {
     console.log(userData);
-    
-  },[hasBasicInfo])
+  }, [userData]);
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -150,7 +148,7 @@ const ModernTemplate = ({ userData }) => {
         <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden">
           <img 
             src={project.image} 
-            alt={project.title}
+            alt={project.title || 'Project'}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -159,7 +157,7 @@ const ModernTemplate = ({ userData }) => {
       <div className="p-8">
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-            {project.title}
+            {project.title || 'Untitled Project'}
           </h3>
           {project.featured && (
             <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center">
@@ -218,11 +216,11 @@ const ModernTemplate = ({ userData }) => {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-blue-300 p-8 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{education.degree}</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{education.degree || 'Degree'}</h3>
           <div className="flex flex-wrap items-center gap-4 text-gray-600">
             <div className="flex items-center">
               <GraduationCap className="w-5 h-5 mr-2" />
-              <span className="font-medium">{education.school}</span>
+              <span className="font-medium">{education.school || education.institution || 'Institution'}</span>
             </div>
             {education.location && (
               <div className="flex items-center">
@@ -253,13 +251,13 @@ const ModernTemplate = ({ userData }) => {
   const CertificationCard = ({ certification }) => (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-purple-300 p-6 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-bold text-gray-900">{certification.name}</h3>
+        <h3 className="text-lg font-bold text-gray-900">{certification.name || 'Certification'}</h3>
         {certification.badge && (
           <img src={certification.badge} alt="Badge" className="w-12 h-12 rounded-lg" />
         )}
       </div>
       
-      <p className="text-gray-600 mb-3">{certification.issuer}</p>
+      <p className="text-gray-600 mb-3">{certification.issuer || 'Issuer'}</p>
       
       <div className="flex items-center text-sm text-gray-500">
         <Calendar className="w-4 h-4 mr-1" />
@@ -311,16 +309,16 @@ const ModernTemplate = ({ userData }) => {
           {/* Name and Title */}
           {hasBasicInfo && (
             <div className="mb-8">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800">
-                {userData?.user?.firstName && userData?.user?.lastName 
-                  ? `${userData?.user?.firstName} ${userData?.user?.lastName}`
-                  : userData?.user?.firstName || userData?.user?.lastName || 'Professional Portfolio'
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 leading-tight pb-2">
+                {userData?.firstName && userData?.lastName 
+                  ? `${userData.firstName} ${userData.lastName}`
+                  : userData?.firstName || userData?.lastName || 'Professional Portfolio'
                 }
               </h1>
               
               {hasTitle && (
                 <p className="text-2xl md:text-3xl lg:text-4xl text-gray-700 font-light mb-6">
-                  {userData.title}
+                  {userData.professional.title}
                 </p>
               )}
             </div>
@@ -330,7 +328,7 @@ const ModernTemplate = ({ userData }) => {
           {hasSummary && (
             <div className="mb-12">
               <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                {userData.summary}
+                {userData.professional.summary}
               </p>
             </div>
           )}
@@ -338,30 +336,30 @@ const ModernTemplate = ({ userData }) => {
           {/* Contact Info */}
           {hasContactInfo && (
             <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
-              {userData?.user?.email && (
+              {userData?.email && (
                 <a 
-                  href={`mailto:${userData.user.email}`}
+                  href={`mailto:${userData.email}`}
                   className="group flex items-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-6 py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <Mail className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.user.email}</span>
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.email}</span>
                 </a>
               )}
               
-              {userData?.phone && (
+              {userData?.personalInfo?.phone && (
                 <a 
-                  href={`tel:${userData.phone}`}
+                  href={`tel:${userData.personalInfo.phone}`}
                   className="group flex items-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-6 py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <Phone className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.phone}</span>
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.personalInfo.phone}</span>
                 </a>
               )}
               
-              {userData?.location && (
+              {userData?.personalInfo?.location && (
                 <div className="flex items-center bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl px-6 py-4">
                   <MapPin className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 font-medium">{userData.location}</span>
+                  <span className="text-gray-700 font-medium">{userData.personalInfo.location}</span>
                 </div>
               )}
             </div>
@@ -370,9 +368,9 @@ const ModernTemplate = ({ userData }) => {
           {/* Social Links */}
           {hasSocialLinks && (
             <div className="flex justify-center space-x-4 mb-12">
-              {userData?.socialLinks?.linkedin && (
+              {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.linkedin)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -381,9 +379,9 @@ const ModernTemplate = ({ userData }) => {
                 </a>
               )}
               
-              {userData?.socialLinks?.github && (
+              {userData?.personalInfo?.socialLinks?.github && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.github)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -392,14 +390,25 @@ const ModernTemplate = ({ userData }) => {
                 </a>
               )}
               
-              {userData?.socialLinks?.twitter && (
+              {userData?.personalInfo?.socialLinks?.twitter && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.twitter)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <Twitter className="w-6 h-6 text-blue-500 group-hover:text-blue-600" />
+                </a>
+              )}
+              
+              {userData?.personalInfo?.socialLinks?.website && (
+                <a 
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-green-400 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                >
+                  <Globe className="w-6 h-6 text-green-600 group-hover:text-green-700" />
                 </a>
               )}
             </div>
@@ -409,15 +418,15 @@ const ModernTemplate = ({ userData }) => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => window.print()}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group"
+              className="bg-gradient-to-r cursor-pointer from-blue-500 to-purple-600 text-white px-8 py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group"
             >
               <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
               Download Resume
             </button>
             
-            {hasContactInfo && (
+            {userData?.email && (
               <a 
-                href={`mailto:${userData?.email || ''}`}
+                href={`mailto:${userData.email}`}
                 className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-8 py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm"
               >
                 <Mail className="w-5 h-5 mr-2 group-hover:animate-pulse" />
@@ -528,52 +537,6 @@ const ModernTemplate = ({ userData }) => {
             </div>
           </Section>
         )}
-
-        {/* Stats Section - if we have enough data */}
-        {/* {(hasExperience || hasProjects || hasSkills) && (
-          <Section>
-            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 rounded-3xl p-12 text-white">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">By the Numbers</h2>
-                <p className="text-xl text-blue-100">Some highlights from my professional journey</p>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {hasExperience && (
-                  <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold mb-2">{userData.experience.length}</div>
-                    <div className="text-blue-200">Companies</div>
-                  </div>
-                )}
-                
-                {hasProjects && (
-                  <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold mb-2">{userData.projects.length}</div>
-                    <div className="text-blue-200">Projects</div>
-                  </div>
-                )}
-                
-                {hasSkills && (
-                  <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold mb-2">{userData.professional.skills.length}</div>
-                    <div className="text-blue-200">Technologies</div>
-                  </div>
-                )}
-                
-                {hasExperience && (
-                  <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold mb-2">
-                      {Math.max(...userData.experience.map(exp => 
-                        new Date().getFullYear() - new Date(exp.startDate).getFullYear()
-                      )) || 0}+
-                    </div>
-                    <div className="text-blue-200">Years Experience</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Section>
-        )} */}
       </main>
 
       {/* Footer */}
@@ -610,9 +573,9 @@ const ModernTemplate = ({ userData }) => {
           {/* Social Links Footer */}
           {hasSocialLinks && (
             <div className="flex justify-center space-x-6 mb-8">
-              {userData?.socialLinks?.linkedin && (
+              {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.linkedin)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-blue-600 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -621,9 +584,9 @@ const ModernTemplate = ({ userData }) => {
                 </a>
               )}
               
-              {userData?.socialLinks?.github && (
+              {userData?.personalInfo?.socialLinks?.github && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.github)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-gray-700 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -632,9 +595,9 @@ const ModernTemplate = ({ userData }) => {
                 </a>
               )}
               
-              {userData?.socialLinks?.twitter && (
+              {userData?.personalInfo?.socialLinks?.twitter && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.twitter)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-blue-500 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -643,9 +606,9 @@ const ModernTemplate = ({ userData }) => {
                 </a>
               )}
               
-              {userData?.socialLinks?.website && (
+              {userData?.personalInfo?.socialLinks?.website && (
                 <a 
-                  href={ensureHttpProtocol(userData.socialLinks.website)}
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-green-600 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -668,7 +631,7 @@ const ModernTemplate = ({ userData }) => {
       </footer>
 
       {/* Custom Styles for Animations */}
-      <style >{`
+      <style>{`
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
