@@ -141,7 +141,10 @@ const login = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         username: user.username,
-        isEmailVerified: user.isEmailVerified
+        isEmailVerified: user.isEmailVerified,
+        selectedTemplate: user.selectedTemplate,
+        isProfileCompleted: user.isProfileCompleted,
+        portfolioDeployed: user.portfolioDeployed,
       }
     });
 
@@ -171,8 +174,8 @@ const getMe = async (req, res) => {
         email: user.email,
         role: user.role,
         selectedTemplate: user.selectedTemplate,
-        username: user.username,
         isProfileCompleted: user.isProfileCompleted,
+        username: user.username,
         isEmailVerified: user.isEmailVerified,
         profilePhoto: user.profilePhoto,
         title: user.title,

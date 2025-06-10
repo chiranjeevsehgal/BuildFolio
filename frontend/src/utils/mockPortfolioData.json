@@ -1,0 +1,180 @@
+{
+  "firstName": "Alex",
+  "lastName": "Johnson",
+  "email": "alex.johnson@example.com",
+  "username": "alexjohnson",
+  "profilePhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+  "personalInfo": {
+    "phone": "+1 (555) 123-4567",
+    "location": "San Francisco, CA",
+    "socialLinks": {
+      "linkedin": "https://linkedin.com/in/alexjohnson",
+      "github": "https://github.com/alexjohnson",
+      "twitter": "https://twitter.com/alexjohnson",
+      "website": "https://alexjohnson.dev"
+    }
+  },
+  "professional": {
+    "title": "Senior Full Stack Developer",
+    "summary": "Passionate full-stack developer with 5+ years of experience building scalable web applications. Expertise in modern JavaScript frameworks, cloud technologies, and agile development practices. I love creating user-centric solutions that solve real-world problems.",
+    "skills": [
+      "JavaScript",
+      "React.js",
+      "Node.js",
+      "TypeScript",
+      "Python",
+      "AWS",
+      "Docker",
+      "MongoDB",
+      "PostgreSQL",
+      "GraphQL",
+      "Next.js",
+      "Express.js"
+    ]
+  },
+  "experience": [
+    {
+      "title": "Senior Full Stack Developer",
+      "company": "TechCorp Solutions",
+      "location": "San Francisco, CA",
+      "startDate": "2022-01-15",
+      "endDate": null,
+      "current": true,
+      "description": "Leading development of microservices architecture serving 100K+ users. Built and maintained React applications with Node.js backends, implemented CI/CD pipelines, and mentored junior developers.",
+      "achievements": [
+        "Reduced application load time by 40% through performance optimization",
+        "Led a team of 4 developers in rebuilding the main product dashboard",
+        "Implemented automated testing that increased code coverage from 60% to 95%",
+        "Designed and developed RESTful APIs handling 1M+ requests daily"
+      ]
+    },
+    {
+      "title": "Full Stack Developer",
+      "company": "Innovation Labs",
+      "location": "Austin, TX",
+      "startDate": "2020-03-01",
+      "endDate": "2021-12-31",
+      "current": false,
+      "description": "Developed customer-facing web applications using React, Node.js, and AWS. Collaborated with design and product teams to deliver high-quality user experiences.",
+      "achievements": [
+        "Built responsive web applications serving 50K+ monthly active users",
+        "Integrated third-party APIs including Stripe, SendGrid, and AWS services",
+        "Improved application security by implementing OAuth 2.0 and JWT authentication"
+      ]
+    },
+    {
+      "title": "Frontend Developer",
+      "company": "StartupXYZ",
+      "location": "Remote",
+      "startDate": "2019-06-01",
+      "endDate": "2020-02-28",
+      "current": false,
+      "description": "Focused on frontend development using React and modern JavaScript. Worked closely with UX designers to implement pixel-perfect interfaces.",
+      "achievements": [
+        "Developed responsive components used across 10+ different product pages",
+        "Implemented real-time features using WebSocket connections",
+        "Optimized bundle size reducing initial load time by 25%"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "school": "Stanford University",
+      "location": "Stanford, CA",
+      "startDate": "2015-09-01",
+      "endDate": "2019-05-15",
+      "gpa": "3.8",
+      "description": "Focused on software engineering, algorithms, and data structures. Participated in ACM programming competitions and contributed to open-source projects."
+    },
+    {
+      "degree": "Full Stack Web Development Certificate",
+      "school": "Lambda School",
+      "location": "Online",
+      "startDate": "2018-01-01",
+      "endDate": "2018-12-31",
+      "gpa": null,
+      "description": "Intensive 9-month program covering modern web development technologies including React, Node.js, and databases."
+    }
+  ],
+  "projects": [
+    {
+      "title": "EcoTracker - Sustainability App",
+      "description": "A mobile-first web application that helps users track their carbon footprint and discover eco-friendly alternatives. Built with React Native and Node.js backend.",
+      "url": "https://ecotracker-demo.herokuapp.com",
+      "githubUrl": "https://github.com/alexjohnson/ecotracker",
+      "image": "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=600&h=400&fit=crop",
+      "skills": ["React Native", "Node.js", "MongoDB", "Express.js", "JWT"],
+      "featured": true
+    },
+    {
+      "title": "TaskFlow - Project Management Tool",
+      "description": "Collaborative project management platform with real-time updates, file sharing, and team communication features. Supports agile workflows and sprint planning.",
+      "url": "https://taskflow-pm.netlify.app",
+      "githubUrl": "https://github.com/alexjohnson/taskflow",
+      "image": "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&h=400&fit=crop",
+      "skills": ["React.js", "Firebase", "Material-UI", "WebSocket", "Stripe API"],
+      "featured": true
+    },
+    {
+      "title": "CryptoPortfolio Tracker",
+      "description": "Real-time cryptocurrency portfolio tracker with advanced analytics, price alerts, and market insights. Integrates with multiple exchange APIs.",
+      "url": "https://cryptoportfolio-tracker.vercel.app",
+      "githubUrl": "https://github.com/alexjohnson/crypto-tracker",
+      "image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=600&h=400&fit=crop",
+      "skills": ["Next.js", "TypeScript", "Chart.js", "CoinGecko API", "Tailwind CSS"],
+      "featured": false
+    },
+    {
+      "title": "WeatherWise - Smart Weather App",
+      "description": "Intelligent weather application with location-based forecasts, weather alerts, and outfit recommendations based on weather conditions.",
+      "url": "https://weatherwise-app.surge.sh",
+      "githubUrl": "https://github.com/alexjohnson/weatherwise",
+      "image": "https://images.unsplash.com/photo-1561484930-998b6a7b22e8?w=600&h=400&fit=crop",
+      "skills": ["Vue.js", "OpenWeather API", "PWA", "Service Workers", "CSS3"],
+      "featured": false
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "Amazon Web Services",
+      "issueDate": "2023-03-15",
+      "expiryDate": "2026-03-15",
+      "credentialUrl": "https://aws.amazon.com/verification",
+      "badge": "https://images.credly.com/size/340x340/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png"
+    },
+    {
+      "name": "Google Cloud Professional Developer",
+      "issuer": "Google Cloud",
+      "issueDate": "2022-11-20",
+      "expiryDate": "2024-11-20",
+      "credentialUrl": "https://cloud.google.com/certification/verify",
+      "badge": "https://api.accredible.com/v1/frontend/credential_website_embed_image/certificate/25991234"
+    },
+    {
+      "name": "Meta React Developer Certificate",
+      "issuer": "Meta (Facebook)",
+      "issueDate": "2022-08-10",
+      "expiryDate": null,
+      "credentialUrl": "https://coursera.org/verify/certificate123",
+      "badge": "https://s3.amazonaws.com/coursera_assets/meta_images/generated/CERTIFICATE_LANDING_PAGE/CERTIFICATE_LANDING_PAGE~ABC123/CERTIFICATE_LANDING_PAGE~ABC123.png"
+    },
+    {
+      "name": "MongoDB Certified Developer",
+      "issuer": "MongoDB University",
+      "issueDate": "2021-12-05",
+      "expiryDate": "2024-12-05",
+      "credentialUrl": "https://university.mongodb.com/verify_certificate",
+      "badge": "https://webassets.mongodb.com/_com_assets/cms/MongoDB_Certified_Developer_Associate_Badge-1dmytn"
+    }
+  ],
+  "isPublic": true,
+  "completionPercentage": 95,
+  "showContactInfo": true,
+  "seoData": {
+    "title": "Alex Johnson - Senior Full Stack Developer",
+    "description": "Passionate full-stack developer with 5+ years of experience building scalable web applications. Expertise in modern JavaScript frameworks, cloud technologies, and agile development practices.",
+    "keywords": "Full Stack Developer, JavaScript, React.js, Node.js, TypeScript, Python, AWS, Docker, MongoDB, PostgreSQL, GraphQL, Next.js, Express.js, San Francisco, Web Development, Software Engineer"
+  }
+}

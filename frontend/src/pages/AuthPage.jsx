@@ -145,7 +145,31 @@ const AuthPage = () => {
         localStorage.setItem('authToken', response.data.token);
 
         // Store user data
-        localStorage.setItem('portfolioUser', JSON.stringify(response.data.user));
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        const user = response.data.user;
+
+        console.log(user);
+
+        const redirectUser = () => {
+          // Check completion status and redirect accordingly
+          if (!user.isProfileCompleted) {
+            // Profile not completed - go to profile page
+            window.location.href = '/profile';
+          } else if (!user.selectedTemplate) {
+            // Profile completed but no template selected - go to templates
+            window.location.href = '/templates';
+          } else if (user.selectedTemplate && !user.portfolioDeployed) {
+            // Template selected but portfolio not deployed - go to portfolio
+            window.location.href = '/portfolio';
+          } else if (user.portfolioDeployed) {
+            // Portfolio is deployed - go to portfolio dashboard
+            window.location.href = '/portfolio';
+          } else {
+            // Fallback - go to templates
+            window.location.href = '/templates';
+          }
+        };
 
         // Set success message
         setMessage({
@@ -153,15 +177,12 @@ const AuthPage = () => {
           content: authMode === 'signin' ? 'Welcome back!' : 'Account created successfully!'
         });
 
-        // Redirect based on user status
         if (VITE_ENV === 'development') {
           setTimeout(() => {
-            if (authMode === 'signup' || !response.data.user.username) {
-              window.location.href = '/templates';
-            }
+            redirectUser();
           }, 1500);
         } else {
-          window.location.href = '/templates';
+          redirectUser();
         }
       }
     } catch (error) {

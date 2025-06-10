@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Monitor, Tablet, Smartphone, Download, Share2, Settings, Eye, ExternalLink, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { getTemplateComponent, isValidTemplateId } from '../templates/TemplateRegistry';
+import { getMockUserData } from '../utils/mockData';
 
 const TemplatePreview = () => {
   const { templateId } = useParams();
@@ -34,8 +35,12 @@ const TemplatePreview = () => {
         const data = await response.json();
         if (data.success && data.profile) {
           const profile = data.profile;
-          console.log('Profile data received:', profile);
           
+          if (profile.isProfileCompleted === false) {
+            setUserData(getMockUserData());
+            return;
+          }
+
           // Map the API response to the expected template format
           const mappedUserData = {
             // Basic user info
@@ -44,7 +49,7 @@ const TemplatePreview = () => {
             email: profile.user?.email || '',
             username: profile.user?.username || '',
             profilePhoto: profile.profilePhoto || null,
-            
+
             // Personal info structure
             personalInfo: {
               phone: profile.phone || '',
@@ -56,25 +61,25 @@ const TemplatePreview = () => {
                 website: profile.socialLinks?.website || ''
               }
             },
-            
+
             // Professional info structure
             professional: {
               title: profile.title || '',
               summary: profile.summary || '',
               skills: profile.skills || []
             },
-            
+
             // Direct arrays (already in correct format)
             experience: profile.experience || [],
             education: profile.education || [],
             projects: profile.projects || [],
             certifications: profile.certifications || [],
-            
+
             // Additional metadata
             isPublic: profile.isPublic || false,
             completionPercentage: profile.completionPercentage || 0,
             showContactInfo: profile.showContactInfo !== false, // Default to true
-            
+
             // SEO data if available
             seoData: {
               title: profile.user ? `${profile.user.firstName} ${profile.user.lastName} - Portfolio` : 'Portfolio',
@@ -82,8 +87,8 @@ const TemplatePreview = () => {
               keywords: profile.skills ? profile.skills.join(', ') : ''
             }
           };
-          
-          console.log('Mapped user data:', mappedUserData);
+
+
           setUserData(mappedUserData);
         }
       } else {
@@ -127,17 +132,17 @@ const TemplatePreview = () => {
       // Fetch template data from API
       try {
         const templateResponse = await axios.get(`/templates/${templateId}`);
-        
+
         if (templateResponse.data.success) {
           const template = templateResponse.data.data;
-          
+
           // Get the component from registry
           const templateInfo = getTemplateComponent(templateId);
-          
+
           if (!templateInfo) {
             throw new Error(`Template component not found for ID: ${templateId}`);
           }
-          
+
           setTemplateData({
             id: template.templateId,
             name: template.name,
@@ -154,14 +159,14 @@ const TemplatePreview = () => {
 
           // Clear any previous error messages
           setMessage({ type: "", content: "" });
-          
+
         } else {
           throw new Error(templateResponse.data.message || 'Template not found');
         }
-        
+
       } catch (apiError) {
         console.error('API error:', apiError);
-        
+
         if (apiError.response?.status === 404) {
           throw new Error(`Template "${templateId}" not found in database`);
         } else if (apiError.response?.status >= 500) {
@@ -208,16 +213,16 @@ const TemplatePreview = () => {
       await axios.patch('/profiles/template', {
         selectedTemplate: templateId
       });
-      
+
       setMessage({
         type: 'success',
         content: 'Template selected successfully!'
       });
-      
+
       setTimeout(() => {
         navigate('/templates?selected=' + templateId);
       }, 1500);
-      
+
     } catch (error) {
       console.error('Failed to select template:', error);
       setMessage({
@@ -278,7 +283,7 @@ const TemplatePreview = () => {
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Template Not Available</h2>
           <p className="text-gray-600 mb-6">{message.content}</p>
-          
+
           <div className="space-y-3">
             <button
               onClick={() => navigate('/templates')}
@@ -286,7 +291,7 @@ const TemplatePreview = () => {
             >
               Browse Available Templates
             </button>
-            
+
             <button
               onClick={() => window.location.reload()}
               className="w-full border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
@@ -294,7 +299,7 @@ const TemplatePreview = () => {
               Retry Loading
             </button>
           </div>
-          
+
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
               <strong>Template ID:</strong> {templateId}
@@ -316,7 +321,7 @@ const TemplatePreview = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Unable to Load Template</h2>
           <p className="text-gray-600 mb-4">The template component could not be initialized.</p>
           <button
-            onClick={() => {navigate('/templates')}}
+            onClick={() => { navigate('/templates') }}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Back to Templates
@@ -332,13 +337,12 @@ const TemplatePreview = () => {
     <div className={`min-h-screen ${isFullscreen ? 'bg-white' : 'bg-gray-100'}`}>
       {/* Success/Error Messages */}
       {message.content && !isFullscreen && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
-          message.type === 'success' 
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${message.type === 'success'
             ? 'bg-green-50 border border-green-200 text-green-700'
             : message.type === 'error'
-            ? 'bg-red-50 border border-red-200 text-red-700'
-            : 'bg-blue-50 border border-blue-200 text-blue-700'
-        }`}>
+              ? 'bg-red-50 border border-red-200 text-red-700'
+              : 'bg-blue-50 border border-blue-200 text-blue-700'
+          }`}>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">{message.content}</p>
             <button
@@ -382,11 +386,10 @@ const TemplatePreview = () => {
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 ${
-                      viewMode === mode
+                    className={`cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 ${viewMode === mode
                         ? 'bg-white text-gray-800 shadow-sm'
                         : 'text-gray-600 hover:text-gray-800'
-                    }`}
+                      }`}
                     title={label}
                   >
                     <Icon className="w-4 h-4" />
@@ -518,7 +521,7 @@ const TemplatePreview = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  
+
                   <button
                     onClick={handleExportPreview}
                     className="w-full flex items-center cursor-pointer justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"

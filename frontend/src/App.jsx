@@ -29,21 +29,29 @@ function App() {
               <TemplateSelection />
             </ProtectedRoute>
           } />
-          <Route path="/preview/:templateId" element={<TemplatePreview />} />
+          <Route path="/preview/:templateId" element={
+            <ProtectedRoute>
+              <TemplatePreview />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/portfolio" element={<PortfolioDeployment />} />
+          <Route path="/portfolio" element={
+            <ProtectedRoute>
+              <PortfolioDeployment />
+            </ProtectedRoute>
+          } />
           <Route path="/portfolio/:username" element={<PublicPortfolio />} />
 
           {/* Admin Route */}
           <Route path="/admin" element={
-              <ProtectedAdminRoute>
-                <AdminDashboard />
-              </ProtectedAdminRoute>
-            }
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          }
           />
-          
+
           {/* Catch all route for 404 */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </>

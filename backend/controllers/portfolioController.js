@@ -25,7 +25,7 @@ const deployPortfolio = async (req, res) => {
     }
 
     // Validate username format
-    const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
+    const usernameRegex = /^[a-z0-9._-]+$/;
     if (!usernameRegex.test(username)) {
       return res.status(400).json({
         success: false,

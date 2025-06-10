@@ -29,10 +29,18 @@ const getMyProfile = async (req, res) => {
     // Calculate completion percentage
     profile.calculateCompletion();
     await profile.save();
+
+    const extraData = await User.findById(req.user.id).select('selectedTemplate isProfileCompleted portfolioDeployed');
+
     
     res.json({
       success: true,
-      profile
+      profile: {
+        ...profile.toObject(),
+        selectedTemplate: extraData?.selectedTemplate || null,
+        isProfileCompleted: extraData?.isProfileCompleted || false,
+        portfolioDeployed: extraData?.portfolioDeployed || false,
+      }
     });
   } catch (error) {
     console.error('Get profile error:', error);
