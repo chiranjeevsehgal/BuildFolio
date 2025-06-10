@@ -180,7 +180,13 @@ const AuthPage = () => {
 
   // Oauth integration
   const handleOAuthLogin = (provider) => {
-    // console.log(`${provider} OAuth login initiated`);
+    if (provider === 'linkedin') {
+      setMessage({
+      type: 'success',
+      content: "Linkedin Auth will be rolled out soon!"
+    })
+      return
+    }
     window.location.href = `${API_BASE_URL}/auth/${provider}`;
   };
 
@@ -192,7 +198,7 @@ const AuthPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
-        <div className="text-center">
+        <div className="text-center flex flex-col items-center">
           {/* <button 
             onClick={() => window.location.href = '/'}
             className="inline-flex items-center text-slate-600 hover:text-slate-800 transition-colors mb-8"
@@ -208,12 +214,13 @@ const AuthPage = () => {
             <span className="text-2xl font-bold text-slate-800">BuildFolio</span>
           </div> */}
           
+          <a href='/' className='cursor-pointer'><img src="logo.svg" className='align-middle justify-center' /></a>
           <h2 className="text-3xl font-bold text-slate-800 mb-2">
             {authMode === 'signin' ? 'Welcome back!' : 'Create your account'}
           </h2>
           <p className="text-slate-600">
             {authMode === 'signin' 
-              ? 'Sign in to access your portfolio dashboard' 
+              ? 'Sign in to access your dashboard' 
               : 'Start building your professional portfolio today'
             }
           </p>
@@ -248,22 +255,22 @@ const AuthPage = () => {
             <button
               onClick={() => handleOAuthLogin('google')}
               disabled={isLoading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center cursor-pointer justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Chrome className="w-5 h-5 mr-3 text-blue-500" />
               Continue with Google
             </button>
             
-            <button
+            {/* <button
               onClick={() => handleOAuthLogin('linkedin')}
               disabled={isLoading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center cursor-pointer justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="w-5 h-5 mr-3 bg-blue-600 rounded flex items-center justify-center">
                 <span className="text-white text-xs font-bold">in</span>
               </div>
               Continue with LinkedIn
-            </button>
+            </button> */}
 
           </div>
 
@@ -406,7 +413,7 @@ const AuthPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -454,13 +461,13 @@ const AuthPage = () => {
                   />
                   <span className="ml-2 text-slate-600">Remember me</span>
                 </label>
-                <button 
+                {/* <button 
                   type="button" 
-                  className="text-blue-600 hover:text-blue-700 transition-colors"
+                  className="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
                   disabled={isLoading}
                 >
                   Forgot password?
-                </button>
+                </button> */}
               </div>
             )}
 
@@ -468,7 +475,7 @@ const AuthPage = () => {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <>
@@ -482,14 +489,14 @@ const AuthPage = () => {
           </div>
 
           {/* Terms and Privacy for Signup */}
-          {authMode === 'signup' && (
+          {/* {authMode === 'signup' && (
             <p className="mt-4 text-xs text-slate-500 text-center">
               By creating an account, you agree to our{' '}
               <a href="/terms" className="text-blue-600 hover:text-blue-700 underline">Terms of Service</a>
               {' '}and{' '}
               <a href="/privacy" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</a>
             </p>
-          )}
+          )} */}
 
           {/* Toggle Auth Mode */}
           <div className="mt-6 text-center">
@@ -502,7 +509,7 @@ const AuthPage = () => {
                   setFormErrors({});
                   setMessage({ type: '', content: '' });
                 }}
-                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {authMode === 'signin' ? 'Sign up' : 'Sign in'}
@@ -512,13 +519,13 @@ const AuthPage = () => {
         </div>
 
         {/* Trust Indicators */}
-        <div className="text-center">
+        {/* <div className="text-center">
           <div className="flex justify-center items-center space-x-6 opacity-60">
           <div className="text-xs text-slate-400">🔒 SSL Secured</div>
             <div className="text-xs text-slate-400">⚡ Instant Setup</div>
             <div className="text-xs text-slate-400">⚙️ Easy Customization</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

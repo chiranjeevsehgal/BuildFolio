@@ -86,11 +86,12 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <a href='/'>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                  {/* <Sparkles className="w-5 h-5 text-white" /> */}
+                  <img src="logo.svg" className='Logo'/>
                 </div>
-                <span className="text-xl font-bold text-slate-800">BuildFolio</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">BuildFolio</span>
               </div>
             </a>
 

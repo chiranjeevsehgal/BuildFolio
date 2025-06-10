@@ -22,7 +22,7 @@ import {
 import axios from "axios"
 import Navbar from "../components/Navbar"
 
-const ProfileDataCollection = () => {
+const Profile = () => {
     const [importMethod, setImportMethod] = useState("manual")
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -1761,4 +1761,4 @@ const ProfileDataCollection = () => {
     )
 }
 
-export default ProfileDataCollection
+export default Profile;

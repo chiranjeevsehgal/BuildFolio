@@ -241,8 +241,11 @@ const Navbar = ({ current }) => {
             <div className="flex-shrink-0">
               <a href='/portfolio'>
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-white" />
+                  {/* <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"> */}
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                    {/* <Zap className="w-5 h-5 text-white" /> */}
+                    {/* <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749526426/4.1_fbfish.png" className=''/> */}
+                    <img src="logo.svg" className='Logo'/>
                   </div>
                   <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                     BuildFolio

@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('Portfolio Generator Backend!');
+    res.send('BuildFolio Backend is running!');
 });
 
 app.use('/api/auth', require('./routes/auth'));
