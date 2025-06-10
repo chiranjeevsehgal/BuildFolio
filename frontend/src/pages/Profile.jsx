@@ -407,16 +407,6 @@ const Profile = () => {
 
         setUploadingPhoto(true)
 
-        // Simulate API call
-        setTimeout(() => {
-            const photoUrl = URL.createObjectURL(file)
-            setProfilePhoto(photoUrl)
-            setMessage({
-                type: "success",
-                content: "Profile photo uploaded successfully!",
-            })
-            setUploadingPhoto(false)
-        }, 1500)
     }
 
     const updateProfileData = (section, field, value) => {
