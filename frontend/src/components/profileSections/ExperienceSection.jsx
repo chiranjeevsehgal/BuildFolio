@@ -8,6 +8,7 @@ import {
     Trash2,
     Info,
 } from "lucide-react"
+import { LocationAutocomplete } from "./Location_UniversitySearch"
 
 const ExperienceSection = ({
     profileData,
@@ -283,13 +284,25 @@ const ExperienceSection = ({
 
                             <div className="grid md:grid-cols-3 gap-4 mb-4">
                                 <div>
-                                    <input
+                                    {/* <input
                                         type="text"
                                         value={exp.location}
                                         onChange={(e) => updateExperience(index, "location", e.target.value)}
                                         className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors"
                                         placeholder="Location"
+                                    /> */}
+                                    <LocationAutocomplete
+                                        value={exp.location}
+                                        onChange={(value) => updateExperience(index, "location", value)}
+                                        placeholder="Location"
+                                        hasError={hasFieldError(`experience_${index}_location`)}
                                     />
+                                    {hasFieldError(`experience_${index}_location`) && (
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                            <Info className="w-3 h-3" />
+                                            <span>{getFieldError(`experience_${index}_location`)}</span>
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <input

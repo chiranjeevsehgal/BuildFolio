@@ -9,6 +9,7 @@ import {
     Info,
 } from "lucide-react"
 import Toast from "../Toast"
+import { LocationAutocomplete, UniversityAutocomplete } from "./Location_UniversitySearch"
 
 const EducationSection = ({
     profileData,
@@ -250,8 +251,8 @@ const EducationSection = ({
                     <button
                         onClick={() => handleToggleEdit("education")}
                         className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${editingSections.education
-                                ? "bg-gray-600 text-white hover:bg-gray-700"
-                                : "bg-slate-600 text-white hover:bg-slate-700"
+                            ? "bg-gray-600 text-white hover:bg-gray-700"
+                            : "bg-slate-600 text-white hover:bg-slate-700"
                             }`}
                     >
                         <Edit3 className="w-4 h-4" />
@@ -275,8 +276,8 @@ const EducationSection = ({
                                 onMouseEnter={() => setShowTooltip(true)}
                                 onMouseLeave={() => setShowTooltip(false)}
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${shouldDisableSave
-                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
                                     }`}
                             >
                                 {isSaving ? (
@@ -333,7 +334,7 @@ const EducationSection = ({
                                     )}
                                 </div>
                                 <div>
-                                    <input
+                                    {/* <input
                                         type="text"
                                         value={edu.school}
                                         onChange={(e) => updateEducation(index, "school", e.target.value)}
@@ -341,6 +342,12 @@ const EducationSection = ({
                                         className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`education_${index}_school`) ? "border-red-500" : "border-slate-300"
                                             }`}
                                         placeholder="Institution Name *"
+                                    /> */}
+                                    <UniversityAutocomplete
+                                        value={edu.school}
+                                        onChange={(value) => updateEducation(index, "school", value)}
+                                        placeholder="University/College Name"
+                                        hasError={hasFieldError(`education_${index}_education`)}
                                     />
                                     {hasFieldError(`education_${index}_school`) && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
@@ -352,13 +359,25 @@ const EducationSection = ({
                             </div>
 
                             <div className="grid md:grid-cols-3 gap-4 mb-4">
-                                <input
+                                {/* <input
                                     type="text"
                                     value={edu.location}
                                     onChange={(e) => updateEducation(index, "location", e.target.value)}
                                     className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     placeholder="Location"
+                                /> */}
+                                <LocationAutocomplete
+                                    value={edu.location}
+                                    onChange={(value) => updateEducation(index, "location", value)}
+                                    placeholder="Location"
+                                    hasError={hasFieldError(`education_${index}_location`)}
                                 />
+                                {hasFieldError(`education_${index}_location`) && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <Info className="w-3 h-3" />
+                                        <span>{getFieldError(`education_${index}_location`)}</span>
+                                    </p>
+                                )}
                                 <div>
                                     <input
                                         type="month"
