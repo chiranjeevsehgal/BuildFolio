@@ -1,8 +1,9 @@
 const express = require('express');
 const { body } = require('express-validator');
 const passport = require('passport');
-const { register, login, getMe, oauthSuccess, oauthFailure, markProfileCompleted } = require('../controllers/authController');
+const { register, login, getMe, oauthSuccess, oauthFailure, markProfileCompleted, sendOtp, verifyOtp, resendOtp } = require('../controllers/authController');
 const auth = require('../middleware/auth');
+const { otpSendLimiter, otpVerifyLimiter, registerLimiter } = require('../middleware/otprateLimiter');
 
 const router = express.Router();
 
@@ -18,10 +19,6 @@ const registerValidation = [
     .withMessage('Last name is required')
     .isLength({ min: 2, max: 50 })
     .withMessage('Last name must be between 2 and 50 characters'),
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
@@ -34,6 +31,9 @@ const registerValidation = [
     .withMessage('Username must be between 3 and 30 characters')
     .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage('Username can only contain letters, numbers, and underscores'),
+  body('verifiedToken')
+      .notEmpty()
+      .withMessage('Email verification token is required'),
 ];
 
 const loginValidation = [
@@ -46,8 +46,63 @@ const loginValidation = [
     .withMessage('Password is required')
 ];
 
-// Routes
-router.post('/register', registerValidation, register);
+// Routes -----------------------------------
+
+// @desc    Send OTP to email
+// @route   POST /api/auth/send-otp
+// @access  Public
+router.post('/send-otp', 
+  otpSendLimiter,
+  [
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Please provide a valid email address')
+  ],
+  sendOtp
+);
+
+// @desc    Verify OTP
+// @route   POST /api/auth/verify-otp
+// @access  Public
+router.post('/verify-otp',
+  otpVerifyLimiter,
+  [
+    body('otp')
+      .isLength({ min: 6, max: 6 })
+      .isNumeric()
+      .withMessage('OTP must be a 6-digit number'),
+    body('tempToken')
+      .notEmpty()
+      .withMessage('Verification token is required')
+  ],
+  verifyOtp
+);
+
+
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+router.post('/resend-otp',
+  otpSendLimiter,
+  [
+    body('tempToken')
+      .notEmpty()
+      .withMessage('Verification token is required')
+  ],
+  resendOtp
+);
+
+// router.post('/register', registerValidation, register);
+
+// @desc    Register user (after email verification)
+// @route   POST /api/auth/register
+// @access  Public
+router.post('/register',
+  registerLimiter,registerValidation, register
+);
+
+
 router.post('/login', loginValidation, login);
 router.get('/profile', auth, getMe);
 router.patch('/profile/complete', auth, markProfileCompleted);

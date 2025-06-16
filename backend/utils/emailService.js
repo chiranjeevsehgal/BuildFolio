@@ -91,6 +91,45 @@ const sendWelcomeEmail = async (userData) => {
 };
 
 
+// Send OTP while registering to new users
+const sendRegisterOTP = async (email, otp) => {
+  try {
+    // Prepare template variables
+    const templateVariables = {
+      email:email,
+      otp: otp,
+      expiry_minutes: `10`,
+    };
+
+    // Send welcome email using template
+    const response = await client.send({
+      from: {
+        email: process.env.FROM_EMAIL,
+        name: process.env.FROM_NAME
+      },
+      to: [
+        {
+          email
+        }
+      ],
+      template_uuid: process.env.REGISTER_OTP_TEMPLATE_ID,
+      template_variables: templateVariables
+    });
+
+    console.log('Registration otp sent successfully:', response);
+    return { 
+      success: true, 
+      messageId: response.message_ids?.[0],
+      details: response
+    };
+
+  } catch (error) {
+    console.error('Failed to send registeration email:', error);
+    throw error;
+  }
+};
+
+
 // Test connection to Mailtrap
 const testConnection = async () => {
   try {
@@ -121,5 +160,6 @@ const testConnection = async () => {
 module.exports = {
   sendFeedbackNotification,
   sendWelcomeEmail,
+  sendRegisterOTP,
   testConnection
 };

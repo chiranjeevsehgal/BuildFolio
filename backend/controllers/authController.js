@@ -1,8 +1,10 @@
 const User = require('../models/User');
-const { sendWelcomeEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendRegisterOTP } = require('../utils/emailService');
 const generateToken = require('../utils/generateToken');
 const { validationResult } = require('express-validator');
 const passport = require('passport');
+const { verifyToken, createVerifiedToken, createTempToken, updateTokenAttempts } = require('../utils/tokenUtils');
+const { generateOTP, hashOTP, verifyOTP } = require('../utils/otpUtils');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -11,40 +13,76 @@ const register = async (req, res) => {
   try {
     // Check for validation errors
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
+
+    if (process.env.NODE_ENV === 'development') {
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: errors.array()
+        });
+      }
+    }
+    else {
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+        });
+      }
+    }
+
+    const { firstName, lastName, password, username, verifiedToken } = req.body;
+
+    // Verify and decode token
+    let decoded;
+    try {
+      decoded = verifyToken(verifiedToken);
+    } catch (error) {
+      return res.status(401).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: 'Invalid or expired verification token'
       });
     }
 
-    const { firstName, lastName, email, password, username } = req.body;
+    // Check token type and verification status
+    if (decoded.type !== 'email_verified' || !decoded.emailVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Email not verified. Please verify your email first.'
+      });
+    }
+
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      $or: [
+        { email: decoded.email },
+        { username }
+      ]
+    });
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this email'
-      });
-    }
-
-    const existingUserName = await User.findOne({ username });
-    if (existingUserName) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this username'
-      });
+      if (existingUser.email === decoded.email) {
+        return res.status(400).json({
+          success: false,
+          message: 'User with this email already exists'
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already taken'
+        });
+      }
     }
 
     // Create user
     const user = await User.create({
       firstName,
       lastName,
-      email,
+      email: decoded.email,
       username,
-      password
+      password,
+      isEmailVerified: true,
     });
 
     // Generate token
@@ -233,6 +271,224 @@ const markProfileCompleted = async (req, res) => {
   }
 };
 
+// @desc    Send OTP to email for verification
+// @route   POST /api/auth/send-otp
+// @access  Public
+const sendOtp = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+
+    if (process.env.NODE_ENV === 'development') {
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: errors.array()
+        });
+      }
+    }
+    else {
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+        });
+      }
+    }
+    const { email } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email already exists'
+      });
+    }
+
+    // Generate and hash OTP
+    const otp = generateOTP();
+    const otpHash = await hashOTP(otp);
+
+    // Send OTP email
+    const emailResult = await sendRegisterOTP(email, otp);
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email. Please try again.'
+      });
+    }
+
+    // Create temporary token with OTP hash
+    const tempToken = createTempToken(email, otpHash);
+
+    res.json({
+      success: true,
+      message: 'Verification code sent to your email',
+      tempToken,
+      expiresIn: '10 minutes'
+    });
+
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send verification code',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Verify OTP
+// @route   POST /api/auth/verify-otp
+// @access  Public
+const verifyOtp = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { otp, tempToken } = req.body;
+
+    // Verify and decode token
+    let decoded;
+    try {
+      decoded = verifyToken(tempToken);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired verification token'
+      });
+    }
+
+    // Check token type
+    if (decoded.type !== 'email_verification') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token type'
+      });
+    }
+
+    // Check attempts
+    if (decoded.attempts >= decoded.maxAttempts) {
+      return res.status(429).json({
+        success: false,
+        message: 'Maximum verification attempts exceeded. Please request a new code.'
+      });
+    }
+
+    // Verify OTP
+    const isValidOTP = await verifyOTP(otp, decoded.otpHash);
+
+    if (!isValidOTP) {
+      // Update attempts count
+      const newAttempts = decoded.attempts + 1;
+      const updatedToken = updateTokenAttempts(tempToken, newAttempts);
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid verification code. ${decoded.maxAttempts - newAttempts} attempts remaining.`,
+        tempToken: updatedToken
+      });
+    }
+
+    // OTP verified successfully - create verified token
+    const verifiedToken = createVerifiedToken(decoded.email);
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+      verifiedToken,
+      email: decoded.email,
+      expiresIn: '30 minutes'
+    });
+
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify code',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+const resendOtp = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { tempToken } = req.body;
+
+    // Verify and decode token
+    let decoded;
+    try {
+      decoded = verifyToken(tempToken);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired verification token'
+      });
+    }
+
+    // Check token type
+    if (decoded.type !== 'email_verification') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token type'
+      });
+    }
+
+    // Generate new OTP
+    const otp = generateOTP();
+    const otpHash = await hashOTP(otp);
+
+    // Send OTP email
+    const emailResult = await sendRegisterOTP(decoded.email, otp);
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email. Please try again.'
+      });
+    }
+
+    // Create new temporary token with new OTP hash and reset attempts
+    const newTempToken = createTempToken(decoded.email, otpHash);
+
+    res.json({
+      success: true,
+      message: 'New verification code sent to your email',
+      tempToken: newTempToken,
+      expiresIn: '10 minutes'
+    });
+
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend verification code',
+      error: error.message
+    });
+  }
+};
+
 
 // OAuth Success
 const oauthSuccess = async (req, res) => {
@@ -258,5 +514,9 @@ module.exports = {
   getMe,
   markProfileCompleted,
   oauthSuccess,
-  oauthFailure
+  oauthFailure,
+  sendOtp,
+  verifyOtp,
+  resendOtp,
+
 };
