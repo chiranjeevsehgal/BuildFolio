@@ -34,6 +34,7 @@ const PersonalInfoSection = ({
     const [hasChanges, setHasChanges] = useState(false)
     const [showTooltip, setShowTooltip] = useState(false)
     const tooltipRef = useRef(null)
+    const fileInputRef = useRef(null);
 
     // Helper functions
     const getFieldError = (fieldName) => {
@@ -43,6 +44,12 @@ const PersonalInfoSection = ({
     const hasFieldError = (fieldName) => {
         return !!validationErrors[fieldName] && touchedFields[fieldName]
     }
+
+    const handleUploadButtonClick = () => {
+    if (fileInputRef.current) {
+        fileInputRef.current.click();
+    }
+};
 
     // Deep comparison function for objects
     const deepEqual = (obj1, obj2) => {
@@ -181,7 +188,7 @@ const PersonalInfoSection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("personalInfo")}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-colors ${
                             editingSections.personalInfo 
                                 ? "bg-gray-600 text-white hover:bg-gray-700" 
                                 : "bg-slate-600 text-white hover:bg-slate-700"
@@ -201,7 +208,7 @@ const PersonalInfoSection = ({
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                                     shouldDisableSave
                                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 cursor-pointer"
                                 }`}
                             >
                                 {isSaving ? (
@@ -238,6 +245,7 @@ const PersonalInfoSection = ({
                     {editingSections.personalInfo && (
                         <input
                             type="file"
+                            ref={fileInputRef}
                             accept="image/*"
                             onChange={handlePhotoUpload}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
@@ -250,7 +258,8 @@ const PersonalInfoSection = ({
                     <p className="text-sm text-slate-600 mb-2">Upload a professional headshot (max 5MB)</p>
                     {editingSections.personalInfo && (
                         <button 
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors" 
+                            className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors" 
+                            onClick={handleUploadButtonClick}
                             disabled={uploadingPhoto}
                         >
                             {uploadingPhoto ? "Uploading..." : "Upload Photo"}

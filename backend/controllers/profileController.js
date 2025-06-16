@@ -125,6 +125,7 @@ const updateProfile = async (req, res) => {
 // @access  Private
 const uploadProfilePhoto = async (req, res) => {
   try {
+    // Check if file was uploaded
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -132,36 +133,129 @@ const uploadProfilePhoto = async (req, res) => {
       });
     }
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'portfoliogen/profiles',
-      transformation: [
-        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
-        { quality: 'auto', fetch_format: 'auto' }
-      ]
-    });
+    console.log('File received:', req.file.originalname, 'Size:', req.file.size);
 
-    // Update profile
-    let profile = await Profile.findOne({ user: req.user.id });
-    if (!profile) {
-      profile = new Profile({ user: req.user.id });
-    }
+    // Upload buffer directly to Cloudinary (no disk storage needed)
+    const result = await cloudinary.uploader.upload_stream(
+      {
+        folder: 'buildfolio/profiles',
+        public_id: `profile_${req.user.id}_${Date.now()}`, // Unique ID for each user
+        transformation: [
+          { 
+            width: 400, 
+            height: 400, 
+            crop: 'fill', 
+            gravity: 'face',
+            quality: 'auto',
+            fetch_format: 'auto'
+          }
+        ],
+        overwrite: true, // Allow overwriting existing files
+        resource_type: 'image'
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to upload to cloud storage',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+          });
+        }
 
-    profile.profilePhoto = result.secure_url;
-    profile.calculateCompletion();
-    await profile.save();
+        try {
+          console.log('Cloudinary upload successful:', result.public_id);
 
-    res.json({
-      success: true,
-      message: 'Profile photo uploaded successfully',
-      photoUrl: result.secure_url
-    });
+          // Find or create profile
+          let profile = await Profile.findOne({ user: req.user.id });
+          if (!profile) {
+            profile = new Profile({ 
+              user: req.user.id,
+              personalInfo: {
+                phone: '',
+                location: '',
+                socialLinks: {
+                  linkedin: '',
+                  github: ''
+                }
+              }
+            });
+          }
+
+          // If user had a previous photo, optionally delete it from Cloudinary
+          if (profile.profilePhoto) {
+            try {
+              // Extract public_id from old URL to delete old image
+              const urlParts = profile.profilePhoto.split('/');
+              const publicIdWithExtension = urlParts[urlParts.length - 1];
+              const oldPublicId = publicIdWithExtension.split('.')[0];
+              
+              if (oldPublicId && oldPublicId.startsWith('profile_')) {
+                await cloudinary.uploader.destroy(`buildfolio/profiles/${oldPublicId}`);
+                console.log('Old profile photo deleted from Cloudinary');
+              }
+            } catch (deleteOldError) {
+              console.warn('Failed to delete old profile photo:', deleteOldError.message);
+            }
+          }
+
+          // Update profile with new photo URL
+          profile.profilePhoto = result.secure_url;
+          
+          // Calculate completion if method exists
+          if (typeof profile.calculateCompletion === 'function') {
+            profile.calculateCompletion();
+          }
+          
+          await profile.save();
+
+          console.log('Profile updated successfully');
+
+          // Send success response
+          res.json({
+            success: true,
+            message: 'Profile photo uploaded successfully',
+            photoUrl: result.secure_url,
+            publicId: result.public_id
+          });
+
+        } catch (dbError) {
+          console.error('Database update error:', dbError);
+          res.status(500).json({
+            success: false,
+            message: 'Photo uploaded but failed to update profile',
+            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+          });
+        }
+      }
+    );
+
+    // Upload the buffer to Cloudinary
+    result.end(req.file.buffer);
+
   } catch (error) {
     console.error('Upload photo error:', error);
+
+    // Handle specific error types
+    if (error.message.includes('Invalid image file')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid image file format'
+      });
+    }
+
+    if (error.message.includes('File too large')) {
+      return res.status(400).json({
+        success: false,
+        message: 'File size too large. Maximum 5MB allowed.'
+      });
+    }
+
+    // Generic error response
     res.status(500).json({
       success: false,
-      message: 'Failed to upload photo',
-      error: error.message
+      message: 'Failed to upload photo. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

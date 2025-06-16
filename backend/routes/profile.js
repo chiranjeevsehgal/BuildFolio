@@ -12,21 +12,23 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// Multer configuration for file uploads
-// const upload = multer({
-//   dest: 'uploads/',
-//   limits: {
-//     fileSize: 5 * 1024 * 1024 // 5MB limit
-//   },
-//   fileFilter: (req, file, cb) => {
-//     if (file.mimetype.startsWith('image/')) {
-//       cb(null, true);
-//     } else {
-//       cb(new Error('Only image files are allowed'), false);
-//     }
-//   }
-// });
-const upload = multer({ storage: multer.memoryStorage() });
+// const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'), false);
+    }
+  }
+});
+
 
 
 // Validation rules
@@ -60,7 +62,7 @@ const profileValidation = [
 // Routes
 router.get('/me', auth, getMyProfile);
 router.put('/me', auth, profileValidation, updateProfile);
-router.post('/photo', auth, upload.single('photo'), uploadProfilePhoto);
+router.post('/photo', auth, upload.single('profilePhoto'), uploadProfilePhoto);
 router.patch('/template', auth, updateUserTemplate);
 
 module.exports = router;

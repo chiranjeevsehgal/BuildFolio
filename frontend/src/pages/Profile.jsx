@@ -260,45 +260,58 @@ const Profile = () => {
 
     // Enhanced photo upload with validation
     const handlePhotoUpload = async (event) => {
-        const file = event.target.files[0]
-        if (!file) return
+        const file = event.target.files[0];
+        if (!file) return;
 
         // Enhanced file validation
-        const maxSize = 5 * 1024 * 1024 // 5MB
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp']
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
 
         if (file.size > maxSize) {
-            showMessage('error', 'Image size must be less than 5MB')
-            return
+            showMessage('error', 'Image size must be less than 5MB');
+            return;
         }
 
         if (!allowedTypes.includes(file.type)) {
-            showMessage('error', 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)')
-            return
+            showMessage('error', 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
+            return;
         }
 
-        setUploadingPhoto(true)
+        setUploadingPhoto(true);
 
         try {
-            const formData = new FormData()
-            formData.append('profilePhoto', file)
+            // Create FormData to send file to backend
+            const formData = new FormData();
+            formData.append('profilePhoto', file);
 
+            // Send to your backend endpoint
             const response = await axios.post('/profiles/photo', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
-            })
+            });
 
             if (response.data.success) {
-                setProfilePhoto(response.data.photoUrl)
-                showMessage('success', 'Profile photo updated successfully!')
+                // Backend should return the Cloudinary URL
+                setProfilePhoto(response.data.photoUrl);
+                showMessage('success', 'Profile photo updated successfully!');
+                setEditingSections(prev => ({ ...prev, ['personalInfo']: false }))
+                return true
+            } else {
+                throw new Error(response.data.message || 'Upload failed');
             }
         } catch (error) {
-            handleApiError(error, 'Photo upload')
+            console.error('Photo upload error:', error);
+            handleApiError(error, 'Photo upload');
         } finally {
-            setUploadingPhoto(false)
+            setUploadingPhoto(false);
+
+            // Clear the file input to allow re-uploading the same file
+            if (event.target) {
+                event.target.value = '';
+            }
         }
-    }
+    };
 
     // Generic save function with validation
     const saveSection = async (sectionName, payload, successMessage) => {
@@ -419,43 +432,43 @@ const Profile = () => {
     }
 
     const saveProjectProfile = () => {
-    // Filter out incomplete projects before saving
-    const validProjects = profileData.projects.filter(project => {
-        return project.title && project.title.trim() !== "" 
-    }).map(project => {
-        // Remove temporary skill field before saving
-        const { skill, ...projectToSave } = project
-        return projectToSave
-    })
+        // Filter out incomplete projects before saving
+        const validProjects = profileData.projects.filter(project => {
+            return project.title && project.title.trim() !== ""
+        }).map(project => {
+            // Remove temporary skill field before saving
+            const { skill, ...projectToSave } = project
+            return projectToSave
+        })
 
-    // Check if we have any valid projects to save
-    if (validProjects.length === 0) {
-        showMessage('error', 'Please complete at least one project with all required fields before saving.')
-        return false
-    }
+        // Check if we have any valid projects to save
+        if (validProjects.length === 0) {
+            showMessage('error', 'Please complete at least one project with all required fields before saving.')
+            return false
+        }
 
-    // Update profileData with filtered projects before saving
-    const originalProjects = profileData.projects
-    setProfileData(prev => ({
-        ...prev,
-        projects: validProjects
-    }))
-
-    // Call the generic save function with filtered data
-    const result = saveSection('projects', {
-        projects: validProjects
-    }, 'Projects saved successfully!')
-
-    // If save fails, restore original data
-    if (!result) {
+        // Update profileData with filtered projects before saving
+        const originalProjects = profileData.projects
         setProfileData(prev => ({
             ...prev,
-            projects: originalProjects
+            projects: validProjects
         }))
-    }
 
-    return result
-}
+        // Call the generic save function with filtered data
+        const result = saveSection('projects', {
+            projects: validProjects
+        }, 'Projects saved successfully!')
+
+        // If save fails, restore original data
+        if (!result) {
+            setProfileData(prev => ({
+                ...prev,
+                projects: originalProjects
+            }))
+        }
+
+        return result
+    }
 
     // Enhanced continue handler with comprehensive validation
     const handleContinue = async () => {
