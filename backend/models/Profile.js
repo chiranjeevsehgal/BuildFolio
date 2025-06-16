@@ -211,18 +211,14 @@ const profileSchema = new mongoose.Schema({
 // Calculate completion percentage
 profileSchema.methods.calculateCompletion = function() {
   let completed = 0;
-  const total = 10;
+  const total = 5;
   
-  if (this.profilePhoto) completed++;
-  if (this.title) completed++;
-  if (this.summary) completed++;
-  if (this.skills && this.skills.length > 0) completed++;
+  // if (this.profilePhoto) completed++;
+  if (this.phone || this.location || this.socialLinks.linkedin || this.socialLinks.github) completed++;
+  if (this.title || this.summary || this.skills && this.skills.length > 0) completed++;
   if (this.experience && this.experience.length > 0) completed++;
+  if (this.projects && this.projects.length > 0) completed++;
   if (this.education && this.education.length > 0) completed++;
-  if (this.location) completed++;
-  if (this.phone) completed++;
-  if (this.website) completed++;
-  if (this.socialLinks.linkedin || this.socialLinks.github) completed++;
   
   this.completionPercentage = Math.round((completed / total) * 100);
   return this.completionPercentage;

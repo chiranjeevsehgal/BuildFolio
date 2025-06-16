@@ -56,27 +56,33 @@ const PortfolioDeployment = () => {
         setUsername(user.username);
         setSelectedTemplate(user.selectedTemplate);
 
-        // Check if portfolio is deployed
+        // Check if portfolio is already deployed
         if (user.portfolioDeployed || user.isPortfolioDeployed) {
           setDeploymentStatus('deployed');
           const constructedUrl = `${PORTFOLIO_BASE_URL}/portfolio/${user.username}`;
           setPortfolioUrl(constructedUrl);
           setDeploymentProgress(100);
-        } else if (user.selectedTemplate) {
-          setDeploymentStatus('ready');
-
-          if (user.deployedAt && !user.portfolioDeployed) {
-            // setMessage({
-            //   type: 'warning',
-            //   content: 'Deploy your portfolio to see it live.'
-            // });
-          }
         } else {
-          setDeploymentStatus('no-template');
-          // setMessage({
-          //   type: 'warning',
-          //   content: 'Please select a template first before deploying your portfolio.'
-          // });
+          // Handle edge cases based on profile completion and template selection
+          const isProfileCompleted = user.isProfileCompleted;
+          const hasSelectedTemplate = user.selectedTemplate;
+
+          if (!isProfileCompleted && !hasSelectedTemplate) {
+            // Profile not completed AND no template selected
+            setDeploymentStatus('profile-and-template-required');
+          } else if (!isProfileCompleted && hasSelectedTemplate) {
+            // Profile not completed BUT template selected
+            setDeploymentStatus('profile-required');
+          } else if (isProfileCompleted && !hasSelectedTemplate) {
+            // Profile completed BUT no template selected
+            setDeploymentStatus('template-required');
+          } else if (isProfileCompleted && hasSelectedTemplate) {
+            // Both profile completed AND template selected
+            setDeploymentStatus('ready');
+          } else {
+            // Fallback case
+            setDeploymentStatus('no-template');
+          }
         }
       } else {
         throw new Error('Failed to load user data');
@@ -298,6 +304,30 @@ const PortfolioDeployment = () => {
           bgGradient: 'from-red-500/10 to-pink-500/10',
           borderColor: 'border-red-200'
         };
+      case 'profile-and-template-required':
+        return {
+          icon: <Settings className="w-12 h-12 text-orange-500" />,
+          title: 'Getting Started',
+          subtitle: 'Complete your profile and select a template to deploy',
+          bgGradient: 'from-orange-500/10 to-yellow-500/10',
+          borderColor: 'border-orange-200'
+        };
+      case 'profile-required':
+        return {
+          icon: <Settings className="w-12 h-12 text-orange-500" />,
+          title: 'Profile Incomplete',
+          subtitle: 'Complete your profile to deploy your portfolio',
+          bgGradient: 'from-orange-500/10 to-yellow-500/10',
+          borderColor: 'border-orange-200'
+        };
+      case 'template-required':
+        return {
+          icon: <Settings className="w-12 h-12 text-orange-500" />,
+          title: 'Template Required',
+          subtitle: 'Select a template to deploy your portfolio',
+          bgGradient: 'from-orange-500/10 to-yellow-500/10',
+          borderColor: 'border-orange-200'
+        };
       case 'no-template':
         return {
           icon: <Settings className="w-12 h-12 text-orange-500" />,
@@ -347,12 +377,12 @@ const PortfolioDeployment = () => {
           {/* Message Toast */}
           {message.content && (
             <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${message.type === 'success'
-                ? 'bg-green-500/90 text-white'
-                : message.type === 'error'
-                  ? 'bg-red-500/90 text-white'
-                  : message.type === 'warning'
-                    ? 'bg-yellow-500/90 text-white'
-                    : 'bg-blue-500/90 text-white'
+              ? 'bg-green-500/90 text-white'
+              : message.type === 'error'
+                ? 'bg-red-500/90 text-white'
+                : message.type === 'warning'
+                  ? 'bg-yellow-500/90 text-white'
+                  : 'bg-blue-500/90 text-white'
               }`}>
               {message.type === 'success' ? (
                 <CheckCircle className="w-5 h-5 flex-shrink-0" />
@@ -466,6 +496,64 @@ const PortfolioDeployment = () => {
                 </button>
               )}
 
+              {/* Disabled Deploy Button for Edge Cases */}
+              {(deploymentStatus === 'profile-and-template-required' ||
+                deploymentStatus === 'profile-required' ||
+                deploymentStatus === 'template-required') && (
+                  <button
+                    disabled={true}
+                    className="group bg-gradient-to-r from-gray-400 to-gray-500 text-white px-8 py-4 rounded-2xl cursor-not-allowed opacity-50 font-bold text-lg shadow-2xl flex items-center justify-center"
+                  >
+                    <Rocket className="w-6 h-6 mr-3" />
+                    Deploy Portfolio
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </button>
+                )}
+
+              {/* Action buttons for different edge cases */}
+              {deploymentStatus === 'profile-and-template-required' && (
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => window.location.href = '/profile'}
+                    className="cursor-pointer group bg-gradient-to-r from-orange-600 to-red-700 text-white px-8 py-4 rounded-2xl hover:from-orange-700 hover:to-red-800 transition-all duration-200 font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center justify-center transform hover:scale-105"
+                  >
+                    <Edit3 className="w-6 h-6 mr-3" />
+                    Complete Profile
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/templates'}
+                    className="group cursor-pointer bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-8 py-4 rounded-2xl hover:from-purple-700 hover:to-indigo-800 transition-all duration-200 font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center justify-center transform hover:scale-105"
+                  >
+                    <Settings className="w-6 h-6 mr-3" />
+                    Select Template
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              )}
+
+              {deploymentStatus === 'profile-required' && (
+                <button
+                  onClick={() => window.location.href = '/profile'}
+                  className="group cursor-pointer bg-gradient-to-r from-orange-600 to-red-700 text-white px-8 py-4 rounded-2xl hover:from-orange-700 hover:to-red-800 transition-all duration-200 font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center justify-center transform hover:scale-105"
+                >
+                  <Edit3 className="w-6 h-6 mr-3" />
+                  Complete Profile
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
+
+              {deploymentStatus === 'template-required' && (
+                <button
+                  onClick={() => window.location.href = '/templates'}
+                  className="group cursor-pointer bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-8 py-4 rounded-2xl hover:from-purple-700 hover:to-indigo-800 transition-all duration-200 font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center justify-center transform hover:scale-105"
+                >
+                  <Settings className="w-6 h-6 mr-3" />
+                  Select Template
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
+
               {deploymentStatus === 'deployed' && (
                 <>
                   <a
@@ -524,148 +612,148 @@ const PortfolioDeployment = () => {
                 </button>
               )}
             </div>
-          </div>
+            </div>
 
-          {/* Portfolio Preview */}
-          {deploymentStatus === 'deployed' && portfolioUrl && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/40">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-800 mb-2">Portfolio Preview</h3>
-                  <p className="text-slate-600">See how your portfolio looks across devices</p>
-                </div>
+            {/* Portfolio Preview */}
+            {deploymentStatus === 'deployed' && portfolioUrl && (
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/40">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800 mb-2">Portfolio Preview</h3>
+                    <p className="text-slate-600">See how your portfolio looks across devices</p>
+                  </div>
 
-                {/* View Mode Controls */}
-                <div className="flex items-center space-x-1 bg-slate-100 rounded-2xl p-1 mt-4 lg:mt-0">
-                  {[
-                    { mode: 'desktop', icon: Monitor, label: 'Desktop' },
-                    { mode: 'tablet', icon: Tablet, label: 'Tablet' },
-                    { mode: 'mobile', icon: Smartphone, label: 'Mobile' }
-                  ].map(({ mode, icon: Icon, label }) => (
-                    <button
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${viewMode === mode
+                  {/* View Mode Controls */}
+                  <div className="flex items-center space-x-1 bg-slate-100 rounded-2xl p-1 mt-4 lg:mt-0">
+                    {[
+                      { mode: 'desktop', icon: Monitor, label: 'Desktop' },
+                      { mode: 'tablet', icon: Tablet, label: 'Tablet' },
+                      { mode: 'mobile', icon: Smartphone, label: 'Mobile' }
+                    ].map(({ mode, icon: Icon, label }) => (
+                      <button
+                        key={mode}
+                        onClick={() => setViewMode(mode)}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${viewMode === mode
                           ? 'bg-white text-slate-800 shadow-lg'
                           : 'text-slate-600 hover:text-slate-800 hover:bg-white/50'
-                        }`}
-                      title={label}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="hidden sm:inline font-medium">{label}</span>
-                    </button>
-                  ))}
+                          }`}
+                        title={label}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="hidden sm:inline font-medium">{label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Iframe Preview */}
-              <div className="relative">
-                <div className={`mx-auto transition-all duration-500 ease-in-out ${viewMode === 'tablet' ? 'max-w-3xl' :
+                {/* Iframe Preview */}
+                <div className="relative">
+                  <div className={`mx-auto transition-all duration-500 ease-in-out ${viewMode === 'tablet' ? 'max-w-3xl' :
                     viewMode === 'mobile' ? 'max-w-md' : 'w-full'
-                  }`}>
-                  <div className="bg-slate-900 rounded-2xl p-2 shadow-2xl">
-                    <div className="bg-white rounded-xl overflow-hidden">
-                      <div className="bg-slate-100 px-4 py-2 flex items-center space-x-2">
-                        <div className="flex space-x-1">
-                          <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                          <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    }`}>
+                    <div className="bg-slate-900 rounded-2xl p-2 shadow-2xl">
+                      <div className="bg-white rounded-xl overflow-hidden">
+                        <div className="bg-slate-100 px-4 py-2 flex items-center space-x-2">
+                          <div className="flex space-x-1">
+                            <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                          </div>
+                          <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-slate-600 font-mono">
+                            {portfolioUrl}
+                          </div>
                         </div>
-                        <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-slate-600 font-mono">
-                          {portfolioUrl}
-                        </div>
+                        <iframe
+                          src={portfolioUrl}
+                          className="w-full h-96 border-0"
+                          title="Portfolio Preview"
+                          onError={() => console.error('Failed to load portfolio preview')}
+                        />
                       </div>
-                      <iframe
-                        src={portfolioUrl}
-                        className="w-full h-96 border-0"
-                        title="Portfolio Preview"
-                        onError={() => console.error('Failed to load portfolio preview')}
-                      />
                     </div>
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Quick Actions Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <button
+                onClick={() => window.location.href = '/profile'}
+                className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Edit3 className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3">Edit Profile</h3>
+                <p className="text-slate-600 leading-relaxed">Update your information and redeploy with fresh content</p>
+              </button>
+
+              <button
+                onClick={() => window.location.href = '/templates'}
+                className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Settings className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3">Change Template</h3>
+                <p className="text-slate-600 leading-relaxed">Switch to a different design that matches your style</p>
+              </button>
+
+              <button
+                onClick={() => portfolioUrl && window.open(portfolioUrl, '_blank')}
+                disabled={!portfolioUrl}
+                className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                <div className="bg-gradient-to-br from-green-500 to-emerald-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Eye className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3">View Live</h3>
+                <p className="text-slate-600 leading-relaxed">See your portfolio in action and share it with others</p>
+              </button>
             </div>
-          )}
 
-          {/* Quick Actions Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <button
-              onClick={() => window.location.href = '/profile'}
-              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
-            >
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Edit3 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Edit Profile</h3>
-              <p className="text-slate-600 leading-relaxed">Update your information and redeploy with fresh content</p>
-            </button>
+            {/* Statistics Cards */}
+            {deploymentStatus === 'deployed' && (
+              <div className="grid md:grid-cols-3 gap-6 mb-12">
+                <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/40">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-600 text-sm font-medium">Deployment Time</p>
+                      <p className="text-2xl font-bold text-slate-800">{"< 2 min"}</p>
+                    </div>
+                    <Clock className="w-8 h-8 text-blue-500" />
+                  </div>
+                </div>
 
-            <button
-              onClick={() => window.location.href = '/templates'}
-              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
-            >
-              <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Settings className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Change Template</h3>
-              <p className="text-slate-600 leading-relaxed">Switch to a different design that matches your style</p>
-            </button>
+                <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-2xl p-6 border border-green-200/40">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-600 text-sm font-medium">Performance</p>
+                      <p className="text-2xl font-bold text-slate-800">Optimized</p>
+                    </div>
+                    <Zap className="w-8 h-8 text-green-500" />
+                  </div>
+                </div>
 
-            <button
-              onClick={() => portfolioUrl && window.open(portfolioUrl, '_blank')}
-              disabled={!portfolioUrl}
-              className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Eye className="w-8 h-8 text-white" />
+                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-6 border border-purple-200/40">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-600 text-sm font-medium">Accessibility</p>
+                      <p className="text-2xl font-bold text-slate-800">100%</p>
+                    </div>
+                    <Users className="w-8 h-8 text-purple-500" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">View Live</h3>
-              <p className="text-slate-600 leading-relaxed">See your portfolio in action and share it with others</p>
-            </button>
+            )}
           </div>
 
-          {/* Statistics Cards */}
-          {deploymentStatus === 'deployed' && (
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/40">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-600 text-sm font-medium">Deployment Time</p>
-                    <p className="text-2xl font-bold text-slate-800">{"< 2 min"}</p>
-                  </div>
-                  <Clock className="w-8 h-8 text-blue-500" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-2xl p-6 border border-green-200/40">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-600 text-sm font-medium">Performance</p>
-                    <p className="text-2xl font-bold text-slate-800">Optimized</p>
-                  </div>
-                  <Zap className="w-8 h-8 text-green-500" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-6 border border-purple-200/40">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-600 text-sm font-medium">Accessibility</p>
-                    <p className="text-2xl font-bold text-slate-800">100%</p>
-                  </div>
-                  <Users className="w-8 h-8 text-purple-500" />
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Footer Section */}
+          <Footer />
         </div>
-
-        {/* Footer Section */}
-        <Footer />
-      </div>
-    </>
-  );
+      </>
+      );
 };
 
-export default PortfolioDeployment;
+      export default PortfolioDeployment;

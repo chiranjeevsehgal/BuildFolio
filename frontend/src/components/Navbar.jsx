@@ -60,7 +60,6 @@ const Navbar = ({ current }) => {
       if (response.data.success && response.data.user) {
         const user = response.data.user;
         setCurrentUser(user);
-        console.log(user);
       } else {
         throw new Error('Failed to load user data');
       }
