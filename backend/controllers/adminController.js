@@ -5,8 +5,8 @@ const User = require("../models/User");
 // @access  Private (Admin only)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ isActive: true })
-      .select('_id firstName lastName email role portfolioDeployed isProfileCompleted')
+    const users = await User.find()
+      .select('_id firstName lastName username email role portfolioDeployed isProfileCompleted isActive createdAt selectedTemplate subscriptionType')
       .sort({ createdAt: -1 });
 
     res.json({

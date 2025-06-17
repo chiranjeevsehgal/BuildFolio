@@ -11,6 +11,7 @@ import PublicPortfolio from './pages/PublicPortfolio';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedAdminRoute from './auth/ProtectedAdminRoute';
 import Profile from './pages/Profile';
+import AdminApp from './pages/admin/DashboardApp';
 
 function App() {
   return (
@@ -46,6 +47,12 @@ function App() {
           <Route path="/admin" element={
             <ProtectedAdminRoute>
               <AdminDashboard />
+            </ProtectedAdminRoute>
+          }
+          />
+          <Route path="/admin1" element={
+            <ProtectedAdminRoute>
+              <AdminApp />
             </ProtectedAdminRoute>
           }
           />

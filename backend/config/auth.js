@@ -47,7 +47,7 @@ passport.use(new GoogleStrategy({
     // Create new user
     user = await User.create({
       firstName: profile.name.givenName,
-      lastName: profile.name.familyName,
+      lastName: profile.name.familyName || '',
       email: profile.emails[0].value,
       username: username,
       oauthProvider: 'google',

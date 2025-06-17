@@ -287,7 +287,7 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // localStorage.setItem('user', JSON.stringify(response.data.user));
 
         const user = response.data.user;
 
