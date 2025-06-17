@@ -400,7 +400,7 @@ const PortfolioDeployment = () => {
           )}
 
           {/* Main Status Card */}
-          <div className={`bg-gradient-to-br ${statusConfig.bgGradient} backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border ${statusConfig.borderColor} bg-white/80`}>
+          <div className={`bg-gradient-to-br ${statusConfig.bgGradient} backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-10 border ${statusConfig.borderColor} bg-white/80`}>
             <div className="text-center mb-8">
               <div className="mb-6">
                 {statusConfig.icon}
@@ -614,7 +614,7 @@ const PortfolioDeployment = () => {
             </div>
             </div>
 
-            {/* Portfolio Preview */}
+            {/* 
             {deploymentStatus === 'deployed' && portfolioUrl && (
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/40">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
@@ -623,7 +623,6 @@ const PortfolioDeployment = () => {
                     <p className="text-slate-600">See how your portfolio looks across devices</p>
                   </div>
 
-                  {/* View Mode Controls */}
                   <div className="flex items-center space-x-1 bg-slate-100 rounded-2xl p-1 mt-4 lg:mt-0">
                     {[
                       { mode: 'desktop', icon: Monitor, label: 'Desktop' },
@@ -646,7 +645,6 @@ const PortfolioDeployment = () => {
                   </div>
                 </div>
 
-                {/* Iframe Preview */}
                 <div className="relative">
                   <div className={`mx-auto transition-all duration-500 ease-in-out ${viewMode === 'tablet' ? 'max-w-3xl' :
                     viewMode === 'mobile' ? 'max-w-md' : 'w-full'
@@ -675,9 +673,10 @@ const PortfolioDeployment = () => {
                 </div>
               </div>
             )}
+            */}
 
             {/* Quick Actions Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
               <button
                 onClick={() => window.location.href = '/profile'}
                 className="cursor-pointer group bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-105"
