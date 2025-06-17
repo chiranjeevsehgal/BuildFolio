@@ -20,7 +20,7 @@ const portfolioDeploymentSchema = new mongoose.Schema({
   templateId: {
     type: String,
     required: true,
-    enum: ['modern-professional', 'minimal-clean', 'creative-portfolio', 'developer-focused', 'executive-suite']
+    enum: ['modern-professional', 'minimal-clean', 'creative-gradient', 'terminal-developer-focused', 'executive-suite'],
   },
   customDomain: {
     type: String,
