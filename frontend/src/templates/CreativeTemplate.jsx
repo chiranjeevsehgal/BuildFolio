@@ -1,4 +1,3 @@
-// templates/CreativeTemplate.jsx
 import React from 'react';
 import { ExternalLink, Github, Star, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award } from 'lucide-react';
 
@@ -45,21 +44,21 @@ const CreativeTemplate = ({ userData }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500">
       {/* Hero */}
-      <header className="min-h-screen flex items-center justify-center text-white relative overflow-hidden">
+      <header className="min-h-screen flex items-center justify-center text-white relative overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-4000"></div>
+          <div className="absolute -top-20 -right-20 sm:-top-40 sm:-right-40 w-40 h-40 sm:w-80 sm:h-80 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute -bottom-20 -left-20 sm:-bottom-40 sm:-left-40 w-40 h-40 sm:w-80 sm:h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
+          <div className="absolute top-20 left-20 sm:top-40 sm:left-40 w-40 h-40 sm:w-80 sm:h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-4000"></div>
         </div>
 
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+        <div className="relative z-10 text-center max-w-4xl mx-auto">
           {/* Profile Photo */}
           {userData?.profilePhoto && (
-            <div className="mb-8">
-              <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white/30 backdrop-blur-sm">
+            <div className="mb-6 mt-6 sm:mb-8">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white/30 backdrop-blur-sm">
                 <img 
                   src={userData.profilePhoto} 
                   alt="Profile" 
@@ -71,52 +70,52 @@ const CreativeTemplate = ({ userData }) => {
 
           {hasBasicInfo && (
             <>
-              <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-300">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-300 leading-tight">
                 {userData?.firstName || 'Creative'}
               </h1>
-              <h2 className="text-6xl md:text-8xl font-bold mb-8">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 sm:mb-8 leading-tight">
                 {userData?.lastName || 'Professional'}
               </h2>
             </>
           )}
 
           {hasTitle && (
-            <p className="text-2xl md:text-3xl font-light text-pink-200 mb-8">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-pink-200 mb-6 sm:mb-8 px-4">
               {userData.professional.title}
             </p>
           )}
 
           {hasSummary && (
-            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4">
               {userData.professional.summary}
             </p>
           )}
 
           {/* Contact Info */}
           {hasContactInfo && (
-            <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm">
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 text-sm px-4">
               {userData?.email && (
                 <a 
                   href={`mailto:${userData.email}`}
-                  className="flex items-center bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-full px-4 py-2 transition-all duration-300"
+                  className="flex items-center justify-center bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-full px-4 py-2 transition-all duration-300 text-center"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  {userData.email}
+                  <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">{userData.email}</span>
                 </a>
               )}
               {userData?.personalInfo?.phone && (
                 <a 
                   href={`tel:${userData.personalInfo.phone}`}
-                  className="flex items-center bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-full px-4 py-2 transition-all duration-300"
+                  className="flex items-center justify-center bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-full px-4 py-2 transition-all duration-300"
                 >
-                  <Phone className="w-4 h-4 mr-2" />
-                  {userData.personalInfo.phone}
+                  <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{userData.personalInfo.phone}</span>
                 </a>
               )}
               {userData?.personalInfo?.location && (
-                <div className="flex items-center bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-2">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {userData.personalInfo.location}
+                <div className="flex items-center justify-center bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-2">
+                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">{userData.personalInfo.location}</span>
                 </div>
               )}
             </div>
@@ -124,15 +123,16 @@ const CreativeTemplate = ({ userData }) => {
 
           {/* Social Links */}
           {hasSocialLinks && (
-            <div className="flex justify-center space-x-6">
+            <div className="flex justify-center space-x-4 sm:space-x-6 px-4 mb-4">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a 
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="LinkedIn Profile"
                 >
-                  <Linkedin className="w-6 h-6" />
+                  <Linkedin className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {userData?.personalInfo?.socialLinks?.github && (
@@ -140,9 +140,10 @@ const CreativeTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="GitHub Profile"
                 >
-                  <Github className="w-6 h-6" />
+                  <Github className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {userData?.personalInfo?.socialLinks?.twitter && (
@@ -150,9 +151,10 @@ const CreativeTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Twitter Profile"
                 >
-                  <Twitter className="w-6 h-6" />
+                  <Twitter className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {userData?.personalInfo?.socialLinks?.website && (
@@ -160,24 +162,24 @@ const CreativeTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Personal Website"
                 >
-                  <Globe className="w-6 h-6" />
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
             </div>
           )}
         </div>
-
       </header>
 
       <main className="bg-white">
         {/* Creative Skills Grid */}
         {hasSkills && (
-          <section className="py-20 px-6">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">My Superpowers</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">My Superpowers</h2>
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {userData.professional.skills.map((skill, index) => {
                   const gradients = [
                     'from-purple-500 to-pink-500',
@@ -192,9 +194,9 @@ const CreativeTemplate = ({ userData }) => {
                   return (
                     <div 
                       key={index} 
-                      className={`bg-gradient-to-r ${gradients[index % gradients.length]} p-6 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl`}
+                      className={`bg-gradient-to-r ${gradients[index % gradients.length]} p-4 sm:p-6 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl`}
                     >
-                      <h3 className="font-bold text-lg">{skill}</h3>
+                      <h3 className="font-bold text-sm sm:text-base lg:text-lg break-words">{skill}</h3>
                     </div>
                   );
                 })}
@@ -205,42 +207,44 @@ const CreativeTemplate = ({ userData }) => {
 
         {/* Experience Section */}
         {hasExperience && (
-          <section className="py-20 px-6 bg-gradient-to-r from-purple-50 to-pink-50">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-purple-50 to-pink-50">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">My Journey</h2>
-              <div className="space-y-8">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">My Journey</h2>
+              <div className="space-y-6 sm:space-y-8">
                 {userData.experience.map((exp, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{exp.title || 'Position'}</h3>
-                        <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                  <div key={index} className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+                      <div className="mb-4 lg:mb-0">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{exp.title || 'Position'}</h3>
+                        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600">
                           <div className="flex items-center">
-                            <Building className="w-5 h-5 mr-2 text-purple-500" />
+                            <Building className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-500 flex-shrink-0" />
                             <span className="font-medium">{exp.company || 'Company'}</span>
                           </div>
                           {exp.location && (
                             <div className="flex items-center">
-                              <MapPin className="w-5 h-5 mr-2 text-pink-500" />
+                              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-pink-500 flex-shrink-0" />
                               <span>{exp.location}</span>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-medium mt-4 md:mt-0">
-                        <Calendar className="w-4 h-4 inline mr-2" />
-                        {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium text-center flex-shrink-0">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+                        <span className="break-words">
+                          {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                        </span>
                       </div>
                     </div>
                     {exp.description && (
-                      <p className="text-gray-700 leading-relaxed mb-4">{exp.description}</p>
+                      <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{exp.description}</p>
                     )}
                     {exp.achievements && exp.achievements.length > 0 && (
                       <ul className="space-y-2">
                         {exp.achievements.map((achievement, idx) => (
                           <li key={idx} className="flex items-start">
                             <Star className="w-4 h-4 text-yellow-500 mr-2 mt-1 flex-shrink-0" />
-                            <span className="text-gray-700">{achievement}</span>
+                            <span className="text-gray-700 text-sm sm:text-base">{achievement}</span>
                           </li>
                         ))}
                       </ul>
@@ -254,10 +258,10 @@ const CreativeTemplate = ({ userData }) => {
 
         {/* Projects Showcase */}
         {hasProjects && (
-          <section className="py-20 px-6 bg-gray-100">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-100">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">Featured Work</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Featured Work</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {userData.projects.map((project, index) => {
                   const gradients = [
                     'from-purple-400 to-pink-400',
@@ -270,7 +274,7 @@ const CreativeTemplate = ({ userData }) => {
                   return (
                     <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                       {project.image ? (
-                        <div className="h-48 overflow-hidden">
+                        <div className="h-40 sm:h-48 overflow-hidden">
                           <img 
                             src={project.image} 
                             alt={project.title || 'Project'}
@@ -278,37 +282,37 @@ const CreativeTemplate = ({ userData }) => {
                           />
                         </div>
                       ) : (
-                        <div className={`h-48 bg-gradient-to-r ${gradients[index % gradients.length]} flex items-center justify-center`}>
-                          <h3 className="text-white font-bold text-xl text-center px-4">
+                        <div className={`h-40 sm:h-48 bg-gradient-to-r ${gradients[index % gradients.length]} flex items-center justify-center`}>
+                          <h3 className="text-white font-bold text-lg sm:text-xl text-center px-4 break-words">
                             {project.title || 'Untitled Project'}
                           </h3>
                         </div>
                       )}
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold mb-2 text-gray-900">
+                      <div className="p-4 sm:p-6">
+                        <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 break-words">
                           {project.title || 'Untitled Project'}
                         </h3>
                         {project.description && (
-                          <p className="text-gray-600 mb-4 leading-relaxed">{project.description}</p>
+                          <p className="text-gray-600 mb-4 leading-relaxed text-sm sm:text-base">{project.description}</p>
                         )}
                         {project.skills && project.skills.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {project.skills.map((skill, idx) => (
-                              <span key={idx} className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-2 py-1 rounded-full">
+                              <span key={idx} className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-2 py-1 rounded-full break-words">
                                 {skill}
                               </span>
                             ))}
                           </div>
                         )}
-                        <div className="flex space-x-3">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                           {project.url && (
                             <a 
                               href={ensureHttpProtocol(project.url)} 
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-sm font-medium"
+                              className="flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-sm font-medium"
                             >
-                              <ExternalLink className="w-4 h-4 mr-1" />
+                              <ExternalLink className="w-4 h-4 mr-1 flex-shrink-0" />
                               Live Demo
                             </a>
                           )}
@@ -317,9 +321,9 @@ const CreativeTemplate = ({ userData }) => {
                               href={ensureHttpProtocol(project.githubUrl)}
                               target="_blank"
                               rel="noopener noreferrer" 
-                              className="flex items-center border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 text-sm font-medium"
+                              className="flex items-center justify-center border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 text-sm font-medium"
                             >
-                              <Github className="w-4 h-4 mr-1" />
+                              <Github className="w-4 h-4 mr-1 flex-shrink-0" />
                               Code
                             </a>
                           )}
@@ -335,28 +339,28 @@ const CreativeTemplate = ({ userData }) => {
 
         {/* Education Section */}
         {hasEducation && (
-          <section className="py-20 px-6 bg-white">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">Education</h2>
-              <div className="grid md:grid-cols-2 gap-8">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Education</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 {userData.education.map((edu, index) => (
-                  <div key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200 hover:shadow-lg transition-shadow duration-300">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <div key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border border-purple-200 hover:shadow-lg transition-shadow duration-300">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">
                       {edu.degree || 'Degree'}
                     </h3>
                     <div className="flex items-center text-gray-600 mb-3">
-                      <GraduationCap className="w-5 h-5 mr-2 text-purple-500" />
-                      <span className="font-medium">{edu.school || edu.institution || 'Institution'}</span>
+                      <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-500 flex-shrink-0" />
+                      <span className="font-medium break-words">{edu.school || edu.institution || 'Institution'}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500 mb-3">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>{formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}</span>
                     </div>
                     {edu.description && (
-                      <p className="text-gray-700 leading-relaxed">{edu.description}</p>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{edu.description}</p>
                     )}
                     {edu.gpa && (
-                      <p className="text-purple-600 font-medium mt-2">GPA: {edu.gpa}</p>
+                      <p className="text-purple-600 font-medium mt-2 text-sm sm:text-base">GPA: {edu.gpa}</p>
                     )}
                   </div>
                 ))}
@@ -367,32 +371,34 @@ const CreativeTemplate = ({ userData }) => {
 
         {/* Certifications Section */}
         {hasCertifications && (
-          <section className="py-20 px-6 bg-gradient-to-r from-purple-50 to-pink-50">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-purple-50 to-pink-50">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">Certifications</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Certifications</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {userData.certifications.map((cert, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div key={index} className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-900">{cert.name || 'Certification'}</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1 mr-2">{cert.name || 'Certification'}</h3>
                       {cert.badge && (
-                        <img src={cert.badge} alt="Badge" className="w-12 h-12 rounded-lg" />
+                        <img src={cert.badge} alt="Badge" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0" />
                       )}
                     </div>
-                    <p className="text-purple-600 font-medium mb-3">{cert.issuer || 'Issuer'}</p>
-                    <div className="flex items-center text-sm text-gray-500 mb-4">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {cert.issueDate && formatDate(cert.issueDate)}
-                      {cert.expiryDate && ` - ${formatDate(cert.expiryDate)}`}
+                    <p className="text-purple-600 font-medium mb-3 text-sm sm:text-base break-words">{cert.issuer || 'Issuer'}</p>
+                    <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-4">
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                      <span className="break-words">
+                        {cert.issueDate && formatDate(cert.issueDate)}
+                        {cert.expiryDate && ` - ${formatDate(cert.expiryDate)}`}
+                      </span>
                     </div>
                     {cert.credentialUrl && (
                       <a 
                         href={ensureHttpProtocol(cert.credentialUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium text-sm"
+                        className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium text-xs sm:text-sm break-words"
                       >
-                        <Award className="w-4 h-4 mr-1" />
+                        <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                         View Credential
                       </a>
                     )}
@@ -405,39 +411,39 @@ const CreativeTemplate = ({ userData }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <div className="mb-8">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+      <footer className="bg-gray-900 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
               Let's Create Magic Together
             </h3>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">
               Ready to bring your wildest ideas to life? Let's collaborate and make something extraordinary!
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12 px-4">
             {userData?.email && (
               <a 
                 href={`mailto:${userData.email}`}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base"
               >
-                <Mail className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
                 Start a Conversation
               </a>
             )}
             
             <button 
               onClick={() => window.print()}
-              className="border-2 border-gray-600 hover:bg-gray-800 px-8 py-4 rounded-full transition-all font-semibold flex items-center justify-center group"
+              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all font-semibold flex items-center justify-center group text-sm sm:text-base"
             >
-              <ExternalLink className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-bounce flex-shrink-0" />
               Download Resume
             </button>
           </div>
           
-          <div className="border-t border-gray-800 pt-8">
-            <p className="text-gray-400">
+          <div className="border-t border-gray-800 pt-6 sm:pt-8">
+            <p className="text-gray-400 text-sm sm:text-base px-4">
               © {new Date().getFullYear()} {hasBasicInfo 
                 ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() 
                 : 'Creative Professional'}. 
@@ -455,6 +461,12 @@ const CreativeTemplate = ({ userData }) => {
         
         .animation-delay-4000 {
           animation-delay: 4s;
+        }
+        
+        @media (max-width: 480px) {
+          .xs\\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
         }
         
         @media (prefers-reduced-motion: reduce) {

@@ -377,7 +377,7 @@ const TemplatePreview = () => {
               </div>
 
               {/* Center - View Mode Controls */}
-              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              {/* <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
                 {[
                   { mode: 'desktop', icon: Monitor, label: 'Desktop' },
                   { mode: 'tablet', icon: Tablet, label: 'Tablet' },
@@ -396,7 +396,7 @@ const TemplatePreview = () => {
                     <span className="hidden sm:inline text-sm font-medium">{label}</span>
                   </button>
                 ))}
-              </div>
+              </div> */}
 
               {/* Right Side - Action Buttons */}
               <div className="flex items-center space-x-3">

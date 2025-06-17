@@ -54,24 +54,24 @@ const ModernTemplate = ({ userData }) => {
 
   // Reusable Components
   const Section = ({ children, className = "" }) => (
-    <section className={`mb-20 ${className}`}>{children}</section>
+    <section className={`mb-16 sm:mb-20 ${className}`}>{children}</section>
   );
 
   const SectionTitle = ({ icon: Icon, title, subtitle, gradient = "from-blue-500 to-purple-600" }) => (
-    <div className="text-center mb-16">
-      <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${gradient} rounded-2xl shadow-lg mb-6`}>
-        <Icon className="w-8 h-8 text-white" />
+    <div className="text-center mb-12 sm:mb-16">
+      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${gradient} rounded-2xl shadow-lg mb-4 sm:mb-6`}>
+        <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
       </div>
-      <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{title}</h2>
-      {subtitle && <p className="text-xl text-gray-600 max-w-3xl mx-auto">{subtitle}</p>}
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 break-words">{title}</h2>
+      {subtitle && <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">{subtitle}</p>}
     </div>
   );
 
   const SkillCard = ({ skill, level = 85, category = "Technical" }) => (
-    <div className="group relative bg-white/80 backdrop-blur-sm hover:bg-white border border-gray-200 hover:border-blue-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{skill}</h3>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{category}</span>
+    <div className="group relative bg-white/80 backdrop-blur-sm hover:bg-white border border-gray-200 hover:border-blue-300 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words flex-1">{skill}</h3>
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">{category}</span>
       </div>
       
       <div className="space-y-2">
@@ -93,43 +93,45 @@ const ModernTemplate = ({ userData }) => {
 
   const ExperienceCard = ({ experience, index }) => (
     <div className="relative group">
-      <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-300 p-8 transition-all duration-300 hover:-translate-y-2">
-        <div className="absolute -left-6 top-8 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center">
-          <span className="text-white font-bold text-sm">{index + 1}</span>
+      <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-300 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2">
+        <div className="absolute -left-4 sm:-left-6 top-6 sm:top-8 w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center">
+          <span className="text-white font-bold text-xs sm:text-sm">{index + 1}</span>
         </div>
         
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 sm:mb-6 gap-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors break-words">
               {experience.title}
             </h3>
-            <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600 mb-3">
               <div className="flex items-center">
-                <Building className="w-5 h-5 mr-2" />
-                <span className="font-medium">{experience.company}</span>
+                <Building className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                <span className="font-medium break-words">{experience.company}</span>
               </div>
               {experience.location && (
                 <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-2" />
-                  <span>{experience.location}</span>
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                  <span className="break-words">{experience.location}</span>
                 </div>
               )}
             </div>
           </div>
           
-          <div className="flex items-center bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 px-4 py-2 rounded-full text-sm text-gray-700 font-medium mt-4 lg:mt-0">
-            <Calendar className="w-4 h-4 mr-2" />
-            {formatDate(experience.startDate)} - {experience.current ? 'Present' : formatDate(experience.endDate)}
+          <div className="flex items-center bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm text-gray-700 font-medium flex-shrink-0">
+            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="break-words">
+              {formatDate(experience.startDate)} - {experience.current ? 'Present' : formatDate(experience.endDate)}
+            </span>
           </div>
         </div>
         
         {experience.description && (
-          <p className="text-gray-700 leading-relaxed mb-4">{experience.description}</p>
+          <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{experience.description}</p>
         )}
         
         {experience.achievements && experience.achievements.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-semibold text-gray-900 mb-3">Key Achievements</h4>
+            <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Key Achievements</h4>
             {experience.achievements.map((achievement, idx) => (
               <div key={idx} className="flex items-start">
                 <ChevronRight className="w-4 h-4 text-blue-500 mr-2 mt-1 flex-shrink-0" />
@@ -154,13 +156,13 @@ const ModernTemplate = ({ userData }) => {
         </div>
       )}
       
-      <div className="p-8">
-        <div className="flex items-start justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+      <div className="p-6 sm:p-8">
+        <div className="flex items-start justify-between mb-4 gap-4">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors break-words flex-1">
             {project.title || 'Untitled Project'}
           </h3>
           {project.featured && (
-            <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center">
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 sm:px-3 py-1 rounded-full font-medium flex items-center flex-shrink-0">
               <Star className="w-3 h-3 mr-1" />
               Featured
             </span>
@@ -168,15 +170,15 @@ const ModernTemplate = ({ userData }) => {
         </div>
         
         {project.description && (
-          <p className="text-gray-600 mb-6 leading-relaxed">{project.description}</p>
+          <p className="text-gray-600 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">{project.description}</p>
         )}
         
         {project.skills && project.skills.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
             {project.skills.map((skill, index) => (
               <span 
                 key={index}
-                className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-800 text-sm px-3 py-1 rounded-full font-medium"
+                className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-800 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full font-medium break-words"
               >
                 {skill}
               </span>
@@ -184,15 +186,15 @@ const ModernTemplate = ({ userData }) => {
           </div>
         )}
         
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {project.url && (
             <a 
               href={ensureHttpProtocol(project.url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl"
+              className="flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl text-sm sm:text-base"
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
+              <ExternalLink className="w-4 h-4 mr-2 flex-shrink-0" />
               Live Demo
             </a>
           )}
@@ -201,9 +203,9 @@ const ModernTemplate = ({ userData }) => {
               href={ensureHttpProtocol(project.githubUrl)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-medium"
+              className="flex items-center justify-center border-2 border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-medium text-sm sm:text-base"
             >
-              <Github className="w-4 h-4 mr-2" />
+              <Github className="w-4 h-4 mr-2 flex-shrink-0" />
               Code
             </a>
           )}
@@ -213,35 +215,37 @@ const ModernTemplate = ({ userData }) => {
   );
 
   const EducationCard = ({ education }) => (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-blue-300 p-8 transition-all duration-300 hover:-translate-y-1">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{education.degree || 'Degree'}</h3>
-          <div className="flex flex-wrap items-center gap-4 text-gray-600">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-blue-300 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">{education.degree || 'Degree'}</h3>
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600">
             <div className="flex items-center">
-              <GraduationCap className="w-5 h-5 mr-2" />
-              <span className="font-medium">{education.school || education.institution || 'Institution'}</span>
+              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+              <span className="font-medium break-words">{education.school || education.institution || 'Institution'}</span>
             </div>
             {education.location && (
               <div className="flex items-center">
-                <MapPin className="w-5 h-5 mr-2" />
-                <span>{education.location}</span>
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                <span className="break-words">{education.location}</span>
               </div>
             )}
           </div>
         </div>
         
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 text-green-800 text-sm px-3 py-1 rounded-full font-medium ml-4">
-          {formatDate(education.startDate)} - {formatDate(education.endDate) || 'Present'}
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 text-green-800 text-xs sm:text-sm px-3 py-1 rounded-full font-medium flex-shrink-0 text-center">
+          <span className="break-words">
+            {formatDate(education.startDate)} - {formatDate(education.endDate) || 'Present'}
+          </span>
         </div>
       </div>
       
       {education.description && (
-        <p className="text-gray-600 leading-relaxed">{education.description}</p>
+        <p className="text-gray-600 leading-relaxed text-sm sm:text-base mb-3">{education.description}</p>
       )}
       
       {education.gpa && (
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="text-sm text-gray-600">
           <span className="font-medium">GPA: </span>{education.gpa}
         </div>
       )}
@@ -249,20 +253,22 @@ const ModernTemplate = ({ userData }) => {
   );
 
   const CertificationCard = ({ certification }) => (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-purple-300 p-6 transition-all duration-300 hover:-translate-y-1">
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-bold text-gray-900">{certification.name || 'Certification'}</h3>
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-purple-300 p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1">
+      <div className="flex items-start justify-between mb-3 gap-4">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1">{certification.name || 'Certification'}</h3>
         {certification.badge && (
-          <img src={certification.badge} alt="Badge" className="w-12 h-12 rounded-lg" />
+          <img src={certification.badge} alt="Badge" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0" />
         )}
       </div>
       
-      <p className="text-gray-600 mb-3">{certification.issuer || 'Issuer'}</p>
+      <p className="text-gray-600 mb-3 text-sm sm:text-base break-words">{certification.issuer || 'Issuer'}</p>
       
-      <div className="flex items-center text-sm text-gray-500">
-        <Calendar className="w-4 h-4 mr-1" />
-        {certification.issueDate && formatDate(certification.issueDate)}
-        {certification.expiryDate && ` - ${formatDate(certification.expiryDate)}`}
+      <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-3">
+        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+        <span className="break-words">
+          {certification.issueDate && formatDate(certification.issueDate)}
+          {certification.expiryDate && ` - ${formatDate(certification.expiryDate)}`}
+        </span>
       </div>
       
       {certification.credentialUrl && (
@@ -270,10 +276,10 @@ const ModernTemplate = ({ userData }) => {
           href={ensureHttpProtocol(certification.credentialUrl)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-xs sm:text-sm"
         >
           View Credential
-          <ArrowUpRight className="w-4 h-4 ml-1" />
+          <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 flex-shrink-0" />
         </a>
       )}
     </div>
@@ -283,20 +289,20 @@ const ModernTemplate = ({ userData }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-20 -right-20 sm:-top-40 sm:-right-40 w-40 h-40 sm:w-80 sm:h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-20 -left-20 sm:-bottom-40 sm:-left-40 w-40 h-40 sm:w-80 sm:h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-20 left-20 sm:top-40 sm:left-40 w-40 h-40 sm:w-80 sm:h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Hero Section */}
-      <header className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <header className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-indigo-700/20"></div>
         
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto py-16 sm:py-20 text-center">
           {/* Profile Photo */}
           {userData?.profilePhoto && (
-            <div className="mb-8">
-              <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
+            <div className="mb-6 sm:mb-8">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
                 <img 
                   src={userData.profilePhoto} 
                   alt="Profile" 
@@ -308,8 +314,8 @@ const ModernTemplate = ({ userData }) => {
           
           {/* Name and Title */}
           {hasBasicInfo && (
-            <div className="mb-8">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 leading-tight pb-2">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 leading-tight pb-2 break-words">
                 {userData?.firstName && userData?.lastName 
                   ? `${userData.firstName} ${userData.lastName}`
                   : userData?.firstName || userData?.lastName || 'Professional Portfolio'
@@ -317,7 +323,7 @@ const ModernTemplate = ({ userData }) => {
               </h1>
               
               {hasTitle && (
-                <p className="text-2xl md:text-3xl lg:text-4xl text-gray-700 font-light mb-6">
+                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-700 font-light mb-4 sm:mb-6 break-words">
                   {userData.professional.title}
                 </p>
               )}
@@ -326,8 +332,8 @@ const ModernTemplate = ({ userData }) => {
           
           {/* Summary */}
           {hasSummary && (
-            <div className="mb-12">
-              <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <div className="mb-8 sm:mb-12">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
                 {userData.professional.summary}
               </p>
             </div>
@@ -335,31 +341,31 @@ const ModernTemplate = ({ userData }) => {
           
           {/* Contact Info */}
           {hasContactInfo && (
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10">
               {userData?.email && (
                 <a 
                   href={`mailto:${userData.email}`}
-                  className="group flex items-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-6 py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
-                  <Mail className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.email}</span>
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base break-all">{userData.email}</span>
                 </a>
               )}
               
               {userData?.personalInfo?.phone && (
                 <a 
                   href={`tel:${userData.personalInfo.phone}`}
-                  className="group flex items-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-6 py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
-                  <Phone className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">{userData.personalInfo.phone}</span>
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base">{userData.personalInfo.phone}</span>
                 </a>
               )}
               
               {userData?.personalInfo?.location && (
-                <div className="flex items-center bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl px-6 py-4">
-                  <MapPin className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-700 font-medium">{userData.personalInfo.location}</span>
+                <div className="flex items-center justify-center bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 font-medium text-sm sm:text-base break-words">{userData.personalInfo.location}</span>
                 </div>
               )}
             </div>
@@ -367,15 +373,16 @@ const ModernTemplate = ({ userData }) => {
           
           {/* Social Links */}
           {hasSocialLinks && (
-            <div className="flex justify-center space-x-4 mb-12">
+            <div className="flex justify-center space-x-3 sm:space-x-4 mb-8 sm:mb-12">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a 
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="LinkedIn Profile"
                 >
-                  <Linkedin className="w-6 h-6 text-blue-600 group-hover:text-blue-700" />
+                  <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:text-blue-700" />
                 </a>
               )}
               
@@ -384,9 +391,10 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="GitHub Profile"
                 >
-                  <Github className="w-6 h-6 text-gray-700 group-hover:text-gray-900" />
+                  <Github className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 group-hover:text-gray-900" />
                 </a>
               )}
               
@@ -395,9 +403,10 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Twitter Profile"
                 >
-                  <Twitter className="w-6 h-6 text-blue-500 group-hover:text-blue-600" />
+                  <Twitter className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 group-hover:text-blue-600" />
                 </a>
               )}
               
@@ -406,45 +415,40 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-green-400 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-green-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Personal Website"
                 >
-                  <Globe className="w-6 h-6 text-green-600 group-hover:text-green-700" />
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:text-green-700" />
                 </a>
               )}
             </div>
           )}
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button 
               onClick={() => window.print()}
-              className="bg-gradient-to-r cursor-pointer from-blue-500 to-purple-600 text-white px-8 py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group"
+              className="bg-gradient-to-r cursor-pointer from-blue-500 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base"
             >
-              <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+              <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-bounce flex-shrink-0" />
               Download Resume
             </button>
             
             {userData?.email && (
               <a 
                 href={`mailto:${userData.email}`}
-                className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-8 py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm"
+                className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm text-sm sm:text-base"
               >
-                <Mail className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
                 Get In Touch
               </a>
             )}
           </div>
         </div>
         
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-8 h-12 border-2 border-gray-400 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-ping"></div>
-          </div>
-        </div>
       </header>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-4 py-20">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:py-20">
         {/* Skills Section */}
         {hasSkills && (
           <Section>
@@ -454,7 +458,7 @@ const ModernTemplate = ({ userData }) => {
               subtitle="Technologies and tools I work with to bring ideas to life"
               gradient="from-blue-500 to-cyan-500"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {userData.professional.skills.map((skill, index) => (
                 <SkillCard 
                   key={index} 
@@ -477,8 +481,8 @@ const ModernTemplate = ({ userData }) => {
               gradient="from-purple-500 to-pink-500"
             />
             <div className="relative">
-              <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
-              <div className="space-y-12 ml-16">
+              <div className="absolute left-4 sm:left-8 top-0 bottom-0 w-0.5 sm:w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
+              <div className="space-y-8 sm:space-y-12 ml-8 sm:ml-16">
                 {userData.experience.map((exp, index) => (
                   <ExperienceCard key={index} experience={exp} index={index} />
                 ))}
@@ -496,7 +500,7 @@ const ModernTemplate = ({ userData }) => {
               subtitle="A showcase of my recent work and creative solutions"
               gradient="from-green-500 to-blue-500"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
               {userData.projects.map((project, index) => (
                 <ProjectCard key={index} project={project} />
               ))}
@@ -513,7 +517,7 @@ const ModernTemplate = ({ userData }) => {
               subtitle="Academic foundation and continuous learning journey"
               gradient="from-indigo-500 to-purple-500"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {userData.education.map((edu, index) => (
                 <EducationCard key={index} education={edu} />
               ))}
@@ -530,7 +534,7 @@ const ModernTemplate = ({ userData }) => {
               subtitle="Professional credentials and achievements"
               gradient="from-yellow-500 to-orange-500"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {userData.certifications.map((cert, index) => (
                 <CertificationCard key={index} certification={cert} />
               ))}
@@ -540,47 +544,48 @@ const ModernTemplate = ({ userData }) => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-gray-900 text-white py-16">
+      <footer className="relative z-10 bg-gray-900 text-white py-12 sm:py-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <div className="mb-8">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">Let's Create Something Amazing Together</h3>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Let's Create Something Amazing Together</h3>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
               I'm always excited to take on new challenges and collaborate with innovative teams. 
               Let's discuss how we can bring your ideas to life.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12">
             {userData?.email && (
               <a 
                 href={`mailto:${userData.email}`}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base"
               >
-                <Mail className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
                 Start a Conversation
               </a>
             )}
             
             <button 
               onClick={() => window.print()}
-              className="border-2 border-gray-600 hover:bg-gray-800 px-8 py-4 rounded-2xl transition-all font-semibold flex items-center justify-center group"
+              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all font-semibold flex items-center justify-center group text-sm sm:text-base"
             >
-              <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+              <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-bounce flex-shrink-0" />
               Download Resume
             </button>
           </div>
           
           {/* Social Links Footer */}
           {hasSocialLinks && (
-            <div className="flex justify-center space-x-6 mb-8">
+            <div className="flex justify-center space-x-4 sm:space-x-6 mb-6 sm:mb-8">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a 
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-gray-800 hover:bg-blue-600 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  className="group bg-gray-800 hover:bg-blue-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="LinkedIn Profile"
                 >
-                  <Linkedin className="w-6 h-6 group-hover:text-white" />
+                  <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
               
@@ -589,9 +594,10 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-gray-800 hover:bg-gray-700 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  className="group bg-gray-800 hover:bg-gray-700 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="GitHub Profile"
                 >
-                  <Github className="w-6 h-6 group-hover:text-white" />
+                  <Github className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
               
@@ -600,9 +606,10 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-gray-800 hover:bg-blue-500 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  className="group bg-gray-800 hover:bg-blue-500 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Twitter Profile"
                 >
-                  <Twitter className="w-6 h-6 group-hover:text-white" />
+                  <Twitter className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
               
@@ -611,16 +618,17 @@ const ModernTemplate = ({ userData }) => {
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-gray-800 hover:bg-green-600 p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  className="group bg-gray-800 hover:bg-green-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Personal Website"
                 >
-                  <Globe className="w-6 h-6 group-hover:text-white" />
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
             </div>
           )}
           
-          <div className="border-t border-gray-800 pt-8">
-            <p className="text-gray-400">
+          <div className="border-t border-gray-800 pt-6 sm:pt-8">
+            <p className="text-gray-400 text-sm sm:text-base break-words">
               © {new Date().getFullYear()} {userData?.firstName && userData?.lastName 
                 ? `${userData.firstName} ${userData.lastName}` 
                 : 'Professional Portfolio'}. 
