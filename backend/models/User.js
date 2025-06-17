@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema({
   },
   selectedTemplate: {
     type: String,
-    enum: ['modern-professional', 'minimal-clean', 'creative-portfolio', 'developer-focused', 'executive-suite'],
+    enum: ['modern-professional', 'minimal-clean', 'creative-gradient', 'terminal-developer-focused', 'executive-suite'],
     default: null
   },
   // Account Status
