@@ -212,7 +212,7 @@ const OTPVerification = ({
               disabled={isLoading}
               className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl 
                 focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                transition-all duration-200 bg-slate-50 focus:bg-white placeholder:text-slate-100
+                transition-all duration-200 bg-slate-50 focus:bg-white placeholder:!text-gray-400
                 ${error ? 'border-red-300 bg-red-50' : 'border-slate-300'}
                 ${digit ? 'border-blue-400 bg-blue-50' : ''}
                 disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -232,7 +232,7 @@ const OTPVerification = ({
         <button
           onClick={() => handleVerifyOTP(otp.join(''))}
           disabled={isLoading || otp.join('').length !== 6}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 
+          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 cursor-pointer text-white py-3 px-4 
             rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 
             font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed 
             flex items-center justify-center"
@@ -253,7 +253,7 @@ const OTPVerification = ({
           <button
             onClick={handleResendOTP}
             disabled={!canResend || isResending || resendCooldown > 0}
-            className="text-blue-600 hover:text-blue-700 font-semibold transition-colors 
+            className="text-blue-600 hover:text-blue-700 cursor-pointer font-semibold transition-colors 
               disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
           >
             {isResending ? (
@@ -277,8 +277,8 @@ const OTPVerification = ({
           <button
             onClick={onBack}
             disabled={isLoading}
-            className="flex-1 flex items-center justify-center px-4 py-2 border border-slate-300 
-              rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200 
+            className="flex-1 flex items-center justify-center px-4 py-2 border cursor-pointer border-slate-300 
+              rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200  
               disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -288,7 +288,7 @@ const OTPVerification = ({
           <button
             onClick={clearOTP}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-slate-300 rounded-xl text-slate-700 
+            className="flex-1 px-4 py-2 border border-slate-300 rounded-xl cursor-pointer text-slate-700 
               bg-white hover:bg-slate-50 transition-all duration-200 
               disabled:opacity-50 disabled:cursor-not-allowed"
           >

@@ -6,6 +6,7 @@ import OTPVerification from '../components/OTPVerification';
 const AuthPage = () => {
   const [authMode, setAuthMode] = useState('signin'); // signin, signup, email-verification, otp-verification, complete-registration
   const [showPassword, setShowPassword] = useState(false);
+  const [showCnfPassword, setShowCnfPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -428,7 +429,7 @@ const AuthPage = () => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.email ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                  className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.email ? 'border-red-300 bg-red-50' : 'border-slate-300'
                     }`}
                   placeholder="john@example.com"
                   disabled={isLoading || authMode === 'otp-verification'}
@@ -463,7 +464,7 @@ const AuthPage = () => {
                       required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.firstName ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                      className={`w-full pl-10 placeholder:!text-gray-400 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.firstName ? 'border-red-300 bg-red-50' : 'border-slate-300'
                         }`}
                       placeholder="John"
                       disabled={isLoading}
@@ -487,7 +488,7 @@ const AuthPage = () => {
                       required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.lastName ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                      className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.lastName ? 'border-red-300 bg-red-50' : 'border-slate-300'
                         }`}
                       placeholder="Doe"
                       disabled={isLoading}
@@ -512,7 +513,7 @@ const AuthPage = () => {
                     required
                     value={formData.username}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.username ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                    className={`w-full pl-10 pr-4 py-3 placeholder:!text-gray-400 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.username ? 'border-red-300 bg-red-50' : 'border-slate-300'
                       }`}
                     placeholder="john_doe"
                     disabled={isLoading}
@@ -540,7 +541,7 @@ const AuthPage = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-slate-300'
                     }`}
                   placeholder="••••••••"
                   disabled={isLoading}
@@ -571,15 +572,23 @@ const AuthPage = () => {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showCnfPassword ? 'text' : 'password'}
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                  className={`w-full pl-10 pr-4 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
                     }`}
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
+                 <button
+                  type="button"
+                  onClick={() => setShowCnfPassword(!showCnfPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {showCnfPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {formErrors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>

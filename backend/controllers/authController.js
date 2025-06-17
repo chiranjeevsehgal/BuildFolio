@@ -70,7 +70,7 @@ const register = async (req, res) => {
       } else {
         return res.status(400).json({
           success: false,
-          message: 'Username already taken'
+          message: 'Username already taken.'
         });
       }
     }
