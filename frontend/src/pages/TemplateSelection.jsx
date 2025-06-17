@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Eye, ArrowRight, Palette, Monitor, Smartphone, Tablet, Check, Star, Zap, Heart, 
   Grid, Layout, Code, Briefcase, User, Crown, AlertCircle, Edit3, Sparkles, 
@@ -11,14 +11,86 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TemplateModal from '../components/TemplateModal';
 
+// Cache utility functions
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_KEYS = {
+  TEMPLATES: 'portfolio_templates',
+  USER_PROFILE: 'user_profile',
+  TIMESTAMP: 'cache_timestamp'
+};
+
+const getCachedData = (key) => {
+  try {
+    const timestamp = localStorage.getItem(CACHE_KEYS.TIMESTAMP);
+    if (!timestamp || Date.now() - parseInt(timestamp) > CACHE_DURATION) {
+      // Cache expired, clear all
+      Object.values(CACHE_KEYS).forEach(k => localStorage.removeItem(k));
+      return null;
+    }
+    
+    const cached = localStorage.getItem(key);
+    return cached ? JSON.parse(cached) : null;
+  } catch (error) {
+    console.warn('Cache read error:', error);
+    return null;
+  }
+};
+
+const setCachedData = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    localStorage.setItem(CACHE_KEYS.TIMESTAMP, Date.now().toString());
+  } catch (error) {
+    console.warn('Cache write error:', error);
+  }
+};
+
+// Skeleton components for better loading UX
+const TemplateCardSkeleton = ({ viewMode }) => (
+  <div className={`animate-pulse ${viewMode === 'grid' 
+    ? 'bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg' 
+    : 'bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg flex items-center'
+  }`}>
+    {viewMode === 'grid' ? (
+      <>
+        <div className="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl mb-4"></div>
+        <div className="space-y-3">
+          <div className="h-4 bg-slate-300 rounded w-3/4"></div>
+          <div className="h-3 bg-slate-200 rounded w-full"></div>
+          <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+          <div className="flex space-x-2 mt-4">
+            <div className="h-10 bg-slate-300 rounded-xl flex-1"></div>
+            <div className="h-10 w-10 bg-slate-300 rounded-xl"></div>
+          </div>
+        </div>
+      </>
+    ) : (
+      <>
+        <div className="w-16 h-16 bg-slate-300 rounded-xl mr-6 flex-shrink-0"></div>
+        <div className="flex-1 space-y-3">
+          <div className="h-5 bg-slate-300 rounded w-1/3"></div>
+          <div className="h-3 bg-slate-200 rounded w-full"></div>
+          <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+        </div>
+        <div className="flex space-x-3 ml-6">
+          <div className="h-12 w-12 bg-slate-300 rounded-xl"></div>
+          <div className="h-12 w-12 bg-slate-300 rounded-xl"></div>
+          <div className="h-12 w-24 bg-slate-300 rounded-xl"></div>
+        </div>
+      </>
+    )}
+  </div>
+);
+
 const TemplateSelection = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [userSelectedTemplate, setUserSelectedTemplate] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('grid');
   const [filterCategory, setFilterCategory] = useState('all');
   const [previewTemplate, setPreviewTemplate] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', content: '' });
   const [savingTemplate, setSavingTemplate] = useState(false);
   
@@ -28,16 +100,16 @@ const TemplateSelection = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-  const categories = [
+  const categories = useMemo(() => [
     { id: 'all', name: 'All Templates', icon: Grid, gradient: 'from-blue-500 to-indigo-600' },
     { id: 'minimal', name: 'Minimal', icon: Layout, gradient: 'from-slate-500 to-slate-600' },
     { id: 'creative', name: 'Creative', icon: Palette, gradient: 'from-purple-500 to-pink-600' },
     { id: 'professional', name: 'Professional', icon: Briefcase, gradient: 'from-emerald-500 to-teal-600' },
     { id: 'developer', name: 'Developer', icon: Code, gradient: 'from-orange-500 to-red-600' }
-  ];
+  ], []);
 
+  // Setup axios with memoized config
   useEffect(() => {
-    // Set up axios defaults
     axios.defaults.baseURL = API_BASE_URL;
     axios.defaults.headers.common['Content-Type'] = 'application/json';
 
@@ -45,11 +117,9 @@ const TemplateSelection = () => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
-
-    loadTemplatesAndUserSelection();
   }, [API_BASE_URL]);
 
-  // Auto-dismiss messages after 4 seconds
+  // Auto-dismiss messages
   useEffect(() => {
     if (message.content) {
       const timer = setTimeout(() => {
@@ -59,64 +129,128 @@ const TemplateSelection = () => {
     }
   }, [message.content]);
 
-  const loadTemplatesAndUserSelection = async () => {
+  // Optimized data loading with caching
+  const loadTemplatesAndUserSelection = useCallback(async () => {
     try {
       setLoading(true);
 
-      const [templatesResponse, userResponse] = await Promise.all([
-        axios.get('/templates'),
-        axios.get('/auth/profile')
-      ]);
+      // Check cache first
+      const cachedTemplates = getCachedData(CACHE_KEYS.TEMPLATES);
+      const cachedProfile = getCachedData(CACHE_KEYS.USER_PROFILE);
 
-      if (templatesResponse.data.success) {
-        setTemplates(templatesResponse.data.data);
-      } else {
-        throw new Error(templatesResponse.data.message || 'Failed to load templates');
-      }
-
-      if (userResponse.data.success && userResponse.data.user) {
-        const user = userResponse.data.user;
-        if (user.selectedTemplate) {
-          setSelectedTemplate(user.selectedTemplate);
-          setUserSelectedTemplate(user.selectedTemplate);
+      if (cachedTemplates && cachedProfile) {
+        // Use cached data immediately
+        setTemplates(cachedTemplates);
+        if (cachedProfile.selectedTemplate) {
+          setSelectedTemplate(cachedProfile.selectedTemplate);
+          setUserSelectedTemplate(cachedProfile.selectedTemplate);
         }
+        setInitialLoading(false);
+        setLoading(false);
+        
+        // Optionally refresh in background
+        setTimeout(() => refreshDataInBackground(), 100);
+        return;
       }
+
+      // Load fresh data if no cache
+      await loadFreshData();
 
     } catch (error) {
       console.error('Failed to load data:', error);
+      handleLoadError(error);
+    }
+  }, []);
 
-      if (error.config?.url?.includes('/auth/profile')) {
-        try {
-          const templatesResponse = await axios.get('/templates');
-          if (templatesResponse.data.success) {
-            setTemplates(templatesResponse.data.data);
-          }
-        } catch (templateError) {
-          console.error('Failed to load templates:', templateError);
-        }
-      } else {
-        setMessage({
-          type: 'error',
-          content: error.response?.data?.message || 'Failed to load templates. Please try again.'
-        });
+  const loadFreshData = async () => {
+    const [templatesResponse, userResponse] = await Promise.all([
+      axios.get('/templates'),
+      axios.get('/auth/profile').catch(err => ({ data: { success: false } }))
+    ]);
+
+    if (templatesResponse.data.success) {
+      const templatesData = templatesResponse.data.data;
+      setTemplates(templatesData);
+      setCachedData(CACHE_KEYS.TEMPLATES, templatesData);
+    } else {
+      throw new Error(templatesResponse.data.message || 'Failed to load templates');
+    }
+
+    if (userResponse.data.success && userResponse.data.user) {
+      const user = userResponse.data.user;
+      setCachedData(CACHE_KEYS.USER_PROFILE, user);
+      
+      if (user.selectedTemplate) {
+        setSelectedTemplate(user.selectedTemplate);
+        setUserSelectedTemplate(user.selectedTemplate);
       }
+    }
 
-    } finally {
+    setInitialLoading(false);
+    setLoading(false);
+  };
+
+  const refreshDataInBackground = async () => {
+    try {
+      await loadFreshData();
+    } catch (error) {
+      console.warn('Background refresh failed:', error);
+    }
+  };
+
+  const handleLoadError = (error) => {
+    if (error.config?.url?.includes('/auth/profile')) {
+      // If profile fails, try templates only
+      axios.get('/templates')
+        .then(response => {
+          if (response.data.success) {
+            const templatesData = response.data.data;
+            setTemplates(templatesData);
+            setCachedData(CACHE_KEYS.TEMPLATES, templatesData);
+          }
+        })
+        .catch(templateError => {
+          console.error('Failed to load templates:', templateError);
+          setMessage({
+            type: 'error',
+            content: 'Failed to load templates. Please refresh the page.'
+          });
+        })
+        .finally(() => {
+          setInitialLoading(false);
+          setLoading(false);
+        });
+    } else {
+      setMessage({
+        type: 'error',
+        content: error.response?.data?.message || 'Failed to load templates. Please try again.'
+      });
+      setInitialLoading(false);
       setLoading(false);
     }
   };
 
-  const filteredTemplates = filterCategory === 'all'
-    ? templates
-    : templates.filter(template => template.category === filterCategory);
+  // Initial load
+  useEffect(() => {
+    loadTemplatesAndUserSelection();
+  }, [loadTemplatesAndUserSelection]);
 
-  const handleTemplateSelect = async (template) => {
+  // Memoized filtered templates
+  const filteredTemplates = useMemo(() => {
+    return filterCategory === 'all'
+      ? templates
+      : templates.filter(template => template.category === filterCategory);
+  }, [templates, filterCategory]);
+
+  // Optimized template selection with optimistic updates
+  const handleTemplateSelect = useCallback(async (template) => {
     const templateId = template.templateId || template.id;
 
     if (selectedTemplate === templateId && userSelectedTemplate === templateId) {
       return;
     }
 
+    // Optimistic update
     setSelectedTemplate(templateId);
     setSavingTemplate(true);
 
@@ -127,11 +261,18 @@ const TemplateSelection = () => {
 
       if (response.data.success) {
         setUserSelectedTemplate(templateId);
+        
+        // Update cache
+        const cachedProfile = getCachedData(CACHE_KEYS.USER_PROFILE) || {};
+        setCachedData(CACHE_KEYS.USER_PROFILE, {
+          ...cachedProfile,
+          selectedTemplate: templateId
+        });
+
         setMessage({
           type: 'success',
           content: 'Template selected and saved successfully!'
         });
-        // Close modal after successful selection
         setIsModalOpen(false);
       } else {
         throw new Error(response.data.message || 'Failed to save template');
@@ -142,29 +283,30 @@ const TemplateSelection = () => {
         type: 'error',
         content: error.response?.data?.message || 'Failed to save template selection. Please try again.'
       });
+      // Revert optimistic update
       setSelectedTemplate(userSelectedTemplate);
     } finally {
       setSavingTemplate(false);
     }
-  };
+  }, [selectedTemplate, userSelectedTemplate]);
 
-  const handlePreview = (template) => {
+  const handlePreview = useCallback((template) => {
     setPreviewTemplate(template);
     const templateId = template.templateId || template.id;
-    window.open(`/preview/${templateId}`, '_blank')
-  };
+    window.open(`/preview/${templateId}`, '_blank');
+  }, []);
 
-  const handleTemplateClick = (template) => {
+  const handleTemplateClick = useCallback((template) => {
     setModalTemplate(template);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
     setModalTemplate(null);
-  };
+  }, []);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     if (selectedTemplate && userSelectedTemplate) {
       try {
         window.location.href = '/portfolio';
@@ -176,18 +318,55 @@ const TemplateSelection = () => {
         });
       }
     }
-  };
+  }, [selectedTemplate, userSelectedTemplate]);
 
-  if (loading) {
+  // Show skeleton loading for initial load only
+  if (initialLoading) {
     return (
       <>
         <Navbar current={"/templates"} />
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-6"></div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-2">Loading Templates</h3>
-              <p className="text-slate-600">Finding the perfect designs for you...</p>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+          {/* Hero Section Skeleton */}
+          <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700">
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-3">
+                    <Palette className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                  Choose Your Perfect Template
+                </h1>
+                <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+                  Loading amazing templates for you...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
+            {/* Filters Skeleton */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-6 mb-6 border border-white/40">
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="h-10 w-24 bg-slate-200 rounded-xl animate-pulse"></div>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  <div className="h-10 w-20 bg-slate-200 rounded-xl animate-pulse"></div>
+                  <div className="h-10 w-32 bg-slate-200 rounded-xl animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Templates Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <TemplateCardSkeleton key={i} viewMode="grid" />
+              ))}
             </div>
           </div>
         </div>
@@ -307,6 +486,16 @@ const TemplateSelection = () => {
             </div>
           </div>
 
+          {/* Show loading indicator for background refreshes */}
+          {loading && !initialLoading && (
+            <div className="mb-4 text-center">
+              <div className="bg-blue-100/80 text-blue-800 px-4 py-2 rounded-xl inline-flex items-center text-sm">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent mr-2"></div>
+                Updating templates...
+              </div>
+            </div>
+          )}
+
           {/* Templates Grid/List View */}
           {viewMode === 'grid' ? (
             // Grid View - 3 columns
@@ -364,7 +553,6 @@ const TemplateSelection = () => {
 
                         {/* Quick Actions */}
                         <div className="absolute top-3 left-3 flex space-x-2">
-                          
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

@@ -115,7 +115,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                     <h2 className="text-xl font-semibold text-slate-900">Send Feedback</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors"
                         disabled={loading}
                     >
                         <X className="w-5 h-5 text-slate-500" />
@@ -148,7 +148,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                             <select
                                 value={selectedTopic}
                                 onChange={(e) => setSelectedTopic(e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-slate-700"
+                                className="w-full px-3 cursor-pointer py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-slate-700"
                                 required
                                 disabled={loading}
                             >
@@ -179,6 +179,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                         />
                     </div>
 
+
                     {/* Rating */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -191,27 +192,46 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                                     type="button"
                                     onClick={() => setRating(star)}
                                     disabled={loading}
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${star <= rating
-                                        ? 'bg-green-200 text-yellow-500'
-                                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                                        } disabled:opacity-50`}
+                                    className={`w-10 h-10 cursor-pointer rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 ${star === rating
+                                            ? star === 1
+                                                ? 'bg-red-100 border-2 border-red-300 shadow-md'
+                                                : star === 2
+                                                    ? 'bg-orange-100 border-2 border-orange-300 shadow-md'
+                                                    : star === 3
+                                                        ? 'bg-yellow-100 border-2 border-yellow-300 shadow-md'
+                                                        : star === 4
+                                                            ? 'bg-blue-100 border-2 border-blue-300 shadow-md'
+                                                            : 'bg-green-100 border-2 border-green-300 shadow-md'
+                                            : 'bg-slate-50 border-2 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                                        } disabled:opacity-50 disabled:transform-none`}
                                 >
-                                    {star === 1 && '😞'}
-                                    {star === 2 && '😕'}
-                                    {star === 3 && '😐'}
-                                    {star === 4 && '🙂'}
-                                    {star === 5 && '😊'}
+                                    <span className={`text-lg transition-all duration-200 ${star === rating ? 'scale-110' : 'scale-100'
+                                        }`}>
+                                        {star === 1 && '😞'}
+                                        {star === 2 && '😕'}
+                                        {star === 3 && '😐'}
+                                        {star === 4 && '🙂'}
+                                        {star === 5 && '😊'}
+                                    </span>
                                 </button>
                             ))}
                         </div>
-                        
+                        {rating > 0 && (
+                            <p className="text-xs text-slate-500 mt-2 text-center">
+                                {rating === 1 && 'Very Poor'}
+                                {rating === 2 && 'Poor'}
+                                {rating === 3 && 'Average'}
+                                {rating === 4 && 'Good'}
+                                {rating === 5 && 'Excellent'}
+                            </p>
+                        )}
                     </div>
 
                     {/* Send Button */}
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-slate-900 text-white py-2.5 px-4 rounded-lg hover:bg-slate-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        className="w-full cursor-pointer bg-slate-900 text-white py-2.5 px-4 rounded-lg hover:bg-slate-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                         {loading ? (
                             <>

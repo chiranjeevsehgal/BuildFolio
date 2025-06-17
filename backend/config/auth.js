@@ -4,6 +4,7 @@ const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const User = require('../models/User');
 const { sendWelcomeEmail } = require('../utils/emailService');
+const NotificationService = require('../utils/notificationService');
 
 // Serializing user
 passport.serializeUser((user, done) => {
@@ -67,6 +68,17 @@ passport.use(new GoogleStrategy({
 
       // Send welcome email to user
       await sendWelcomeEmail(emailData);
+
+      const welcomeResult = await NotificationService.sendWelcomeNotification(
+        user._id,
+        { firstName: user?.firstName }
+      );
+
+      if (welcomeResult.success) {
+        console.log('Welcome notification sent successfully');
+      } else {
+        console.error('Failed to send welcome notification:', welcomeResult.message);
+      }
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
     }

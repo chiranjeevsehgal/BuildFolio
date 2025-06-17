@@ -230,7 +230,7 @@ const Navbar = ({ current }) => {
       disabled: !currentUser?.portfolioDeployed,
       tooltip: currentUser?.portfolioDeployed ? null : 'Portfolio not deployed yet'
     },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    // { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Sign out', href: '/logout', icon: LogOut },
   ];
 
@@ -337,7 +337,7 @@ const Navbar = ({ current }) => {
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                          className="text-xs cursor-pointer text-blue-600 hover:text-blue-700 font-medium flex items-center"
                         >
                           <CheckCheck className="w-4 h-4 mr-1" />
                           Mark all read

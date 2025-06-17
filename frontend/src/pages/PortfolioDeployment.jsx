@@ -22,7 +22,7 @@ const PortfolioDeployment = () => {
   const [deploymentProgress, setDeploymentProgress] = useState(0);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-  const PORTFOLIO_BASE_URL = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
+  const PORTFOLIO_BASE_URL = import.meta.env.VITE_FRONTEND_URL;
 
   useEffect(() => {
     // Set up axios defaults
@@ -105,7 +105,7 @@ const PortfolioDeployment = () => {
       setDeploymentProgress(0);
       setMessage({ type: 'info', content: 'Deploying your portfolio...' });
 
-      // Simulate deployment steps
+      // Deployment steps
       const steps = [
         { progress: 20, message: 'Preparing your portfolio...' },
         { progress: 40, message: 'Building template...' },

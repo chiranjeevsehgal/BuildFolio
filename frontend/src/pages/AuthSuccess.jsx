@@ -39,11 +39,9 @@ const AuthSuccess = () => {
         if (response.data.success && response.data.user) {
           const user = response.data.user;
           
-          // Store user data
-          localStorage.setItem('portfolioUser', JSON.stringify(user));
           
           setStatus('redirecting');
-          setMessage('Welcome back! Redirecting...');
+          setMessage('Welcome to BuildFolio! Redirecting...');
 
           // Determine redirect path based on user status
           const redirectPath = getRedirectPath(user);

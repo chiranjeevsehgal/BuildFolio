@@ -100,6 +100,19 @@ const register = async (req, res) => {
 
       // Send welcome email to user
       await sendWelcomeEmail(emailData);
+      
+      const welcomeResult = await NotificationService.sendWelcomeNotification(
+            user._id,
+            { firstName: user?.firstName }
+        );
+
+        if (welcomeResult.success) {
+            console.log('Welcome notification sent successfully');
+        } else {
+            console.error('Failed to send welcome notification:', welcomeResult.message);
+        }
+
+
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
     }
