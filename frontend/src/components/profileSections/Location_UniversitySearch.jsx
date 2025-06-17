@@ -86,7 +86,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         placeholder={placeholder}
-        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
+        className={`px-3 py-2 border placeholder:!text-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
           hasError ? "border-red-500" : "border-slate-300"
         }`}
       />
@@ -264,7 +264,7 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
           }
         }}
         placeholder={placeholder}
-        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
+        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors placeholder:!text-gray-500 ${
           hasError ? "border-red-500" : "border-slate-300"
         }`}
         autoComplete="off"

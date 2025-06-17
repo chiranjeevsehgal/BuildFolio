@@ -9,6 +9,7 @@ import {
     Info,
 } from "lucide-react"
 import { LocationAutocomplete } from "./Location_UniversitySearch"
+import CustomDateInput from "./CustomDateInput"
 
 const ExperienceSection = ({
     profileData,
@@ -41,11 +42,11 @@ const ExperienceSection = ({
     // Deep comparison function for arrays and objects
     const deepEqual = (obj1, obj2) => {
         if (obj1 === obj2) return true
-        
+
         if (obj1 == null || obj2 == null) return false
-        
+
         if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return obj1 === obj2
-        
+
         // Handle arrays
         if (Array.isArray(obj1) && Array.isArray(obj2)) {
             if (obj1.length !== obj2.length) return false
@@ -54,18 +55,18 @@ const ExperienceSection = ({
             }
             return true
         }
-        
+
         // Handle objects
         const keys1 = Object.keys(obj1)
         const keys2 = Object.keys(obj2)
-        
+
         if (keys1.length !== keys2.length) return false
-        
+
         for (let key of keys1) {
             if (!keys2.includes(key)) return false
             if (!deepEqual(obj1[key], obj2[key])) return false
         }
-        
+
         return true
     }
 
@@ -109,7 +110,7 @@ const ExperienceSection = ({
             // If user is canceling with changes, ask for confirmation
             const confirmCancel = window.confirm("You have unsaved changes. Are you sure you want to cancel?")
             if (!confirmCancel) return
-            
+
             // Restore original data
             if (originalData) {
                 if (window.restoreExperienceData) {
@@ -117,14 +118,14 @@ const ExperienceSection = ({
                 }
             }
         }
-        
+
         toggleSectionEdit(sectionName)
     }
 
     // Enhanced save function
     const handleSave = async () => {
         if (!hasChanges) return
-        
+
         const success = await saveExperienceProfile()
         if (success) {
             setOriginalData(createExperienceCopy(profileData.experience))
@@ -176,11 +177,10 @@ const ExperienceSection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("experience")}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                            editingSections.experience 
-                                ? "bg-gray-600 text-white hover:bg-gray-700" 
-                                : "bg-slate-600 text-white hover:bg-slate-700"
-                        }`}
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-colors ${editingSections.experience
+                            ? "bg-gray-600 text-white hover:bg-gray-700"
+                            : "bg-slate-600 text-white hover:bg-slate-700"
+                            }`}
                     >
                         <Edit3 className="w-4 h-4" />
                         <span>{editingSections.experience ? "Cancel" : "Edit"}</span>
@@ -188,7 +188,7 @@ const ExperienceSection = ({
                     {editingSections.experience && (
                         <button
                             onClick={handleAddExperience}
-                            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                            className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                         >
                             <Plus className="w-5 h-5" />
                             <span>Add Experience</span>
@@ -202,11 +202,10 @@ const ExperienceSection = ({
                                 disabled={shouldDisableSave}
                                 onMouseEnter={() => setShowTooltip(true)}
                                 onMouseLeave={() => setShowTooltip(false)}
-                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                                    shouldDisableSave
-                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
-                                }`}
+                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${shouldDisableSave
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-blue-600 text-white cursor-pointer hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                    }`}
                             >
                                 {isSaving ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -234,9 +233,9 @@ const ExperienceSection = ({
                                 <h3 className="font-medium text-slate-800">
                                     {exp.title || "New Position"} {exp.company && `at ${exp.company}`}
                                 </h3>
-                                <button 
-                                    onClick={() => handleRemoveExperience(index)} 
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                                <button
+                                    onClick={() => handleRemoveExperience(index)}
+                                    className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
                                     title="Delete experience"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -250,9 +249,8 @@ const ExperienceSection = ({
                                         value={exp.title}
                                         onChange={(e) => updateExperience(index, "title", e.target.value)}
                                         onBlur={() => handleFieldTouch(`experience_${index}_title`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
-                                            hasFieldError(`experience_${index}_title`) ? "border-red-500" : "border-slate-300"
-                                        }`}
+                                        className={`px-3 py-2 border rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`experience_${index}_title`) ? "border-red-500" : "border-slate-300"
+                                            }`}
                                         placeholder="Job Title *"
                                     />
                                     {hasFieldError(`experience_${index}_title`) && (
@@ -268,9 +266,8 @@ const ExperienceSection = ({
                                         value={exp.company}
                                         onChange={(e) => updateExperience(index, "company", e.target.value)}
                                         onBlur={() => handleFieldTouch(`experience_${index}_company`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
-                                            hasFieldError(`experience_${index}_company`) ? "border-red-500" : "border-slate-300"
-                                        }`}
+                                        className={`px-3 py-2 border rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`experience_${index}_company`) ? "border-red-500" : "border-slate-300"
+                                            }`}
                                         placeholder="Company Name *"
                                     />
                                     {hasFieldError(`experience_${index}_company`) && (
@@ -305,15 +302,12 @@ const ExperienceSection = ({
                                     )}
                                 </div>
                                 <div>
-                                    <input
-                                        type="month"
+                                    <CustomDateInput
                                         value={exp.startDate}
                                         onChange={(e) => updateExperience(index, "startDate", e.target.value)}
                                         onBlur={() => handleFieldTouch(`experience_${index}_startDate`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
-                                            hasFieldError(`experience_${index}_startDate`) ? "border-red-500" : "border-slate-300"
-                                        }`}
-                                        placeholder="Start Date"
+                                        placeholder="Select start date"
+                                        hasError={hasFieldError(`experience_${index}_startDate`)}
                                     />
                                     {hasFieldError(`experience_${index}_startDate`) && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
@@ -323,16 +317,13 @@ const ExperienceSection = ({
                                     )}
                                 </div>
                                 <div>
-                                    <input
-                                        type="month"
+                                    <CustomDateInput
                                         value={exp.current ? "" : exp.endDate}
                                         onChange={(e) => updateExperience(index, "endDate", e.target.value)}
                                         onBlur={() => handleFieldTouch(`experience_${index}_endDate`)}
+                                        placeholder={exp.current ? "Currently working here" : "Select end date"}
                                         disabled={exp.current}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full disabled:bg-slate-100 transition-colors ${
-                                            hasFieldError(`experience_${index}_endDate`) ? "border-red-500" : "border-slate-300"
-                                        }`}
-                                        placeholder="End Date"
+                                        hasError={hasFieldError(`experience_${index}_endDate`)}
                                     />
                                     {hasFieldError(`experience_${index}_endDate`) && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
@@ -348,7 +339,7 @@ const ExperienceSection = ({
                                     type="checkbox"
                                     checked={exp.current}
                                     onChange={(e) => updateExperience(index, "current", e.target.checked)}
-                                    className="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                                    className="w-4 h-4 cursor-pointer text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
                                 />
                                 <span className="text-sm text-slate-600">Current position</span>
                             </div>
@@ -359,9 +350,8 @@ const ExperienceSection = ({
                                     value={exp.description}
                                     onChange={(e) => updateExperience(index, "description", e.target.value)}
                                     onBlur={() => handleFieldTouch(`experience_${index}_description`)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
-                                        hasFieldError(`experience_${index}_description`) ? "border-red-500" : "border-slate-300"
-                                    }`}
+                                    className={`w-full placeholder:!text-gray-500 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${hasFieldError(`experience_${index}_description`) ? "border-red-500" : "border-slate-300"
+                                        }`}
                                     placeholder="Describe your responsibilities, achievements, and key contributions... (minimum 20 characters) *"
                                 ></textarea>
                                 {hasFieldError(`experience_${index}_description`) && (

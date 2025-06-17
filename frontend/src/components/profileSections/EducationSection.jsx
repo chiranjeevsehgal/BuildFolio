@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import Toast from "../Toast"
 import { LocationAutocomplete, UniversityAutocomplete } from "./Location_UniversitySearch"
+import CustomDateInput from "./CustomDateInput"
 
 const EducationSection = ({
     profileData,
@@ -250,7 +251,7 @@ const EducationSection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("education")}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${editingSections.education
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg cursor-pointer transition-colors ${editingSections.education
                             ? "bg-gray-600 text-white hover:bg-gray-700"
                             : "bg-slate-600 text-white hover:bg-slate-700"
                             }`}
@@ -261,7 +262,7 @@ const EducationSection = ({
                     {editingSections.education && (
                         <button
                             onClick={handleAddEducation}
-                            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                            className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                         >
                             <Plus className="w-5 h-5" />
                             <span>Add Education</span>
@@ -277,7 +278,7 @@ const EducationSection = ({
                                 onMouseLeave={() => setShowTooltip(false)}
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${shouldDisableSave
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                    : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                    : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer hover:shadow-lg transform hover:scale-105"
                                     }`}
                             >
                                 {isSaving ? (
@@ -308,7 +309,7 @@ const EducationSection = ({
                                 </h3>
                                 <button
                                     onClick={() => handleRemoveEducation(index)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                                    className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
                                     title="Delete education"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -322,7 +323,7 @@ const EducationSection = ({
                                         value={edu.degree}
                                         onChange={(e) => updateEducation(index, "degree", e.target.value)}
                                         onBlur={() => handleFieldTouch(`education_${index}_degree`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`education_${index}_degree`) ? "border-red-500" : "border-slate-300"
+                                        className={`px-3 placeholder:!text-gray-500 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`education_${index}_degree`) ? "border-red-500" : "border-slate-300"
                                             }`}
                                         placeholder="Degree/Certification *"
                                     />
@@ -379,14 +380,13 @@ const EducationSection = ({
                                     </p>
                                 )}
                                 <div>
-                                    <input
-                                        type="month"
+                                    <CustomDateInput
                                         value={edu.startDate}
                                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
                                         onBlur={() => handleFieldTouch(`education_${index}_startDate`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`education_${index}_startDate`) ? "border-red-500" : "border-slate-300"
-                                            }`}
-                                        placeholder="Start Date *"
+                                        placeholder="Select start date"
+                                        hasError={hasFieldError(`education_${index}_startDate`)}
+                                        required
                                     />
                                     {hasFieldError(`education_${index}_startDate`) && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
@@ -395,15 +395,15 @@ const EducationSection = ({
                                         </p>
                                     )}
                                 </div>
+
                                 <div>
-                                    <input
-                                        type="month"
+                                    <CustomDateInput
                                         value={edu.endDate}
                                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                                         onBlur={() => handleFieldTouch(`education_${index}_endDate`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`education_${index}_endDate`) ? "border-red-500" : "border-slate-300"
-                                            }`}
-                                        placeholder="End Date *"
+                                        placeholder={edu.endDate && new Date(edu.endDate + '-01') > new Date() ?
+                                            "Expected completion date" : "Select end date"}
+                                        hasError={hasFieldError(`education_${index}_endDate`)}
                                     />
                                     {hasFieldError(`education_${index}_endDate`) && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
@@ -412,13 +412,14 @@ const EducationSection = ({
                                         </p>
                                     )}
                                 </div>
+
                             </div>
 
                             <textarea
                                 rows="2"
                                 value={edu.description}
                                 onChange={(e) => updateEducation(index, "description", e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors"
+                                className="w-full px-3 placeholder:!text-gray-500 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors"
                                 placeholder="Additional details, achievements, or relevant coursework..."
                             ></textarea>
                         </div>

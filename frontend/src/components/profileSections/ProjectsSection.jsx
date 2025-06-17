@@ -247,7 +247,7 @@ const ProjectsSection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("projects")}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${
                             editingSections.projects 
                                 ? "bg-gray-600 text-white hover:bg-gray-700" 
                                 : "bg-slate-600 text-white hover:bg-slate-700"
@@ -259,7 +259,7 @@ const ProjectsSection = ({
                     {editingSections.projects && (
                         <button
                             onClick={handleAddProject}
-                            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                            className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                         >
                             <Plus className="w-5 h-5" />
                             <span>Add Project</span>
@@ -276,7 +276,7 @@ const ProjectsSection = ({
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                                     shouldDisableSave
                                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                        : "bg-blue-600 cursor-pointer text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
                                 }`}
                             >
                                 {isSaving ? (
@@ -305,7 +305,7 @@ const ProjectsSection = ({
                                 <h3 className="font-medium text-slate-800">{project.title || "New Project"}</h3>
                                 <button 
                                     onClick={() => handleRemoveProject(index)} 
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                                    className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
                                     title="Delete project"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -319,7 +319,7 @@ const ProjectsSection = ({
                                         value={project.title}
                                         onChange={(e) => updateProject(index, "title", e.target.value)}
                                         onBlur={() => handleFieldTouch(`project_${index}_title`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${
+                                        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors placeholder:!text-gray-500 ${
                                             hasFieldError(`project_${index}_title`) ? "border-red-500" : "border-slate-300"
                                         }`}
                                         placeholder="Project Title *"
@@ -338,14 +338,14 @@ const ProjectsSection = ({
                                     type="url"
                                     value={project.url}
                                     onChange={(e) => updateProject(index, "url", e.target.value)}
-                                    className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500"
                                     placeholder="Project URL"
                                 />
                                 <input
                                     type="url"
                                     value={project.githubUrl}
                                     onChange={(e) => updateProject(index, "githubUrl", e.target.value)}
-                                    className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500"
                                     placeholder="GitHub URL"
                                 />
                             </div>
@@ -360,7 +360,7 @@ const ProjectsSection = ({
                                             {skill}
                                             <button
                                                 onClick={() => removeProjectSkill(index, skillIndex)}
-                                                className="ml-2 text-blue-600 hover:text-blue-800 transition-colors hover:bg-blue-200 rounded-full p-0.5"
+                                                className="ml-2 cursor-pointer text-blue-600 hover:text-blue-800 transition-colors hover:bg-blue-200 rounded-full p-0.5"
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>
@@ -373,12 +373,12 @@ const ProjectsSection = ({
                                         value={project.skill}
                                         onChange={(e) => updateProject(index, "skill", e.target.value)}
                                         onKeyPress={(e) => e.key === "Enter" && addProjectSkill(index)}
-                                        className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                        className="flex-1 px-4 py-2 border border-slate-300 rounded-lg placeholder:!text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                         placeholder="Add a skill"
                                     />
                                     <button
                                         onClick={() => addProjectSkill(index)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                                        className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                                     >
                                         <Plus className="w-5 h-5" />
                                     </button>
@@ -397,7 +397,7 @@ const ProjectsSection = ({
                                     value={project.description}
                                     onChange={(e) => updateProject(index, "description", e.target.value)}
                                     onBlur={() => handleFieldTouch(`project_${index}_description`)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors placeholder:!text-gray-500 ${
                                         hasFieldError(`project_${index}_description`) ? "border-red-500" : "border-slate-300"
                                     }`}
                                     placeholder="Project description and key features... (minimum 20 characters) *"
@@ -415,7 +415,7 @@ const ProjectsSection = ({
                                     type="checkbox"
                                     checked={project.featured}
                                     onChange={(e) => updateProject(index, "featured", e.target.checked)}
-                                    className="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                                    className="w-4 h-4 text-blue-600 cursor-pointer bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
                                 />
                                 <span className="text-sm text-slate-600">Featured project</span>
                             </div>

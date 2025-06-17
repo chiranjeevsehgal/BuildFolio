@@ -17,7 +17,6 @@ import ProjectsSection from "../components/profileSections/ProjectsSection"
 
 import {
     validateCompleteProfile,
-    calculateCompletionPercentage,
     checkSectionValidity,
     ValidationError
 } from "../utils/profileValidation"
@@ -87,10 +86,6 @@ const Profile = () => {
             setValidationErrors(validation.errors)
             setIsFormValid(validation.isValid)
             setFormsValid(sectionValidity)
-
-            // Update completion percentage to match backend calculation
-            const newCompletion = calculateCompletionPercentage(profileData)
-            setCompletionPercentage(newCompletion)
 
             return validation
         } catch (error) {
@@ -329,7 +324,7 @@ const Profile = () => {
             const response = await axios.put("/profiles/me", payload)
 
             if (response.data.success) {
-                setCompletionPercentage(response.data.profile.completionPercentage || calculateCompletionPercentage(profileData))
+                setCompletionPercentage(response.data.profile.completionPercentage)
                 showMessage('success', successMessage)
 
                 // Close editing mode
@@ -514,7 +509,7 @@ const Profile = () => {
             })
 
             if (completeResponse.data.success) {
-                showMessage('success', 'Profile completed successfully! Redirecting to templates...')
+                showMessage('success', 'Redirecting to templates...')
 
                 // Redirect after short delay
                 setTimeout(() => {

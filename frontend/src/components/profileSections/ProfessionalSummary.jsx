@@ -177,7 +177,7 @@ const ProfessionalSummarySection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("professional")}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-colors ${
                             editingSections.professional 
                                 ? "bg-gray-600 text-white hover:bg-gray-700" 
                                 : "bg-slate-600 text-white hover:bg-slate-700"
@@ -197,7 +197,7 @@ const ProfessionalSummarySection = ({
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                                     shouldDisableSave
                                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
+                                        : "bg-blue-600 text-white cursor-pointer hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
                                 }`}
                             >
                                 {isSaving ? (
@@ -223,7 +223,7 @@ const ProfessionalSummarySection = ({
                             value={profileData.professional.title}
                             onChange={(e) => updateProfileData("professional", "title", e.target.value)}
                             onBlur={() => handleFieldTouch("title")}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                            className={`w-full px-4 py-3 border rounded-lg placeholder:!text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                                 hasFieldError("title") ? "border-red-500" : "border-slate-300"
                             }`}
                             placeholder="e.g. Senior Software Engineer"
@@ -245,7 +245,7 @@ const ProfessionalSummarySection = ({
                             value={profileData.professional.summary}
                             onChange={(e) => updateProfileData("professional", "summary", e.target.value)}
                             onBlur={() => handleFieldTouch("summary")}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
                                 hasFieldError("summary") ? "border-red-500" : "border-slate-300"
                             }`}
                             placeholder="Write a brief summary of your professional background and expertise... (minimum 50 characters)"
@@ -292,12 +292,12 @@ const ProfessionalSummarySection = ({
                                 onChange={(e) => setNewSkill(e.target.value)}
                                 onKeyPress={(e) => e.key === "Enter" && addSkill()}
                                 onBlur={() => handleFieldTouch("skills")}
-                                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent transition-colors"
                                 placeholder="Add a skill"
                             />
                             <button
                                 onClick={addSkill}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                                className="px-4 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                             >
                                 <Plus className="w-5 h-5" />
                             </button>

@@ -276,13 +276,13 @@ const PersonalInfoSection = ({
                             Phone <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 " />
                             <input
                                 type="tel"
                                 value={profileData.personalInfo.phone}
                                 onChange={(e) => updateProfileData("personalInfo", "phone", e.target.value)}
                                 onBlur={() => handleFieldTouch("phone")}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500 ${
                                     hasFieldError("phone") ? "border-red-500" : "border-slate-300"
                                 }`}
                                 placeholder="9988776655"
@@ -307,7 +307,7 @@ const PersonalInfoSection = ({
                                 value={profileData.personalInfo.location}
                                 onChange={(e) => updateProfileData("personalInfo", "location", e.target.value)}
                                 onBlur={() => handleFieldTouch("location")}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500 ${
                                     hasFieldError("location") ? "border-red-500" : "border-slate-300"
                                 }`}
                                 placeholder="Bangalore, India"
@@ -330,7 +330,7 @@ const PersonalInfoSection = ({
                                 value={profileData.personalInfo.socialLinks.linkedin}
                                 onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
                                 onBlur={() => handleFieldTouch("linkedin")}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500 ${
                                     hasFieldError("linkedin") ? "border-red-500" : "border-slate-300"
                                 }`}
                                 placeholder="https://linkedin.com/in/username"
@@ -353,7 +353,7 @@ const PersonalInfoSection = ({
                                 value={profileData.personalInfo.socialLinks.github}
                                 onChange={(e) => updateSocialLinks("github", e.target.value)}
                                 onBlur={() => handleFieldTouch("github")}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:!text-gray-500 ${
                                     hasFieldError("github") ? "border-red-500" : "border-slate-300"
                                 }`}
                                 placeholder="https://github.com/username"
