@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
     trim: true,
-    default: null,
+    default: '',
     maxlength: [50, 'Last name cannot exceed 50 characters']
   },
   email: {
@@ -138,7 +138,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Generate full name
 userSchema.virtual('fullName').get(function () {
-  return `${this.firstName} ${this.lastName}`;
+  return `${this.firstName}${this.lastName ? ` ${this.lastName}` : ''}`;
 });
 
 // Ensure virtual fields are serialized
