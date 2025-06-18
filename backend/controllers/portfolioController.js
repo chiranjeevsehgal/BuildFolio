@@ -131,6 +131,7 @@ const deployPortfolio = async (req, res) => {
         customDomain,
         isActive: true,
         isPublic: true,
+        status: 'active',
         deployedAt: new Date(),
         userData: userData,
         seoData: {
@@ -196,6 +197,7 @@ const unpublishPortfolio = async (req, res) => {
     // Update deployment to unpublished state
     deployment.isActive = false;
     // deployment.isPublic = false;
+    deployment.status = 'inactive',
     deployment.unpublishedAt = new Date();
     deployment.updatedAt = new Date();
     await deployment.save();

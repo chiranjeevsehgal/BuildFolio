@@ -6,21 +6,25 @@ const {
   updateProfile,
   uploadProfilePhoto,
   importLinkedInProfile,
-  updateUserTemplate
+  updateUserTemplate,
+  getSettingsData,
+  updateSettingsPersonalData,
+  updateSettingsResumeData,
+  changeUsername
 } = require('../controllers/profileController');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
 // const upload = multer({ storage: multer.memoryStorage() });
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    
+
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -59,10 +63,102 @@ const profileValidation = [
     .withMessage('Each skill must be between 1 and 50 characters')
 ];
 
+const settingsPersonalDataValidation = [
+  body('firstName')
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('First name must be between 1 and 50 characters')
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage('First name can only contain letters, spaces, hyphens, and apostrophes'),
+
+  body('lastName')
+    .optional()
+    .trim()
+    .isLength({ min: 0, max: 50 })
+    .withMessage('Last name must be between 0 and 50 characters')
+    .matches(/^[a-zA-Z\s'-]*$/)
+    .withMessage('Last name can only contain letters, spaces, hyphens, and apostrophes'),
+
+  body('careerStage')
+    .optional({ checkFalsy: true })
+    .isIn([
+      'Entry Level (0-2 Years)',
+      'Mid Level (2-6 Years)',
+      'Senior Level (6-12 Years)',
+      'Executive Level (12+ Years)'
+    ])
+    .withMessage('Invalid career stage selected')
+];
+
+const settingsResumeDataValidation = [
+  body('industry')
+    .optional({ checkFalsy: true })
+    .isIn([
+      'Technology',
+      'Healthcare',
+      'Finance',
+      'Education',
+      'Marketing',
+      'Sales',
+      'Engineering',
+      'Design',
+      'Other'
+    ])
+    .withMessage('Invalid industry selected'),
+
+  body('jobSearchTimeline')
+    .optional({ checkFalsy: true })
+    .isIn([
+      'Immediately',
+      'Within 1 month',
+      'Within 3 months',
+      'Within 6 months',
+      'Not actively looking'
+    ])
+    .withMessage('Invalid jobSearchTimeline selected'),
+
+  body('resumeExperience')
+    .optional()
+    .trim()
+    .isLength({ min: 0, max: 500 })
+    .withMessage('Resume experience must be between 0 and 500 characters')
+    .matches(/^[a-zA-Z0-9\s.,!?;:()\-'"&%@#$+=/_]*$/)
+    .withMessage('Resume experience contains invalid characters')
+];
+
+
+
+const usernameValidation = [
+    body('newUsername')
+        .trim()
+        .isLength({ min: 3, max: 30 })
+        .withMessage('Username must be between 3 and 30 characters')
+        .matches(/^[a-zA-Z0-9_-]+$/)
+        .withMessage('Username can only contain letters, numbers, underscores, and hyphens')
+        .custom((value) => {
+            // Additional custom validations
+            if (value.startsWith('-') || value.endsWith('-')) {
+                throw new Error('Username cannot start or end with a hyphen');
+            }
+            if (value.startsWith('_') || value.endsWith('_')) {
+                throw new Error('Username cannot start or end with an underscore');
+            }
+            return true;
+        })
+];
+
+// Add this route to your existing routes
+
 // Routes
 router.get('/me', auth, getMyProfile);
 router.put('/me', auth, profileValidation, updateProfile);
 router.post('/photo', auth, upload.single('profilePhoto'), uploadProfilePhoto);
+router.put('/change-username', auth, usernameValidation, changeUsername);
 router.patch('/template', auth, updateUserTemplate);
+
+router.put('/settings/personal', auth, settingsPersonalDataValidation, updateSettingsPersonalData);
+router.put('/settings/resume', auth, settingsResumeDataValidation, updateSettingsResumeData);
+router.get('/settings', auth, getSettingsData);
 
 module.exports = router;

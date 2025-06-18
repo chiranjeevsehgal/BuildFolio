@@ -82,6 +82,29 @@ const userSchema = new mongoose.Schema({
     enum: ['modern-professional', 'minimal-clean', 'creative-gradient', 'terminal-developer-focused', 'executive-suite'],
     default: null
   },
+  careerStage: {
+    type: String,
+    enum: ['','Entry Level (0-2 Years)', 'Mid Level (2-6 Years)', 'Senior Level (6-12 Years)', 'Executive Level (12+ Years)'],
+    default: null
+  },
+  
+  // Settings Resume Info
+  industry: {
+    type: String,
+    enum: ['','Technology', 'Healthcare', 'Finance', 'Education', 'Marketing', 'Sales', 'Engineering', 'Design', 'Other'],
+    default: null
+  },
+  jobSearchTimeline: {
+    type: String,
+    enum: ['','Immediately', 'Within 1 month', 'Within 3 months', 'Within 6 months', 'Not actively looking'],
+    default: null
+  },
+  resumeExperience: {
+    type: String,
+    default: null
+  },
+
+
   // Account Status
   isProfileCompleted: {
     type: Boolean,

@@ -30,6 +30,11 @@ const portfolioDeploymentSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'modified', 'error'],
+    default: 'active',
+  },
   isPublic: {
     type: Boolean,
     default: true
@@ -123,12 +128,12 @@ const portfolioDeploymentSchema = new mongoose.Schema({
 });
 
 // Virtual for portfolio URL
-portfolioDeploymentSchema.virtual('portfolioUrl').get(function() {
+portfolioDeploymentSchema.virtual('portfolioUrl').get(function () {
   return `${process.env.FRONTEND_URL}/${this.username}`;
 });
 
 // Middleware to update updatedAt on save
-portfolioDeploymentSchema.pre('save', function(next) {
+portfolioDeploymentSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });

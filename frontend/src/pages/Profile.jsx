@@ -147,7 +147,7 @@ const Profile = () => {
             errorMessage = 'Session expired. Please log in again.'
             // Redirect to login after a delay
             setTimeout(() => {
-                window.location.href = '/login'
+                window.location.href = '/signin'
             }, 2000)
         } else if (error.response?.status === 403) {
             errorMessage = 'You do not have permission to perform this action.'
