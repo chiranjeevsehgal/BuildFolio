@@ -639,6 +639,7 @@ const changeUsername = async (req, res) => {
                 userId,
                 { 
                     username: newUsername.toLowerCase(),
+                    portfolioDeployed: false,
                     updatedAt: new Date()
                 },
                 { 
