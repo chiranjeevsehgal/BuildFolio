@@ -224,4 +224,26 @@ profileSchema.methods.calculateCompletion = function() {
   return this.completionPercentage;
 };
 
+profileSchema.pre('save', async function(next) {
+  try {
+    // Calculate completion percentage
+    this.calculateCompletion();
+    
+    // If completion is 60% or more, update user's isProfileCompleted
+    if (this.completionPercentage >= 60) {
+      const User = mongoose.model('User');
+      await User.findByIdAndUpdate(
+        this.user,
+        { isProfileCompleted: true },
+        { new: true }
+      );
+    }
+    
+    next();
+  } catch (error) {
+    console.error('❌ Error in profile pre-save middleware:', error);
+    next(error);
+  }
+});
+
 module.exports = mongoose.model('Profile', profileSchema);

@@ -41,7 +41,7 @@ const portfolioDeploymentSchema = new mongoose.Schema({
   },
   userData: {
     firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    lastName: { type: String, required: false, default: '' },
     email: { type: String, required: true },
     username: String,
     profilePhoto: String,
