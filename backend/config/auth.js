@@ -6,6 +6,20 @@ const User = require('../models/User');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const NotificationService = require('../utils/notificationService');
 
+// Function to generate unique username
+async function generateUniqueUsername(baseUsername) {
+  let username = baseUsername;
+  let counter = 1;
+  
+  // Keep checking until we find a unique username
+  while (await User.findOne({ username })) {
+    username = `${baseUsername}${counter}`;
+    counter++;
+  }
+  
+  return username;
+}
+
 // Serializing user
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -42,14 +56,16 @@ passport.use(new GoogleStrategy({
       await user.save();
       return done(null, user);
     }
-    const username = profile.emails[0].value.split('@')[0];
+    
+    const baseUsername = profile.emails[0].value.split('@')[0];
+    const uniqueUsername = await generateUniqueUsername(baseUsername);
 
     // Create new user
     user = await User.create({
       firstName: profile.name.givenName,
       lastName: profile.name.familyName || '',
       email: profile.emails[0].value,
-      username: username,
+      username: uniqueUsername,
       oauthProvider: 'google',
       oauthId: profile.id,
       isEmailVerified: true,
