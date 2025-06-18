@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
+  lastPasswordChange: {
+    type: Date,
+    default: Date.now
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
@@ -84,19 +88,19 @@ const userSchema = new mongoose.Schema({
   },
   careerStage: {
     type: String,
-    enum: ['','Entry Level (0-2 Years)', 'Mid Level (2-6 Years)', 'Senior Level (6-12 Years)', 'Executive Level (12+ Years)'],
+    enum: ['', 'Entry Level (0-2 Years)', 'Mid Level (2-6 Years)', 'Senior Level (6-12 Years)', 'Executive Level (12+ Years)'],
     default: null
   },
-  
+
   // Settings Resume Info
   industry: {
     type: String,
-    enum: ['','Technology', 'Healthcare', 'Finance', 'Education', 'Marketing', 'Sales', 'Engineering', 'Design', 'Other'],
+    enum: ['', 'Technology', 'Healthcare', 'Finance', 'Education', 'Marketing', 'Sales', 'Engineering', 'Design', 'Other'],
     default: null
   },
   jobSearchTimeline: {
     type: String,
-    enum: ['','Immediately', 'Within 1 month', 'Within 3 months', 'Within 6 months', 'Not actively looking'],
+    enum: ['', 'Immediately', 'Within 1 month', 'Within 3 months', 'Within 6 months', 'Not actively looking'],
     default: null
   },
   resumeExperience: {
@@ -132,6 +136,20 @@ const userSchema = new mongoose.Schema({
     enum: ['free', 'premium'],
     default: 'free'
   },
+
+  // Deactivation tracking
+    deactivatedAt: {
+        type: Date,
+        index: true
+    },
+    deactivationReason: {
+        type: String,
+        enum: ['User requested', 'Admin action', 'Policy violation', 'Suspicious activity']
+    },
+    reactivatedAt: {
+        type: Date
+    },
+    
 
   // Tokens
   emailVerificationToken: String,

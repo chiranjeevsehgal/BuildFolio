@@ -10,7 +10,10 @@ const {
   getSettingsData,
   updateSettingsPersonalData,
   updateSettingsResumeData,
-  changeUsername
+  changeUsername,
+  changePassword,
+  deactivateAccount,
+  reactivateAccount
 } = require('../controllers/profileController');
 const auth = require('../middleware/auth');
 
@@ -148,7 +151,24 @@ const usernameValidation = [
         })
 ];
 
-// Add this route to your existing routes
+
+const passwordChangeValidation = [
+    body('currentPassword')
+        .notEmpty()
+        .withMessage('Current password is required'),
+    
+    body('newPassword')
+        .isLength({ min: 8, max: 128 })
+        .withMessage('New password must be between 8 and 128 characters')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+        .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
+        .custom((value, { req }) => {
+            if (value === req.body.currentPassword) {
+                throw new Error('New password must be different from current password');
+            }
+            return true;
+        })
+];
 
 // Routes
 router.get('/me', auth, getMyProfile);
@@ -157,8 +177,14 @@ router.post('/photo', auth, upload.single('profilePhoto'), uploadProfilePhoto);
 router.put('/change-username', auth, usernameValidation, changeUsername);
 router.patch('/template', auth, updateUserTemplate);
 
+router.get('/settings', auth, getSettingsData);
 router.put('/settings/personal', auth, settingsPersonalDataValidation, updateSettingsPersonalData);
 router.put('/settings/resume', auth, settingsResumeDataValidation, updateSettingsResumeData);
-router.get('/settings', auth, getSettingsData);
+
+router.put('/change-password', auth, passwordChangeValidation, changePassword);
+
+router.patch('/deactivate-account', auth, deactivateAccount);
+router.patch('/reactivate-account', auth, reactivateAccount);
+
 
 module.exports = router;

@@ -44,6 +44,29 @@ const adminOnly = (req, res, next) => {
   }
 };
 
+const checkActiveUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select('isActive email');
+        
+        if (!user || !user.isActive) {
+            return res.status(403).json({
+                success: false,
+                message: 'Account is deactivated. Please contact support.',
+                accountDeactivated: true
+            });
+        }
+        
+        req.user = user;
+        next();
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying account status'
+        });
+    }
+};
 
 module.exports = auth;
 module.exports.adminOnly = adminOnly;
+module.exports.checkActiveUser = checkActiveUser;

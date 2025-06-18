@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Eye, ArrowLeft, EyeOff, Mail, Lock, User, Sparkles, Chrome, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import OTPVerification from '../components/OTPVerification';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AuthPage = () => {
   const [authMode, setAuthMode] = useState('signin'); // signin, signup, email-verification, otp-verification, complete-registration
@@ -17,7 +18,6 @@ const AuthPage = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', content: '' });
 
   // Email verification states
   const [tempToken, setTempToken] = useState('');
@@ -46,7 +46,8 @@ const AuthPage = () => {
 
     if (token) {
       localStorage.setItem('authToken', token);
-      setMessage({ type: 'success', content: 'Successfully signed in!' });
+      toast.success('Successfully signed in!')
+      
       // Redirecting to dashboard
       if (VITE_ENV === 'development') {
         setTimeout(() => {
@@ -56,7 +57,7 @@ const AuthPage = () => {
         window.location.href = '/templates';
       }
     } else if (error) {
-      setMessage({ type: 'error', content: 'OAuth authentication failed. Please try again.' });
+      toast.error('OAuth authentication failed. Please try again.')
     }
   }, []);
 
@@ -146,7 +147,6 @@ const AuthPage = () => {
     }
 
     setIsLoading(true);
-    setMessage({ type: '', content: '' });
 
     try {
       const response = await axios.post('/auth/send-otp', {
@@ -156,10 +156,7 @@ const AuthPage = () => {
       if (response.data.success) {
         setTempToken(response.data.tempToken);
         setAuthMode('otp-verification');
-        setMessage({
-          type: 'success',
-          content: 'Verification code sent to your email!'
-        });
+        toast.success('Verification code sent to your email!')
       }
     } catch (error) {
       console.error('Send OTP error:', error);
@@ -170,10 +167,7 @@ const AuthPage = () => {
         });
         setFormErrors(backendErrors);
       } else {
-        setMessage({
-          type: 'error',
-          content: error.response?.data?.message || 'Failed to send verification code. Please try again.'
-        });
+        toast.error(error.response?.data?.message || 'Failed to send verification code. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -185,10 +179,7 @@ const AuthPage = () => {
     setVerifiedToken(verifiedToken);
     setVerifiedEmail(email);
     setAuthMode('complete-registration');
-    setMessage({
-      type: 'success',
-      content: 'Email verified successfully! Complete your registration.'
-    });
+    toast.success('Email verified successfully! Complete your registration.')
   };
 
   // Handle resend OTP
@@ -200,18 +191,12 @@ const AuthPage = () => {
 
       if (response.data.success) {
         setTempToken(response.data.tempToken);
-        setMessage({
-          type: 'success',
-          content: 'New verification code sent!'
-        });
+        toast.success('New verification code sent!');
         return response.data.tempToken;
       }
     } catch (error) {
       console.error('Resend OTP error:', error);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to resend code. Please try again.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to resend code. Please try again.');
       throw error;
     }
   };
@@ -224,7 +209,6 @@ const AuthPage = () => {
     }
 
     setIsLoading(true);
-    setMessage({ type: '', content: '' });
 
     try {
       const response = await axios.post('/auth/register', {
@@ -237,10 +221,7 @@ const AuthPage = () => {
 
       if (response.data.success) {
 
-        setMessage({
-          type: 'success',
-          content: 'Account created successfully. Please sign in using your credentials.'
-        });
+        toast.success('Account created successfully. Please sign in using your credentials.');
 
         if (VITE_ENV === 'development') {
           setTimeout(() => {
@@ -259,10 +240,7 @@ const AuthPage = () => {
         });
         setFormErrors(backendErrors);
       } else {
-        setMessage({
-          type: 'error',
-          content: error.response?.data?.message || 'Registration failed. Please try again.'
-        });
+        toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -277,7 +255,6 @@ const AuthPage = () => {
     }
 
     setIsLoading(true);
-    setMessage({ type: '', content: '' });
 
     try {
       const response = await axios.post('/auth/login', {
@@ -305,10 +282,7 @@ const AuthPage = () => {
           }
         };
 
-        setMessage({
-          type: 'success',
-          content: 'Welcome back!'
-        });
+        toast.success('Welcome back!')
 
         if (VITE_ENV === 'development') {
           setTimeout(() => {
@@ -327,10 +301,7 @@ const AuthPage = () => {
         });
         setFormErrors(backendErrors);
       } else {
-        setMessage({
-          type: 'error',
-          content: error.response?.data?.message || 'Sign in failed. Please try again.'
-        });
+        toast.error(error.response?.data?.message || 'Sign in failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -340,17 +311,10 @@ const AuthPage = () => {
   // OAuth integration (unchanged)
   const handleOAuthLogin = (provider) => {
     if (provider === 'linkedin') {
-      setMessage({
-        type: 'success',
-        content: "Linkedin Auth will be rolled out soon!"
-      })
+      toast.success("Linkedin Auth will be rolled out soon!");
       return
     }
     window.location.href = `${API_BASE_URL}/auth/${provider}`;
-  };
-
-  const clearMessage = () => {
-    setMessage({ type: '', content: '' });
   };
 
   const handleBack = () => {
@@ -363,7 +327,6 @@ const AuthPage = () => {
     } else if (authMode === 'email-verification') {
       setAuthMode('signup');
     }
-    setMessage({ type: '', content: '' });
     setFormErrors({});
   };
 
@@ -455,7 +418,7 @@ const AuthPage = () => {
                   <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-2">
                     First Name
                   </label>
-                   <div className="relative">
+                  <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                     <input
                       id="firstName"
@@ -474,7 +437,7 @@ const AuthPage = () => {
                     <p className="mt-1 text-sm text-red-600">{formErrors.firstName}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 mb-2">
                     Last Name
@@ -581,7 +544,7 @@ const AuthPage = () => {
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
-                 <button
+                <button
                   type="button"
                   onClick={() => setShowCnfPassword(!showCnfPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
@@ -658,7 +621,6 @@ const AuthPage = () => {
                     setAuthMode('signin');
                   }
                   setFormErrors({});
-                  setMessage({ type: '', content: '' });
                   setFormData({
                     email: '',
                     password: '',
@@ -703,32 +665,15 @@ const AuthPage = () => {
           </p>
         </div>
 
-        {/* Message Display */}
-        {message.content && (
-          <div className={`rounded-lg p-4 flex items-center space-x-3 ${message.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-700'
-            : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
-            {message.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            )}
-            <span className="text-sm font-medium">{message.content}</span>
-            <button
-              onClick={clearMessage}
-              className="ml-auto text-current hover:opacity-70"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
         {/* Auth Form Container */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
           {renderContent()}
         </div>
       </div>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

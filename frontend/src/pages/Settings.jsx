@@ -24,6 +24,8 @@ import {
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 import UsernameChangeModal from '../components/UsernameChangeModal';
+import PasswordChangeModal from '../components/PasswordChangeModal';
+import DeactivateAccountModal from '../components/DeactivateAccountModal';
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState('profile');
@@ -32,12 +34,22 @@ const Settings = () => {
     const [message, setMessage] = useState({ type: '', content: '' });
     const [newUsername, setNewUsername] = useState('');
     const [showUsernameModal, setShowUsernameModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+
 
     // Form states
     const [accountData, setAccountData] = useState({
         email: '',
         username: '',
-        password: ''
+        password: '',
+        provider: ''
     });
 
     const [personalData, setPersonalData] = useState({
@@ -131,6 +143,7 @@ const Settings = () => {
                     setAccountData({
                         email: user.email || '',
                         username: user.username || '',
+                        provider: user.oauthProvider || '',
                     });
 
                     setResumeData({
@@ -159,48 +172,11 @@ const Settings = () => {
 
 
     const handleChangePassword = async () => {
-        console.log('🔒 Initiating password change process...');
-        setLoading(prev => ({ ...prev, action: 'password' }));
-
-        try {
-            // TODO: Replace with actual API call
-            // const response = await axios.post('/api/user/change-password', { currentPassword, newPassword });
-
-            setTimeout(() => {
-                console.log('✅ Password changed successfully');
-                showMessage('success', 'Password changed successfully.');
-                setLoading(prev => ({ ...prev, action: '' }));
-            }, 1500);
-
-        } catch (error) {
-            console.error('❌ Password change failed:', error);
-            showMessage('error', 'Failed to change password. Please try again.');
-            setLoading(prev => ({ ...prev, action: '' }));
-        }
+        setShowPasswordModal(true);
     };
 
     const handleDeactivateAccount = async () => {
-        const confirmed = window.confirm('Are you sure you want to deactivate your account? This action cannot be undone.');
-        if (!confirmed) return;
-
-        console.log('🗑️ Initiating account deactivation...');
-        setLoading(prev => ({ ...prev, action: 'deactivate' }));
-
-        try {
-            // TODO: Replace with actual API call
-            // const response = await axios.deactivate('/api/user/account');
-
-            setTimeout(() => {
-                console.log('Account deactivate initiated');
-                showMessage('success', 'Account deactivate initiated. You will receive a confirmation email.');
-                setLoading(prev => ({ ...prev, action: '' }));
-            }, 1500);
-
-        } catch (error) {
-            console.error('Account deactivate failed:', error);
-            showMessage('error', 'Failed to deactivate account. Please try again.');
-            setLoading(prev => ({ ...prev, action: '' }));
-        }
+        setShowDeactivateModal(true);
     };
 
     const handleSavePersonalData = async () => {
@@ -395,7 +371,7 @@ const Settings = () => {
                             <span className="text-sm font-medium">{message.content}</span>
                             <button
                                 onClick={() => setMessage({ type: '', content: '' })}
-                                className="ml-2 text-white/80 hover:text-white transition-colors"
+                                className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
                             >
                                 ×
                             </button>
@@ -675,20 +651,31 @@ const Settings = () => {
 
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={handleChangePassword}
-                                                disabled={loading.action === 'password'}
-                                                className="bg-teal-600 text-white px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50"
-                                            >
-                                                {loading.action === 'password' ? (
-                                                    <div className="flex items-center space-x-2">
-                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                        <span>Processing...</span>
-                                                    </div>
-                                                ) : (
-                                                    'Change Password'
-                                                )}
-                                            </button>
+
+                                            {accountData.provider === '' || !accountData.provider ? (
+                                                <button
+                                                    onClick={handleChangePassword}
+                                                    disabled={loading.action === 'password'}
+                                                    className="bg-teal-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                                                >
+                                                    {loading.action === 'password' ? (
+                                                        <div className="flex items-center space-x-2">
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            <span>Processing...</span>
+                                                        </div>
+                                                    ) : (
+                                                        'Change Password'
+                                                    )}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    disabled
+                                                    className="bg-slate-400 cursor-not-allowed text-white px-4 py-2 rounded-xl font-medium opacity-60"
+                                                    title={`Password change not available for ${accountData.provider} accounts`}
+                                                >
+                                                    Change Password
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
@@ -708,7 +695,7 @@ const Settings = () => {
                                             <button
                                                 onClick={handleDeactivateAccount}
                                                 disabled={loading.action === 'deactivate'}
-                                                className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                                                className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-50"
                                             >
                                                 {loading.action === 'deactivate' ? (
                                                     <div className="flex items-center space-x-2">
@@ -741,15 +728,30 @@ const Settings = () => {
             </div>
             {showUsernameModal && <UsernameChangeModal
                 showUsernameModal={showUsernameModal}
-                setShowUsernameModal ={setShowUsernameModal }
-                newUsername ={newUsername}
-                oldUsername ={accountData.username}
-                setNewUsername ={setNewUsername}
-                setAccountData ={setAccountData}
+                setShowUsernameModal={setShowUsernameModal}
+                newUsername={newUsername}
+                oldUsername={accountData.username}
+                setNewUsername={setNewUsername}
+                setAccountData={setAccountData}
                 setLoading={setLoading}
                 showMessageParent={showMessage}
-                loading ={loading}
+                loading={loading}
             />}
+
+            {showPasswordModal && <PasswordChangeModal
+                showPasswordModal={showPasswordModal}
+                setShowPasswordModal={setShowPasswordModal}
+                setLoading={setLoading}
+                loading={loading}
+                showMessage={showMessage}
+                />}
+
+            {showDeactivateModal && <DeactivateAccountModal 
+                loading ={loading }
+                setLoading={setLoading}
+                setShowDeactivateModal = {setShowDeactivateModal}
+                showMessage={showMessage}
+                />}
 
         </>
     );

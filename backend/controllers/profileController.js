@@ -5,6 +5,7 @@ const cloudinary = require('../config/cloudinary');
 const linkedinService = require('../utils/linkedin');
 const PortfolioDeployment = require('../models/PortfolioDeployment');
 const { default: mongoose } = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // @desc    Get user profile
 // @route   GET /api/profiles/me
@@ -60,7 +61,7 @@ const getSettingsData = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await User.findById(userId).select('firstName lastName careerStage email username industry jobSearchTimeline resumeExperience createdAt updatedAt');
+    const user = await User.findById(userId).select('firstName lastName careerStage email username industry oauthProvider jobSearchTimeline resumeExperience createdAt updatedAt');
 
     if (!user) {
       console.log('User not found:', userId);
@@ -78,6 +79,7 @@ const getSettingsData = async (req, res) => {
         lastName: user.lastName || '',
         username: user.username || '',
         email: user.email,
+        oauthProvider: user.oauthProvider,
         careerStage: user.careerStage || '',
         industry: user.industry || '',
         jobSearchTimeline: user.jobSearchTimeline || '',
@@ -214,7 +216,7 @@ const updateSettingsResumeData = async (req, res) => {
     const userId = req.user.id;
     const { industry, jobSearchTimeline, resumeExperience } = req.body;
     console.log(req.body);
-    
+
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
@@ -592,147 +594,469 @@ const updateUserTemplate = async (req, res) => {
 };
 
 const changeUsername = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const userId = req.user.id;
+    const { newUsername } = req.body;
+
+    // Check if username is already taken
+    const existingUser = await User.findOne({
+      username: newUsername.toLowerCase(),
+      _id: { $ne: userId } // Exclude current user
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'Username already taken. Please choose a different username.'
+      });
+    }
+
+    // Find user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log('User not found:', userId);
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Start a transaction to ensure data consistency
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                success: false,
-                message: 'Validation failed',
-                errors: errors.array()
-            });
+      // Update user username
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          username: newUsername.toLowerCase(),
+          portfolioDeployed: false,
+          updatedAt: new Date()
+        },
+        {
+          new: true,
+          session,
+          runValidators: true
         }
+      ).select('-password -__v');
 
+      if (!updatedUser) {
+        throw new Error('Failed to update username');
+      }
+
+      const deploymentUpdateResult = await PortfolioDeployment.updateMany(
+        { userId: userId },
+        {
+          $set: {
+            isActive: false,
+            status: 'modified',
+            unpublishedAt: new Date(),
+            updatedAt: new Date(),
+            modificationReason: 'Username changed'
+          }
+        },
+        { session }
+      );
+
+      // Commit the transaction
+      await session.commitTransaction();
+
+      console.log('Username changed successfully:', {
+        userId,
+        success: true,
+        oldUsername: user.username,
+        newUsername: newUsername.toLowerCase(),
+        deploymentsAffected: deploymentUpdateResult.modifiedCount
+      });
+
+      // Return success response
+      res.status(200).json({
+        success: true,
+        message: 'Username changed successfully. Portfolio deployment has been unpublished.',
+        user: {
+          id: updatedUser._id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          updatedAt: updatedUser.updatedAt
+        },
+      });
+
+    } catch (transactionError) {
+      // Rollback transaction on error
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      // End session
+      session.endSession();
+    }
+
+  } catch (error) {
+    console.error('Error changing username:', error);
+
+    // Handle specific mongoose errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationErrors
+      });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'Username already taken. Please choose a different username.'
+      });
+    }
+
+    // Generic server error
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    Change user's password
+// @route   PUT /api/profiles/change-password
+// @access  Private 
+const changePassword = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    // Find user by ID
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      console.log('User not found:', userId);
+
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password change is not available for social logins. Please manage your account through your social provider.",
+        isOAuthUser: true
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Check if new password is different from current password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be different from your current password'
+      });
+    }
+
+    // Hash the new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user password
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        password: hashedNewPassword,
+        updatedAt: new Date(),
+        lastPasswordChange: new Date()
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    ).select('-password -__v');
+
+    if (!updatedUser) {
+      console.log('Failed to update password for user:', userId);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update password'
+      });
+    }
+
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully',
+      user: {
+        id: updatedUser._id,
+        email: updatedUser.email,
+        updatedAt: updatedUser.updatedAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Error changing password:', error);
+
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationErrors
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    Deactivate user account
+// @route   PUT /api/profiles/deactivate-account
+// @access  Private 
+const deactivateAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Find user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log('User not found:', userId);
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if account is already deactivated
+    if (!user.isActive) {
+      console.log('Account already deactivated:', userId);
+      return res.status(409).json({
+        success: false,
+        message: 'Account is already deactivated'
+      });
+    }
+
+    // Start a transaction to ensure data consistency
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Update user account - deactivate and unpublish
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          isActive: false,
+          deactivatedAt: new Date(),
+          deactivationReason: 'User requested',
+          updatedAt: new Date()
+        },
+        {
+          new: true,
+          session,
+          runValidators: true
+        }
+      ).select('-password -__v');
+
+      if (!updatedUser) {
+        throw new Error('Failed to update user account');
+      }
+
+      // Update all portfolio deployments for this user
+      const deploymentUpdateResult = await PortfolioDeployment.updateMany(
+        { userId: userId },
+        {
+          $set: {
+            isActive: false,
+            isPublic: false,
+            status: 'deactivated',
+            deactivatedAt: new Date(),
+            deactivationReason: 'Account deactivated',
+            updatedAt: new Date()
+          }
+        },
+        { session }
+      );
+
+      // Optionally update user profile as well
+      const Profile = mongoose.model('Profile');
+      await Profile.findOneAndUpdate(
+        { user: userId },
+        {
+          isPublic: false,
+          deactivatedAt: new Date()
+        },
+        { session }
+      );
+
+      // Commit the transaction
+      await session.commitTransaction();
+
+      // Return success response
+      res.status(200).json({
+        success: true,
+        message: 'Account deactivated successfully',
+        user: {
+          id: updatedUser._id,
+          email: updatedUser.email,
+          isActive: updatedUser.isActive,
+          deactivatedAt: updatedUser.deactivatedAt
+        }
+      });
+
+    } catch (transactionError) {
+      // Rollback transaction on error
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      // End session
+      session.endSession();
+    }
+
+  } catch (error) {
+    console.error('Error deactivating account:', error);
+
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationErrors
+      });
+    }
+
+    // Handle transaction errors
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(500).json({
+        success: false,
+        message: 'Database error occurred during deactivation'
+      });
+    }
+
+    // Generic server error
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    reactivate user account
+// @route   PUT /api/profiles/reactivate-account
+// @access  Private 
+const reactivateAccount = async (req, res) => {
+    try {
         const userId = req.user.id;
-        const { newUsername } = req.body;
 
-        // Check if username is already taken
-        const existingUser = await User.findOne({ 
-            username: newUsername.toLowerCase(),
-            _id: { $ne: userId } // Exclude current user
-        });
-
-        if (existingUser) {
-            return res.status(409).json({
-                success: false,
-                message: 'Username already taken. Please choose a different username.'
-            });
-        }
-
-        // Find user by ID
-        const user = await User.findById(userId);
-        if (!user) {
-            console.log('User not found:', userId);
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        // Start a transaction to ensure data consistency
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
-            // Update user username
+            // Reactivate user account
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
                 { 
-                    username: newUsername.toLowerCase(),
-                    portfolioDeployed: false,
+                    isActive: true,
+                    reactivatedAt: new Date(),
+                    $unset: { 
+                        deactivatedAt: 1, 
+                        deactivationReason: 1 
+                    },
                     updatedAt: new Date()
                 },
                 { 
                     new: true,
-                    session,
-                    runValidators: true
+                    session
                 }
             ).select('-password -__v');
 
-            if (!updatedUser) {
-                throw new Error('Failed to update username');
-            }
-
+            // Reactivate portfolio deployments
             const deploymentUpdateResult = await PortfolioDeployment.updateMany(
                 { userId: userId },
                 { 
                     $set: {
-                        isActive: false,
-                        status: 'modified',
-                        unpublishedAt: new Date(),
-                        updatedAt: new Date(),
-                        modifiedAt: new Date(),
-                        modificationReason: 'Username changed'
+                        isActive: true,
+                        isPublic: true,
+                        status: 'active',
+                        reactivatedAt: new Date()
+                    },
+                    $unset: {
+                        deactivatedAt: 1,
+                        deactivationReason: 1
                     }
                 },
                 { session }
             );
 
-            // Commit the transaction
             await session.commitTransaction();
 
-            console.log('Username changed successfully:', {
-                userId,
-                success:true,
-                oldUsername: user.username,
-                newUsername: newUsername.toLowerCase(),
-                deploymentsAffected: deploymentUpdateResult.modifiedCount
-            });
-
-            // Return success response
             res.status(200).json({
                 success: true,
-                message: 'Username changed successfully. Portfolio deployment has been unpublished.',
-                user: {
-                    id: updatedUser._id,
-                    username: updatedUser.username,
-                    email: updatedUser.email,
-                    updatedAt: updatedUser.updatedAt
-                },
+                message: 'Account reactivated successfully',
+                user: updatedUser,
             });
 
         } catch (transactionError) {
-            // Rollback transaction on error
             await session.abortTransaction();
             throw transactionError;
         } finally {
-            // End session
             session.endSession();
         }
 
     } catch (error) {
-        console.error('Error changing username:', error);
-        
-        // Handle specific mongoose errors
-        if (error.name === 'ValidationError') {
-            const validationErrors = Object.values(error.errors).map(err => ({
-                field: err.path,
-                message: err.message
-            }));
-            
-            return res.status(400).json({
-                success: false,
-                message: 'Validation failed',
-                errors: validationErrors
-            });
-        }
-
-        // Handle duplicate key errors
-        if (error.code === 11000) {
-            return res.status(409).json({
-                success: false,
-                message: 'Username already taken. Please choose a different username.'
-            });
-        }
-
-        // Generic server error
+        console.error('Error reactivating account:', error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: 'Failed to reactivate account'
         });
     }
 };
+
 
 module.exports = {
   getMyProfile,
@@ -742,5 +1066,8 @@ module.exports = {
   getSettingsData,
   updateSettingsPersonalData,
   updateSettingsResumeData,
-  updateUserTemplate
+  updateUserTemplate,
+  changePassword,
+  deactivateAccount,
+  reactivateAccount
 };

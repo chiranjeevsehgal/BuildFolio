@@ -121,7 +121,7 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                     <span className="text-sm font-medium">{message.content}</span>
                     <button
                         onClick={() => setMessage({ type: '', content: '' })}
-                        className="ml-2 text-white/80 hover:text-white transition-colors"
+                        className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
                     >
                         ×
                     </button>

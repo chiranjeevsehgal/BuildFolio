@@ -32,7 +32,7 @@ const portfolioDeploymentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'modified', 'error'],
+    enum: ['active', 'inactive', 'modified', 'error', "deactivated"],
     default: 'active',
   },
   isPublic: {
@@ -109,6 +109,9 @@ const portfolioDeploymentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+
+  // Timestamps
+
   lastViewedAt: {
     type: Date,
     default: null
@@ -120,7 +123,22 @@ const portfolioDeploymentSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  deactivatedAt: {
+    type: Date
+  },
+  reactivatedAt: {
+    type: Date
+  },
+
+  // Reasons
+  modificationReason: {
+    type: String
+  },
+  deactivationReason: {
+    type: String
+  },
+
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
