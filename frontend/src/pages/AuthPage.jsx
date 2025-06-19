@@ -43,11 +43,12 @@ const AuthPage = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const error = urlParams.get('error');
+    const message = urlParams.get('message');
 
     if (token) {
       localStorage.setItem('authToken', token);
       toast.success('Successfully signed in!')
-      
+
       // Redirecting to dashboard
       if (VITE_ENV === 'development') {
         setTimeout(() => {
@@ -57,7 +58,15 @@ const AuthPage = () => {
         window.location.href = '/templates';
       }
     } else if (error) {
-      toast.error('OAuth authentication failed. Please try again.')
+      if (error === 'account_deactivated') {
+        toast.error(message || 'Account is deactivated. Please contact support.');
+      } else if (error === 'server_error') {
+        toast.error(message || 'Unable to verify account status. Please try again.');
+      } else {
+        toast.error('OAuth authentication failed. Please try again.');
+      }
+
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 

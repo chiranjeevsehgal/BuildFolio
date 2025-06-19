@@ -100,17 +100,17 @@ const register = async (req, res) => {
 
       // Send welcome email to user
       await sendWelcomeEmail(emailData);
-      
-      const welcomeResult = await NotificationService.sendWelcomeNotification(
-            user._id,
-            { firstName: user?.firstName }
-        );
 
-        if (welcomeResult.success) {
-            console.log('Welcome notification sent successfully');
-        } else {
-            console.error('Failed to send welcome notification:', welcomeResult.message);
-        }
+      const welcomeResult = await NotificationService.sendWelcomeNotification(
+        user._id,
+        { firstName: user?.firstName }
+      );
+
+      if (welcomeResult.success) {
+        console.log('Welcome notification sent successfully');
+      } else {
+        console.error('Failed to send welcome notification:', welcomeResult.message);
+      }
 
 
     } catch (emailError) {
@@ -173,6 +173,14 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact support.',
+        accountDeactivated: true
       });
     }
 
