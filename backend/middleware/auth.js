@@ -44,6 +44,50 @@ const adminOnly = (req, res, next) => {
   }
 };
 
+const checkActiveUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select('isActive email');
+        
+        if (!user || !user.isActive) {
+            return res.status(403).json({
+                success: false,
+                message: 'Account is deactivated. Please contact support.',
+                accountDeactivated: true
+            });
+        }
+        
+        req.user = user;
+        next();
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying account status'
+        });
+    }
+};
+
+const checkActiveUserForOAuth = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select('isActive email firstName lastName');
+        
+        if (!user || !user.isActive) {
+            const frontendUrl = process.env.CLIENT_URL;
+            const errorMessage = encodeURIComponent('Account is deactivated. Please contact support.');
+            return res.redirect(`${frontendUrl}/signin?error=account_deactivated&message=${errorMessage}`);
+        }
+        
+        req.user = user;
+        next();
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        const frontendUrl = process.env.CLIENT_URL;
+        const errorMessage = encodeURIComponent('Unable to verify account status.');
+        return res.redirect(`${frontendUrl}/signin?error=server_error&message=${errorMessage}`);
+    }
+};
 
 module.exports = auth;
 module.exports.adminOnly = adminOnly;
+module.exports.checkActiveUser = checkActiveUser;
+module.exports.checkActiveUserForOAuth = checkActiveUserForOAuth;

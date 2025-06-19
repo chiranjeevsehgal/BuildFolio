@@ -110,7 +110,7 @@ router.patch('/profile/complete', auth, markProfileCompleted);
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/auth/failure' }),
+  passport.authenticate('google', { failureRedirect: '/auth/failure' }), auth.checkActiveUserForOAuth,
   oauthSuccess
 );
 

@@ -230,13 +230,13 @@ const Navbar = ({ current }) => {
       disabled: !currentUser?.portfolioDeployed,
       tooltip: currentUser?.portfolioDeployed ? null : 'Portfolio not deployed yet'
     },
-    // { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Sign out', href: '/logout', icon: LogOut },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    window.location.href = '/login';
+    window.location.href = '/signin';
   };
 
   return (

@@ -30,13 +30,18 @@ const portfolioDeploymentSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'modified', 'error', "deactivated"],
+    default: 'active',
+  },
   isPublic: {
     type: Boolean,
     default: true
   },
   userData: {
     firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    lastName: { type: String, required: false, default: '' },
     email: { type: String, required: true },
     username: String,
     profilePhoto: String,
@@ -104,6 +109,9 @@ const portfolioDeploymentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+
+  // Timestamps
+
   lastViewedAt: {
     type: Date,
     default: null
@@ -115,7 +123,22 @@ const portfolioDeploymentSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  deactivatedAt: {
+    type: Date
+  },
+  reactivatedAt: {
+    type: Date
+  },
+
+  // Reasons
+  modificationReason: {
+    type: String
+  },
+  deactivationReason: {
+    type: String
+  },
+
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -123,12 +146,12 @@ const portfolioDeploymentSchema = new mongoose.Schema({
 });
 
 // Virtual for portfolio URL
-portfolioDeploymentSchema.virtual('portfolioUrl').get(function() {
+portfolioDeploymentSchema.virtual('portfolioUrl').get(function () {
   return `${process.env.FRONTEND_URL}/${this.username}`;
 });
 
 // Middleware to update updatedAt on save
-portfolioDeploymentSchema.pre('save', function(next) {
+portfolioDeploymentSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });

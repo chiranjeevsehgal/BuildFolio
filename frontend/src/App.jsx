@@ -12,6 +12,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedAdminRoute from './auth/ProtectedAdminRoute';
 import Profile from './pages/Profile';
 import AdminApp from './pages/admin/DashboardApp';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -33,6 +34,11 @@ function App() {
           <Route path="/preview/:templateId" element={
             <ProtectedRoute>
               <TemplatePreview />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
 
