@@ -43,7 +43,6 @@ const Settings = () => {
         confirmPassword: ''
     });
 
-
     // Form states
     const [accountData, setAccountData] = useState({
         email: '',
@@ -109,7 +108,6 @@ const Settings = () => {
         loadUserData();
     }, []);
 
-
     // Auto-dismiss messages
     useEffect(() => {
         if (message.content) {
@@ -170,7 +168,6 @@ const Settings = () => {
         setShowUsernameModal(true);
     };
 
-
     const handleChangePassword = async () => {
         setShowPasswordModal(true);
     };
@@ -193,7 +190,6 @@ const Settings = () => {
             }
 
             payload.lastName = personalData.lastName ? personalData.lastName.trim() : '';
-
 
             payload.careerStage = personalData.careerStage || '';
 
@@ -255,7 +251,6 @@ const Settings = () => {
         }
     };
 
-
     const handleSaveResumeData = async () => {
         setLoading(prev => ({ ...prev, save: true }));
 
@@ -265,7 +260,6 @@ const Settings = () => {
             payload.industry = resumeData.industry || '';
             payload.jobSearchTimeline = resumeData.jobSearchTimeline || '';
             payload.resumeExperience = resumeData.resumeExperience ? resumeData.resumeExperience.trim() : '';
-
 
             const response = await axios.put('/profiles/settings/resume', payload);
 
@@ -338,7 +332,7 @@ const Settings = () => {
         return (
             <>
                 <Navbar current="/settings" />
-                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center px-4">
                     <div className="text-center">
                         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-slate-600">Loading settings...</p>
@@ -351,24 +345,22 @@ const Settings = () => {
     return (
         <>
             <Navbar current="/settings" />
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-8">
                 <div className="max-w-6xl mx-auto">
-
-
                     {/* Message Toast */}
                     {message.content && (
-                        <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${message.type === 'success'
+                        <div className={`fixed top-16 sm:top-20 right-2 sm:right-4 z-50 rounded-2xl p-3 sm:p-4 flex items-center space-x-2 sm:space-x-3 shadow-2xl backdrop-blur-sm max-w-xs sm:max-w-sm transform transition-all duration-300 ${message.type === 'success'
                             ? 'bg-green-500/90 text-white'
                             : message.type === 'error'
                                 ? 'bg-red-500/90 text-white'
                                 : 'bg-blue-500/90 text-white'
                             }`}>
                             {message.type === 'success' ? (
-                                <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                             ) : (
-                                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                             )}
-                            <span className="text-sm font-medium">{message.content}</span>
+                            <span className="text-xs sm:text-sm font-medium">{message.content}</span>
                             <button
                                 onClick={() => setMessage({ type: '', content: '' })}
                                 className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
@@ -378,22 +370,22 @@ const Settings = () => {
                         </div>
                     )}
 
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
                         {/* Tab Navigation */}
                         <div className="border-b border-slate-200/50">
-                            <nav className="flex space-x-8 px-8 pt-6">
+                            <nav className="flex space-x-4 sm:space-x-6 lg:space-x-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 overflow-x-auto">
                                 {tabs.map((tab) => {
                                     const IconComponent = tab.icon;
                                     return (
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id)}
-                                            className={`pb-4 px-1 border-b-2 cursor-pointer font-medium text-sm transition-colors duration-200 flex items-center space-x-2 ${activeTab === tab.id
+                                            className={`pb-3 sm:pb-4 px-1 border-b-2 cursor-pointer font-medium text-xs sm:text-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 whitespace-nowrap ${activeTab === tab.id
                                                 ? 'border-blue-600 text-blue-700'
                                                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                                                 }`}
                                         >
-                                            <IconComponent className="w-4 h-4" />
+                                            <IconComponent className="w-3 h-3 sm:w-4 sm:h-4" />
                                             <span>{tab.name}</span>
                                         </button>
                                     );
@@ -402,51 +394,51 @@ const Settings = () => {
                         </div>
 
                         {/* Tab Content */}
-                        <div className="p-8">
+                        <div className="p-4 sm:p-6 lg:p-8">
                             {/* Profile Tab */}
                             {activeTab === 'profile' && (
-                                <div className="space-y-8">
+                                <div className="space-y-6 sm:space-y-8">
                                     {/* Personal Section */}
-                                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h2 className="text-xl font-bold text-slate-800 flex items-center">
-                                                <User className="w-6 h-6 mr-3 text-blue-600" />
+                                    <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center">
+                                                <User className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600" />
                                                 Personal
                                             </h2>
                                             {!isEditing.personal ? (
                                                 <button
                                                     onClick={() => toggleEdit('personal')}
-                                                    className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 font-medium"
+                                                    className="bg-blue-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 font-medium text-sm w-fit"
                                                 >
-                                                    <Edit3 className="w-4 h-4" />
+                                                    <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span>Edit</span>
                                                 </button>
                                             ) : (
-                                                <div className="flex space-x-2">
+                                                <div className="flex flex-row space-x-2">
                                                     <button
                                                         onClick={handleSavePersonalData}
                                                         disabled={loading.save}
-                                                        className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2 font-medium disabled:opacity-50"
+                                                        className="bg-green-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2 font-medium disabled:opacity-50 text-sm"
                                                     >
                                                         {loading.save ? (
-                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                                         ) : (
-                                                            <Save className="w-4 h-4" />
+                                                            <Save className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         )}
                                                         <span>Save</span>
                                                     </button>
                                                     <button
                                                         onClick={() => cancelEdit('personal')}
-                                                        className="bg-slate-500 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-slate-600 transition-colors duration-200 flex items-center space-x-2 font-medium"
+                                                        className="bg-slate-500 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-slate-600 transition-colors duration-200 flex items-center space-x-2 font-medium text-sm"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         <span>Cancel</span>
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
                                                 {isEditing.personal ? (
@@ -454,11 +446,11 @@ const Settings = () => {
                                                         type="text"
                                                         value={personalData.firstName}
                                                         onChange={(e) => handleInputChange('personal', 'firstName', e.target.value)}
-                                                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                         placeholder="Enter first name"
                                                     />
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{personalData.firstName || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{personalData.firstName || '-'}</p>
                                                 )}
                                             </div>
 
@@ -469,14 +461,13 @@ const Settings = () => {
                                                         type="text"
                                                         value={personalData.lastName}
                                                         onChange={(e) => handleInputChange('personal', 'lastName', e.target.value)}
-                                                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                         placeholder="Enter last name"
                                                     />
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{personalData.lastName || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{personalData.lastName || '-'}</p>
                                                 )}
                                             </div>
-
 
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700 mb-2">Career Stage</label>
@@ -484,7 +475,7 @@ const Settings = () => {
                                                     <select
                                                         value={personalData.careerStage}
                                                         onChange={(e) => handleInputChange('personal', 'careerStage', e.target.value)}
-                                                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                     >
                                                         <option value="">Select career stage</option>
                                                         {careerStageOptions.map((option) => (
@@ -492,61 +483,60 @@ const Settings = () => {
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{personalData.careerStage || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{personalData.careerStage || '-'}</p>
                                                 )}
                                             </div>
-
                                         </div>
                                     </div>
 
                                     {/* Resume Section */}
-                                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h2 className="text-xl font-bold text-slate-800 flex items-center">
-                                                <FileText className="w-6 h-6 mr-3 text-blue-600" />
+                                    <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center">
+                                                <FileText className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600" />
                                                 Resume
                                             </h2>
                                             {!isEditing.resume ? (
                                                 <button
                                                     onClick={() => toggleEdit('resume')}
-                                                    className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 font-medium"
+                                                    className="bg-blue-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 font-medium text-sm w-fit"
                                                 >
-                                                    <Edit3 className="w-4 h-4" />
+                                                    <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span>Edit</span>
                                                 </button>
                                             ) : (
-                                                <div className="flex space-x-2">
+                                                <div className="flex flex-row space-x-2">
                                                     <button
                                                         onClick={handleSaveResumeData}
                                                         disabled={loading.save}
-                                                        className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2 font-medium disabled:opacity-50"
+                                                        className="bg-green-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2 font-medium disabled:opacity-50 text-sm"
                                                     >
                                                         {loading.save ? (
-                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                                         ) : (
-                                                            <Save className="w-4 h-4" />
+                                                            <Save className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         )}
                                                         <span>Save</span>
                                                     </button>
                                                     <button
                                                         onClick={() => cancelEdit('resume')}
-                                                        className="bg-slate-500 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-slate-600 transition-colors duration-200 flex items-center space-x-2 font-medium"
+                                                        className="bg-slate-500 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-slate-600 transition-colors duration-200 flex items-center space-x-2 font-medium text-sm"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         <span>Cancel</span>
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700 mb-2">What industry are you pursuing?</label>
                                                 {isEditing.resume ? (
                                                     <select
                                                         value={resumeData.industry}
                                                         onChange={(e) => handleInputChange('resume', 'industry', e.target.value)}
-                                                        className="w-full px-4 py-3 cursor-pointer border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 cursor-pointer border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                     >
                                                         <option value="">Select industry</option>
                                                         {industryOptions.map((option) => (
@@ -554,7 +544,7 @@ const Settings = () => {
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{resumeData.industry || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{resumeData.industry || '-'}</p>
                                                 )}
                                             </div>
 
@@ -564,7 +554,7 @@ const Settings = () => {
                                                     <select
                                                         value={resumeData.jobSearchTimeline}
                                                         onChange={(e) => handleInputChange('resume', 'jobSearchTimeline', e.target.value)}
-                                                        className="w-full px-4 py-3 border cursor-pointer border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border cursor-pointer border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                     >
                                                         <option value="">Select timeline</option>
                                                         {jobSearchTimelineOptions.map((option) => (
@@ -572,7 +562,7 @@ const Settings = () => {
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{resumeData.jobSearchTimeline || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{resumeData.jobSearchTimeline || '-'}</p>
                                                 )}
                                             </div>
 
@@ -583,11 +573,11 @@ const Settings = () => {
                                                         type="text"
                                                         value={resumeData.resumeExperience}
                                                         onChange={(e) => handleInputChange('resume', 'resumeExperience', e.target.value)}
-                                                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                                                         placeholder="Enter resume experience"
                                                     />
                                                 ) : (
-                                                    <p className="text-slate-800 py-3">{resumeData.resumeExperience || '-'}</p>
+                                                    <p className="text-slate-800 py-2 sm:py-3 text-sm sm:text-base">{resumeData.resumeExperience || '-'}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -597,58 +587,57 @@ const Settings = () => {
 
                             {/* Account Tab */}
                             {activeTab === 'account' && (
-                                <div className="space-y-6">
+                                <div className="space-y-4 sm:space-y-6">
                                     {/* Email Section */}
-                                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
-                                        <div className="flex justify-between items-center">
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center">
-                                                    <Mail className="w-5 h-5 mr-2 text-blue-600" />
+                                    <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2 flex items-center">
+                                                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
                                                     Email
                                                 </h3>
-                                                <p className="text-blue-600 font-medium">{accountData.email}</p>
+                                                <p className="text-blue-600 font-medium text-sm sm:text-base break-all">{accountData.email}</p>
                                             </div>
                                         </div>
                                     </div>
-
+                                    
                                     {/* Username Section */}
-                                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
-                                        <div className="flex justify-between items-center">
+                                    <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                                             <div>
-                                                <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center">
-                                                    <User2 className="w-5 h-5 mr-2 text-blue-600" />
+                                                <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2 flex items-center">
+                                                    <User2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
                                                     Username
                                                 </h3>
-                                                <p className="text-blue-600 font-medium">{accountData.username}</p>
+                                                <p className="text-blue-600 font-medium text-sm sm:text-base break-all">{accountData.username}</p>
                                             </div>
                                             <button
                                                 onClick={handleChangeUsername}
                                                 disabled={loading.action === 'username'}
-                                                className="bg-teal-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                                                className="bg-teal-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50 text-sm w-fit"
                                             >
                                                 {loading.action === 'username' ? (
                                                     <div className="flex items-center space-x-2">
-                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                        <span>Processing...</span>
+                                                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                        <span className="hidden sm:inline">Processing...</span>
                                                     </div>
                                                 ) : (
-                                                    'Change Username'
+                                                    <span className="whitespace-nowrap">Change Username</span>
                                                 )}
                                             </button>
                                         </div>
                                     </div>
 
                                     {/* Password Section */}
-                                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
-                                        <div className="flex justify-between items-center">
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center">
-                                                    <Lock className="w-5 h-5 mr-2 text-blue-600" />
+                                    <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2 flex items-center">
+                                                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
                                                     Password
                                                 </h3>
                                                 <div className="flex items-center space-x-2">
-                                                    <p className="text-blue-600 font-medium">********</p>
-
+                                                    <p className="text-blue-600 font-medium text-sm sm:text-base">********</p>
                                                 </div>
                                             </div>
 
@@ -656,38 +645,38 @@ const Settings = () => {
                                                 <button
                                                     onClick={handleChangePassword}
                                                     disabled={loading.action === 'password'}
-                                                    className="bg-teal-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                                                    className="bg-teal-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors duration-200 font-medium disabled:opacity-50 text-sm w-fit"
                                                 >
                                                     {loading.action === 'password' ? (
                                                         <div className="flex items-center space-x-2">
-                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                            <span>Processing...</span>
+                                                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            <span className="hidden sm:inline">Processing...</span>
                                                         </div>
                                                     ) : (
-                                                        'Change Password'
+                                                        <span className="whitespace-nowrap">Change Password</span>
                                                     )}
                                                 </button>
                                             ) : (
                                                 <button
                                                     disabled
-                                                    className="bg-slate-400 cursor-not-allowed text-white px-4 py-2 rounded-xl font-medium opacity-60"
+                                                    className="bg-slate-400 cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-xl font-medium opacity-60 text-sm"
                                                     title={`Password change not available for ${accountData.provider} accounts`}
                                                 >
-                                                    Change Password
+                                                    <span className="whitespace-nowrap">Change Password</span>
                                                 </button>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Deactivate Account Section */}
-                                    <div className="bg-red-50/80 backdrop-blur-sm rounded-2xl p-6 border border-red-200/50">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-red-800 mb-2 flex items-center">
-                                                    <Trash2 className="w-5 h-5 mr-2 text-red-600" />
+                                    <div className="bg-red-50/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-red-200/50">
+                                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
+                                            <div className="min-w-0 flex-1 lg:pr-4">
+                                                <h3 className="text-base sm:text-lg font-semibold text-red-800 mb-2 flex items-center">
+                                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-red-600" />
                                                     Deactivate your account
                                                 </h3>
-                                                <p className="text-red-700 text-sm leading-relaxed">
+                                                <p className="text-red-700 text-xs sm:text-sm leading-relaxed">
                                                     When you choose to deactivate your account, you will no longer have access to BuildFolio's
                                                     services, and your personal data will be permanently removed.
                                                 </p>
@@ -695,15 +684,15 @@ const Settings = () => {
                                             <button
                                                 onClick={handleDeactivateAccount}
                                                 disabled={loading.action === 'deactivate'}
-                                                className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                                                className="bg-red-600 cursor-pointer text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-50 text-sm w-fit"
                                             >
                                                 {loading.action === 'deactivate' ? (
                                                     <div className="flex items-center space-x-2">
-                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                        <span>Processing...</span>
+                                                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                        <span className="hidden sm:inline">Processing...</span>
                                                     </div>
                                                 ) : (
-                                                    'Deactivate Account'
+                                                    <span className="whitespace-nowrap">Deactivate Account</span>
                                                 )}
                                             </button>
                                         </div>
@@ -712,11 +701,11 @@ const Settings = () => {
                             )}
 
                             {/* {activeTab === 'billing' && (
-                <div className="text-center py-20">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-2xl max-w-md mx-auto">
-                    <DollarSign className="w-20 h-20 text-slate-300 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-slate-600 mb-4">Billing Coming Soon</h3>
-                    <p className="text-slate-500 leading-relaxed">
+                <div className="text-center py-12 sm:py-20">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl max-w-md mx-auto">
+                    <DollarSign className="w-16 h-16 sm:w-20 sm:h-20 text-slate-300 mx-auto mb-6" />
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-600 mb-4">Billing Coming Soon</h3>
+                    <p className="text-slate-500 leading-relaxed text-sm sm:text-base">
                       Billing and subscription management features will be available soon.
                     </p>
                   </div>
