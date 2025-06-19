@@ -1,9 +1,9 @@
 // templates/TemplateRegistry.js - Central registry for template ID to component mapping
 import ModernTemplate from './ModernTemplate';
 import MinimalTemplate from './MinimalTemplate';
-import CreativeTemplate from './CreativeTemplate';
 import DeveloperTemplate from './DeveloperTemplate';
 import ExecutiveTemplate from './ExecutiveTemplate';
+import CreativeGradientTemplate from './CreativeGradientTemplate';
 
 /**
  * Template Registry - Maps template IDs from database to React components
@@ -36,7 +36,7 @@ const TEMPLATE_REGISTRY = {
   
   // Creative Portfolio Template
   'creative-gradient': {
-    component: CreativeTemplate,
+    component: CreativeGradientTemplate,
     name: 'Creative Gradient',
     category: 'creative',
     description: 'A vibrant, creative React portfolio template featuring gradient backgrounds, animated elements, glassmorphism effects, and dynamic project showcases. Perfect for creative professionals, designers, and developers who want to make a bold visual impact.'

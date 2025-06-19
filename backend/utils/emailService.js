@@ -49,6 +49,55 @@ const sendFeedbackNotification = async (feedbackData) => {
   }
 };
 
+
+// Send feedback notification to admind
+const sendContactNotification = async (contactData) => {
+  try {
+    const { name, email, message, ownerDetail, timestamp } = contactData;
+
+    // Extract owner information
+    const ownerEmail = ownerDetail.email;
+    const ownerName = ownerDetail.fullName || ownerDetail.username;
+    const ownerUsername = ownerDetail.username;
+
+
+    // Prepare template variables
+    const templateVariables = {
+      sender_name: name,
+      sender_email: email,
+      timestamp: new Date(timestamp).toLocaleString(),
+      message_content: message,
+      owner_name: ownerName,
+      owner_username: ownerUsername
+    };
+
+    // Send email using template
+    const response = await client.send({
+      from: {
+        email: process.env.FROM_EMAIL,
+        name: process.env.FROM_NAME
+      },
+      to: [
+        {
+          email: ownerEmail
+        }
+      ],
+      template_uuid: process.env.PORTFOLIO_CONTACT_TEMPLATE_ID,
+      template_variables: templateVariables
+    });
+
+    return { 
+      success: true, 
+      messageId: response.message_ids?.[0],
+      details: response
+    };
+
+  } catch (error) {
+    console.error('Failed to send portfolio contact email:', error);
+    throw error;
+  }
+};
+
 // Send welcome/onboarding email to new users
 const sendWelcomeEmail = async (userData) => {
   try {
@@ -159,6 +208,7 @@ const testConnection = async () => {
 
 module.exports = {
   sendFeedbackNotification,
+  sendContactNotification,
   sendWelcomeEmail,
   sendRegisterOTP,
   testConnection
