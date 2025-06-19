@@ -88,7 +88,6 @@ const TemplatePreview = () => {
             }
           };
 
-
           setUserData(mappedUserData);
         }
       } else {
@@ -265,11 +264,11 @@ const TemplatePreview = () => {
   // Loading state
   if (loading || !userData) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading template preview...</p>
-          <p className="text-sm text-gray-500 mt-2">Template: {templateId}</p>
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm sm:text-base">Loading template preview...</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-2 break-all">Template: {templateId}</p>
         </div>
       </div>
     );
@@ -278,31 +277,31 @@ const TemplatePreview = () => {
   // Error state - Template not found or failed to load
   if (!templateData && message.type === 'error') {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Template Not Available</h2>
-          <p className="text-gray-600 mb-6">{message.content}</p>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+        <div className="text-center max-w-xs sm:max-w-md mx-auto p-4 sm:p-6">
+          <AlertCircle className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">Template Not Available</h2>
+          <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{message.content}</p>
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             <button
               onClick={() => navigate('/templates')}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="w-full bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base"
             >
               Browse Available Templates
             </button>
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full border border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
             >
               Retry Loading
             </button>
           </div>
 
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Template ID:</strong> {templateId}
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs sm:text-sm text-yellow-800">
+              <strong>Template ID:</strong> <span className="break-all">{templateId}</span>
             </p>
             <p className="text-xs text-yellow-600 mt-1">
               If you believe this is an error, please contact support.
@@ -316,13 +315,13 @@ const TemplatePreview = () => {
   // Final validation before rendering
   if (!templateData || !templateData.component) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Unable to Load Template</h2>
-          <p className="text-gray-600 mb-4">The template component could not be initialized.</p>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">Unable to Load Template</h2>
+          <p className="text-gray-600 mb-4 text-sm sm:text-base">The template component could not be initialized.</p>
           <button
             onClick={() => { navigate('/templates') }}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
           >
             Back to Templates
           </button>
@@ -337,17 +336,17 @@ const TemplatePreview = () => {
     <div className={`min-h-screen ${isFullscreen ? 'bg-white' : 'bg-gray-100'}`}>
       {/* Success/Error Messages */}
       {message.content && !isFullscreen && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${message.type === 'success'
+        <div className={`fixed top-2 sm:top-4 right-2 sm:right-4 z-50 p-3 sm:p-4 rounded-lg shadow-lg max-w-xs sm:max-w-sm ${message.type === 'success'
             ? 'bg-green-50 border border-green-200 text-green-700'
             : message.type === 'error'
               ? 'bg-red-50 border border-red-200 text-red-700'
               : 'bg-blue-50 border border-blue-200 text-blue-700'
           }`}>
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">{message.content}</p>
+          <div className="flex items-start justify-between">
+            <p className="text-xs sm:text-sm font-medium pr-2">{message.content}</p>
             <button
               onClick={() => setMessage({ type: "", content: "" })}
-              className="ml-3 text-current hover:opacity-70"
+              className="text-current hover:opacity-70 text-lg leading-none flex-shrink-0"
             >
               ×
             </button>
@@ -358,61 +357,44 @@ const TemplatePreview = () => {
       {/* Preview Controls - Hidden in fullscreen */}
       {!isFullscreen && (
         <div className="bg-white shadow-sm border-b sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
               {/* Left Side - Back and Template Info */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                 <button
                   onClick={() => navigate('/templates')}
-                  className="cursor-pointer flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                  className="cursor-pointer flex items-center text-gray-600 hover:text-gray-800 transition-colors flex-shrink-0"
                 >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Templates
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                  <span className="text-sm sm:text-base">Back</span>
+                  <span className="hidden sm:inline ml-1">to Templates</span>
                 </button>
 
-                <div className="border-l border-gray-300 pl-4">
-                  <h1 className="font-semibold text-gray-800">{templateData.name}</h1>
-                  <p className="text-sm text-gray-600">Template Preview • {templateData.category}</p>
+                <div className="border-l border-gray-300 pl-2 sm:pl-4 min-w-0 flex-1">
+                  <h1 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{templateData.name}</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">
+                    <span className="hidden sm:inline">Template Preview • </span>
+                    {templateData.category}
+                  </p>
                 </div>
               </div>
 
-              {/* Center - View Mode Controls */}
-              {/* <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                {[
-                  { mode: 'desktop', icon: Monitor, label: 'Desktop' },
-                  { mode: 'tablet', icon: Tablet, label: 'Tablet' },
-                  { mode: 'mobile', icon: Smartphone, label: 'Mobile' }
-                ].map(({ mode, icon: Icon, label }) => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode)}
-                    className={`cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 ${viewMode === mode
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    title={label}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline text-sm font-medium">{label}</span>
-                  </button>
-                ))}
-              </div> */}
-
               {/* Right Side - Action Buttons */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-end space-x-2 sm:space-x-3 flex-shrink-0">
                 <button
                   onClick={toggleFullscreen}
-                  className="cursor-pointer p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="cursor-pointer p-1.5 sm:p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                   title="Toggle Fullscreen"
                 >
-                  <Eye className="w-5 h-5" />
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
 
                 <button
                   onClick={handleSelectTemplate}
-                  className="cursor-pointer bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="cursor-pointer bg-blue-600 text-white px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm lg:text-base"
                 >
-                  Select This Template
+                  <span className="hidden sm:inline">Select This Template</span>
+                  <span className="sm:hidden">Select</span>
                 </button>
               </div>
             </div>
@@ -421,7 +403,7 @@ const TemplatePreview = () => {
       )}
 
       {/* Template Preview Area */}
-      <div className={`${isFullscreen ? '' : 'py-8 px-4'}`}>
+      <div className={`${isFullscreen ? '' : 'py-4 sm:py-6 lg:py-8 px-2 sm:px-4'}`}>
         <div className={`transition-all duration-300 ${getViewModeStyles()}`}>
           {/* Preview Frame */}
           <div className={`${isFullscreen ? '' : 'bg-white rounded-lg shadow-lg overflow-hidden'}`}>
@@ -434,54 +416,54 @@ const TemplatePreview = () => {
       {isFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="fixed cursor-pointer top-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all z-50"
+          className="fixed cursor-pointer top-2 sm:top-4 right-2 sm:right-4 bg-black bg-opacity-50 text-white p-2 sm:p-3 rounded-full hover:bg-opacity-70 transition-all z-50"
           title="Exit Fullscreen"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       )}
 
       {/* Template Details Panel - Only show when not fullscreen */}
       {!isFullscreen && (
         <div className="bg-white border-t">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="grid md:grid-cols-3 gap-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6 lg:py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {/* Template Info */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Template Details</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-gray-500">Template ID:</span>
-                    <span className="ml-2 font-medium text-gray-800">{templateData.id}</span>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Template Details</h3>
+                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Template ID:</span>
+                    <span className="font-medium text-gray-800 break-all sm:ml-2">{templateData.id}</span>
                   </div>
-                  <div>
-                    <span className="text-gray-500">Category:</span>
-                    <span className="ml-2 font-medium text-gray-800 capitalize">{templateData.category}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Category:</span>
+                    <span className="font-medium text-gray-800 capitalize sm:ml-2">{templateData.category}</span>
                   </div>
-                  <div>
-                    <span className="text-gray-500">Responsive:</span>
-                    <span className="ml-2 font-medium text-green-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Responsive:</span>
+                    <span className="font-medium text-green-600 sm:ml-2">
                       {templateData.responsive ? '✓ Yes' : '✗ No'}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-gray-500">Export Formats:</span>
-                    <span className="ml-2 font-medium text-gray-800">
+                  <div className="flex flex-col sm:flex-row sm:items-start">
+                    <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Export Formats:</span>
+                    <span className="font-medium text-gray-800 sm:ml-2">
                       {templateData.exportFormats.join(', ')}
                     </span>
                   </div>
                   {templateData.rating && (
-                    <div>
-                      <span className="text-gray-500">Rating:</span>
-                      <span className="ml-2 font-medium text-gray-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center">
+                      <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Rating:</span>
+                      <span className="font-medium text-gray-800 sm:ml-2">
                         {templateData.rating}/5 ⭐
                       </span>
                     </div>
                   )}
                   {templateData.downloads && (
-                    <div>
-                      <span className="text-gray-500">Downloads:</span>
-                      <span className="ml-2 font-medium text-gray-800">{templateData.downloads}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center">
+                      <span className="text-gray-500 sm:w-24 sm:flex-shrink-0">Downloads:</span>
+                      <span className="font-medium text-gray-800 sm:ml-2">{templateData.downloads}</span>
                     </div>
                   )}
                 </div>
@@ -489,13 +471,13 @@ const TemplatePreview = () => {
 
               {/* Sections Included */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Sections Included</h3>
-                <div className="space-y-2 text-sm">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Sections Included</h3>
+                <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                   {templateData.sections.length > 0 ? (
                     templateData.sections.map((section, index) => (
                       <div key={index} className="flex items-center text-gray-600">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        {section}
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                        <span>{section}</span>
                       </div>
                     ))
                   ) : (
@@ -509,8 +491,8 @@ const TemplatePreview = () => {
                       'Contact Footer'
                     ].map((section, index) => (
                       <div key={index} className="flex items-center text-gray-600">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        {section}
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                        <span>{section}</span>
                       </div>
                     ))
                   )}
@@ -519,23 +501,24 @@ const TemplatePreview = () => {
 
               {/* Quick Actions */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Quick Actions</h3>
+                <div className="space-y-2 sm:space-y-3">
                   <button
                     onClick={handleExportPreview}
-                    className="w-full flex items-center cursor-pointer justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-center px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-xs sm:text-sm"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Preview
+                    <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                    <span className="hidden sm:inline">Download Preview</span>
+                    <span className="sm:hidden">Download</span>
                   </button>
 
                   <button
                     onClick={() => navigate('/profile')}
-                    className="w-full flex items-center cursor-pointer justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-center px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-xs sm:text-sm"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Edit Profile Data
+                    <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                    <span className="hidden sm:inline">Edit Profile Data</span>
+                    <span className="sm:hidden">Edit Profile</span>
                   </button>
                 </div>
               </div>
@@ -543,21 +526,21 @@ const TemplatePreview = () => {
 
             {/* Template Description */}
             {templateData.description && (
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">About This Template</h3>
-                <p className="text-gray-600 leading-relaxed">{templateData.description}</p>
+              <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">About This Template</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{templateData.description}</p>
               </div>
             )}
 
             {/* Template Features */}
             {templateData.features && templateData.features.length > 0 && (
-              <div className="mt-6">
-                <h4 className="font-semibold text-gray-800 mb-3">Key Features</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="mt-4 sm:mt-6">
+                <h4 className="font-semibold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">Key Features</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 sm:gap-2">
                   {templateData.features.map((feature, index) => (
-                    <div key={index} className="flex items-center text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                      {feature}
+                    <div key={index} className="flex items-start text-xs sm:text-sm text-gray-600">
+                      <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-500 rounded-full mr-2 mt-1.5 sm:mt-2 flex-shrink-0"></div>
+                      <span>{feature}</span>
                     </div>
                   ))}
                 </div>

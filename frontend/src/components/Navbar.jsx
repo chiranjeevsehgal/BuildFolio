@@ -156,7 +156,7 @@ const Navbar = ({ current }) => {
   };
 
   const getNotificationIcon = (type) => {
-    const iconClass = "w-5 h-5";
+    const iconClass = "w-4 h-4 sm:w-5 sm:h-5";
     switch (type) {
       case 'success':
         return <CheckCircle className={`${iconClass} text-green-500`} />;
@@ -216,6 +216,11 @@ const Navbar = ({ current }) => {
     setIsFeedbackModalOpen(true);
   };
 
+  const handleMobileMenuClick = (e) => {
+    e.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   const leftNavigation = [
     // { name: 'Portfolio', href: '/portfolio', icon: Globe, current: current === '/portfolio' },
   ];
@@ -241,36 +246,33 @@ const Navbar = ({ current }) => {
 
   return (
     <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+        <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Left side - Logo and Left Navigation */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4 sm:space-x-6 lg:space-x-8">
             {/* Logo */}
             <div className="flex-shrink-0">
               <a href='/portfolio'>
-                <div className="flex items-center space-x-3">
-                  {/* <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"> */}
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-                    {/* <Zap className="w-5 h-5 text-white" /> */}
-                    {/* <img src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749526426/4.1_fbfish.png" className=''/> */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center">
                     <img src="logo.svg" className='Logo' />
                   </div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                     BuildFolio
                   </h1>
                 </div>
               </a>
             </div>
 
-            {/* Left Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Left Navigation - Hidden on small screens */}
+            <div className="hidden lg:flex items-center space-x-4">
               {leftNavigation.map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <a
                     key={item.name}
                     href={item.href}
-                    className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${item.current
+                    className={`inline-flex items-center px-3 xl:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${item.current
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       }`}
@@ -283,64 +285,68 @@ const Navbar = ({ current }) => {
 
               {/* Portfolio Status */}
               {currentUser?.portfolioDeployed && (
-                <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Portfolio is Live</span>
+                <div className="flex items-center space-x-2 px-2 xl:px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs xl:text-sm font-medium">
+                  <div className="w-1.5 h-1.5 xl:w-2 xl:h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="hidden xl:inline">Portfolio is Live</span>
+                  <span className="xl:hidden">Live</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Right side - Actions and User menu */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-3 xl:space-x-4">
             {/* Templates Link */}
             <a
               href="/templates"
-              className={`inline-flex items-center cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/templates'
+              className={`inline-flex items-center cursor-pointer px-2 lg:px-3 xl:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/templates'
                 ? 'bg-blue-50 text-blue-700 border border-blue-200'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
-              <Palette className="w-4 h-4 mr-2" />
-              Templates
+              <Palette className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+              <span className="hidden lg:inline">Templates</span>
+              <span className="lg:hidden">Templates</span>
             </a>
 
             {/* Feedback Link */}
             <button
               onClick={handleFeedbackClick}
-              className=" cursor-pointer text-slate-600 border-slate-300 border hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="cursor-pointer text-slate-600 border-slate-300 border hover:text-slate-900 hover:bg-slate-50 px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors"
             >
-              Feedback
+              <span className="hidden lg:inline">Feedback</span>
+              <span className="lg:hidden">Feedback</span>
             </button>
 
             {/* Notifications */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={handleNotificationClick}
-                className="p-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                className="p-1.5 lg:p-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors relative"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4 lg:w-5 lg:h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center font-medium">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Real Notifications Dropdown */}
+              {/* Notifications Dropdown */}
               {isNotificationOpen && (
-                <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-slate-200 max-h-96 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-slate-200 max-h-96 overflow-hidden z-50">
                   {/* Header */}
-                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="font-semibold text-slate-900">Notifications</h3>
+                  <div className="px-3 sm:px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Notifications</h3>
                     <div className="flex items-center space-x-2">
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
                           className="text-xs cursor-pointer text-blue-600 hover:text-blue-700 font-medium flex items-center"
                         >
-                          <CheckCheck className="w-4 h-4 mr-1" />
-                          Mark all read
+                          <CheckCheck className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          <span className="hidden sm:inline">Mark all read</span>
+                          <span className="sm:hidden">Read all</span>
                         </button>
                       )}
                       <button
@@ -356,8 +362,8 @@ const Navbar = ({ current }) => {
                   <div className="max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
                       <div className="px-4 py-8 text-center">
-                        <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                        <p className="text-slate-500 text-sm">No notifications</p>
+                        <Bell className="w-6 h-6 sm:w-8 sm:h-8 text-slate-300 mx-auto mb-2" />
+                        <p className="text-slate-500 text-xs sm:text-sm">No notifications</p>
                       </div>
                     ) : (
                       <>
@@ -365,24 +371,24 @@ const Navbar = ({ current }) => {
                           <div
                             key={notification._id}
                             onClick={() => !notification.isRead && markAsRead(notification._id)}
-                            className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${notification.isRead
+                            className={`px-3 sm:px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${notification.isRead
                               ? 'border-transparent bg-white'
                               : 'border-blue-500 bg-blue-50'
                               }`}
                           >
-                            <div className="flex items-start space-x-3">
+                            <div className="flex items-start space-x-2 sm:space-x-3">
                               <div className="flex-shrink-0 mt-1">
                                 {getNotificationIcon(notification.type)}
                               </div>
 
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <h4 className={`text-sm font-medium ${!notification.isRead ? 'text-slate-900' : 'text-slate-700'
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`text-xs sm:text-sm font-medium ${!notification.isRead ? 'text-slate-900' : 'text-slate-700'
                                       }`}>
                                       {notification.title}
                                     </h4>
-                                    <p className="text-sm text-slate-600 mt-1">
+                                    <p className="text-xs sm:text-sm text-slate-600 mt-1 break-words">
                                       {notification.message}
                                     </p>
 
@@ -392,7 +398,7 @@ const Navbar = ({ current }) => {
                                         href={notification.actionUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium mt-2"
+                                        className="inline-flex items-center text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium mt-2"
                                         onClick={(e) => e.stopPropagation()}
                                       >
                                         {notification.actionText}
@@ -401,7 +407,7 @@ const Navbar = ({ current }) => {
                                     )}
                                   </div>
 
-                                  <div className="flex items-center space-x-2 ml-2">
+                                  <div className="flex items-center space-x-1 sm:space-x-2 ml-2 flex-shrink-0">
                                     <span className="text-xs text-slate-500">
                                       {formatTime(notification.createdAt)}
                                     </span>
@@ -411,7 +417,7 @@ const Navbar = ({ current }) => {
                                         className="text-blue-600 hover:text-blue-700"
                                         title="Mark as read"
                                       >
-                                        <Check className="w-4 h-4" />
+                                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                                       </button>
                                     )}
                                   </div>
@@ -427,11 +433,11 @@ const Navbar = ({ current }) => {
                             <button
                               onClick={loadMoreNotifications}
                               disabled={notificationLoading}
-                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center mx-auto"
+                              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center justify-center mx-auto"
                             >
                               {notificationLoading ? (
                                 <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
                                   Loading...
                                 </>
                               ) : (
@@ -451,69 +457,36 @@ const Navbar = ({ current }) => {
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={handleProfileClick}
-                className="cursor-pointer flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                className="cursor-pointer flex items-center space-x-1 lg:space-x-2 p-1 lg:p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  {/* Profile photo */}
-                  {/* {currentUser?.profilePhoto ? (
-                    <img
-                      src={currentUser?.profilePhoto}
-                      className="w-8 h-8 rounded-full object-cover"
-                      alt="Profile"
-                    />
-                  ) : (
-                    <img
-                      src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png"
-                      className="w-8 h-8 rounded-full object-cover"
-                      alt="Default Profile"
-                    />
-                  )} */}
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
-                  </div>
+                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-xs lg:text-sm">
+                  {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
                 </div>
-                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 lg:w-4 lg:h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Profile Dropdown Menu */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-2">
+                <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-2">
                   {/* User Info */}
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        {/* Profile photo */}
-                        {/* {currentUser?.profilePhoto ? (
-                          <img
-                            src={currentUser?.profilePhoto}
-                            className="w-10 h-10 rounded-full object-cover"
-                            alt="Profile"
-                          />
-                        ) : (
-                          <img
-                            src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png"
-                            className="w-10 h-10 rounded-full object-cover"
-                            alt="Default Profile"
-                          />
-                        )} */}
-                        <span className="text-white font-semibold text-base">
+                  <div className="px-3 sm:px-4 py-3 border-b border-slate-100">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm sm:text-base">
                           {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
                         </span>
-
                       </div>
-                      <div>
-                        <p className="font-medium text-slate-900">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-slate-900 text-sm sm:text-base truncate">
                           {currentUser?.firstName} {currentUser?.lastName}
                         </p>
-                        <p
-                          className="text-sm text-slate-500 truncate"
-                          title={currentUser?.email}
-                        >
-                          {currentUser?.email && currentUser.email.length > 18
-                            ? `${currentUser.email.substring(0, 18)}...`
+                        <p className="text-xs sm:text-sm text-slate-500 truncate" title={currentUser?.email}>
+                          {currentUser?.email && currentUser.email.length > 15
+                            ? `${currentUser.email.substring(0, 15)}...`
                             : currentUser?.email
                           }
-                        </p>                        {currentUser?.selectedTemplate && (
+                        </p>
+                        {currentUser?.selectedTemplate && (
                           <p className="text-xs text-blue-600 font-medium mt-1">
                             {currentUser?.selectedTemplate.replace('-', ' ')}
                           </p>
@@ -531,15 +504,11 @@ const Navbar = ({ current }) => {
                         return (
                           <div
                             key={item.name}
-                            className="flex items-center px-4 py-2 text-sm text-slate-400 cursor-not-allowed relative group"
+                            className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-400 cursor-not-allowed relative group"
                             title={item.tooltip}
                           >
-                            <IconComponent className="w-4 h-4 mr-3 text-slate-300" />
+                            <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-3 text-slate-300" />
                             {item.name}
-                            {/* Tooltip
-                            <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                              {item.tooltip}
-                            </div> */}
                           </div>
                         );
                       }
@@ -551,9 +520,9 @@ const Navbar = ({ current }) => {
                           target={item.external ? '_blank' : '_self'}
                           rel={item.external ? 'noopener noreferrer' : ''}
                           onClick={item.name === 'Sign out' ? handleLogout : undefined}
-                          className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                         >
-                          <IconComponent className="w-4 h-4 mr-3 text-slate-400" />
+                          <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-3 text-slate-400" />
                           {item.name}
                           {item.external && <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />}
                         </a>
@@ -565,16 +534,17 @@ const Navbar = ({ current }) => {
             </div>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button - Fixed click handler */}
           <div className="md:hidden flex items-center">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              onClick={handleMobileMenuClick}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 cursor-pointer"
+              type="button"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
               )}
             </button>
           </div>
@@ -582,99 +552,42 @@ const Navbar = ({ current }) => {
       </div>
 
       {/* Mobile menu */}
+
       {isMenuOpen && (
+
         <div className="md:hidden bg-white border-t border-slate-200">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {/* Portfolio Link */}
-            <a
-              href="/portfolio"
-              className={`flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors ${current === '/portfolio'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-            >
-              <Globe className="w-5 h-5 mr-3" />
-              Portfolio
-            </a>
-
-            {/* Templates Link */}
-            <a
-              href="/templates"
-              className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-base font-medium transition-colors ${current === '/templates'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-            >
-              <Palette className="w-5 h-5 mr-3" />
-              Templates
-            </a>
-
-            {/* Feedback Link */}
-            <button
-              onClick={handleFeedbackClick}
-              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
-            >
-              <FileText className="w-5 h-5 mr-3" />
-              Feedback
-            </button>
-
-            {/* Notifications - Mobile */}
-            <button
-              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full"
-            >
-              <Bell className="w-5 h-5 mr-3" />
-              Notifications
-              {unreadCount > 0 && (
-                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Portfolio Status - Mobile */}
-          {currentUser?.portfolioDeployed && (
-            <div className="px-2 pb-2">
-              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Portfolio is Live</span>
-              </div>
-            </div>
-          )}
-
           {/* Mobile user section */}
-          <div className="pt-4 pb-3 border-t border-slate-200">
+          <div className="pt-4 pb-3 border-b border-slate-200">
             <div className="flex items-center px-4 space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                {/* Profile photo */}
-                {/* {currentUser?.profilePhoto ? (
-                  <img
-                    src={currentUser.profilePhoto}
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Profile"
-                  />
-                ) : (
-                  <img
-                    src="https://res.cloudinary.com/dqwosfxu7/image/upload/v1749364926/Pngtree_avatar_placeholder_abstract_white_blue_6796235_ak8huu.png"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Default Profile"
-                  />
-                )} */}
-                <span className="text-white font-semibold text-base">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold text-sm sm:text-base">
                   {currentUser?.firstName?.[0]?.toUpperCase()}{currentUser?.lastName?.[0]?.toUpperCase()}
                 </span>
               </div>
-              <div>
-                <div className="text-base font-medium text-slate-900">
+              <div className="min-w-0 flex-1">
+                <div className="text-sm sm:text-base font-medium text-slate-900 truncate">
                   {currentUser?.firstName} {currentUser?.lastName}
                 </div>
-                <div className="text-sm text-slate-500">{currentUser?.email}</div>
+                <div className="text-xs sm:text-sm text-slate-500 truncate">{currentUser?.email}</div>
               </div>
             </div>
             <div className="mt-3 space-y-1">
               {userNavigation.map((item) => {
                 const IconComponent = item.icon;
+
+                if (item.disabled) {
+                  return (
+                    <div
+                      key={item.name}
+                      className="flex items-center px-4 py-2 text-sm sm:text-base font-medium text-slate-400 cursor-not-allowed"
+                      title={item.tooltip}
+                    >
+                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+                      {item.name}
+                    </div>
+                  );
+                }
+
                 return (
                   <a
                     key={item.name}
@@ -682,16 +595,194 @@ const Navbar = ({ current }) => {
                     target={item.external ? '_blank' : '_self'}
                     rel={item.external ? 'noopener noreferrer' : ''}
                     onClick={item.name === 'Sign out' ? handleLogout : undefined}
-                    className="flex items-center px-4 py-2 text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    className="flex items-center px-4 py-2 text-sm sm:text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                   >
-                    <IconComponent className="w-5 h-5 mr-3" />
+                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
                     {item.name}
-                    {item.external && <ExternalLink className="w-4 h-4 ml-auto text-slate-400" />}
+                    {item.external && <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 ml-auto text-slate-400" />}
                   </a>
                 );
               })}
             </div>
           </div>
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Portfolio Link */}
+            <a
+              href="/portfolio"
+              className={`flex items-center px-3 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${current === '/portfolio'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <Globe className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+              Portfolio
+            </a>
+
+            {/* Templates Link */}
+            <a
+              href="/templates"
+              className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${current === '/templates'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <Palette className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+              Templates
+            </a>
+
+            {/* Feedback Link */}
+            <button
+              onClick={handleFeedbackClick}
+              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-sm sm:text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full text-left"
+            >
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+              Feedback
+            </button>
+
+            {/* Notifications - Mobile */}
+            {/* <button
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              className="flex cursor-pointer items-center px-3 py-2 rounded-lg text-sm sm:text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors w-full justify-between"
+            >
+              <div className="flex items-center">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+                Notifications
+              </div>
+              {unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button> */}
+          </div>
+
+          {/* {currentUser?.portfolioDeployed && (
+            <div className="px-2 pb-2">
+              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Portfolio is Live</span>
+              </div>
+            </div>
+          )} */}
+
+
+
+          {/* Mobile Notifications Dropdown */}
+          {isNotificationOpen && (
+            <div className="border-t border-slate-200 bg-slate-50">
+              <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                <h3 className="font-semibold text-slate-900 text-sm">Notifications</h3>
+                <div className="flex items-center space-x-2">
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={markAllAsRead}
+                      className="text-xs cursor-pointer text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                    >
+                      <CheckCheck className="w-3 h-3 mr-1" />
+                      Read all
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsNotificationOpen(false)}
+                    className="cursor-pointer text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="max-h-64 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-6 text-center">
+                    <Bell className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-500 text-sm">No notifications</p>
+                  </div>
+                ) : (
+                  <>
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification._id}
+                        onClick={() => !notification.isRead && markAsRead(notification._id)}
+                        className={`px-4 py-3 hover:bg-slate-100 transition-colors cursor-pointer border-l-4 ${notification.isRead
+                          ? 'border-transparent bg-white'
+                          : 'border-blue-500 bg-blue-50'
+                          }`}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 mt-1">
+                            {getNotificationIcon(notification.type)}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h4 className={`text-sm font-medium ${!notification.isRead ? 'text-slate-900' : 'text-slate-700'
+                                  }`}>
+                                  {notification.title}
+                                </h4>
+                                <p className="text-sm text-slate-600 mt-1 break-words">
+                                  {notification.message}
+                                </p>
+
+                                {/* Action Button */}
+                                {notification.actionUrl && notification.actionText && (
+                                  <a
+                                    href={notification.actionUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium mt-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {notification.actionText}
+                                    <ExternalLink className="w-3 h-3 ml-1" />
+                                  </a>
+                                )}
+                              </div>
+
+                              <div className="flex items-center space-x-1 ml-2 flex-shrink-0">
+                                <span className="text-xs text-slate-500">
+                                  {formatTime(notification.createdAt)}
+                                </span>
+                                {!notification.isRead && (
+                                  <button
+                                    onClick={() => markAsRead(notification._id)}
+                                    className="text-blue-600 hover:text-blue-700"
+                                    title="Mark as read"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Load More Button */}
+                    {hasMoreNotifications && (
+                      <div className="p-4 text-center border-t">
+                        <button
+                          onClick={loadMoreNotifications}
+                          disabled={notificationLoading}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center mx-auto"
+                        >
+                          {notificationLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            'Load more'
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
