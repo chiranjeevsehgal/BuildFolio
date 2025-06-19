@@ -1,7 +1,17 @@
-import React, { useEffect } from 'react';
-import { MapPin, Phone, Mail, Linkedin, Building, Calendar, GraduationCap, Award, Users, TrendingUp, Globe, Twitter, Github, ExternalLink, Star, Briefcase } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Phone, Mail, Linkedin, Building, Calendar, GraduationCap, Award, Users, TrendingUp, Globe, Twitter, Github, ExternalLink, Star, Briefcase, X, Send } from 'lucide-react';
+import axios from 'axios';
 
 const ExecutiveTemplate = ({ userData }) => {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
   // Fixed validation helpers based on actual data structure
   const hasBasicInfo = userData?.firstName || userData?.lastName;
   const hasTitle = userData?.professional?.title;
@@ -17,10 +27,19 @@ const ExecutiveTemplate = ({ userData }) => {
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasCertifications = userData?.certifications?.length > 0;
-  
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Setting up axios defaults
   useEffect(() => {
-    console.log(userData);
-  },[userData])
+    axios.defaults.baseURL = API_BASE_URL;
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, [API_BASE_URL]);
 
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
@@ -45,7 +64,71 @@ const ExecutiveTemplate = ({ userData }) => {
     }
   };
 
+  // Modal handlers
+  const openModal = () => setIsModalOpen(true);
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ name: '', email: '', message: '' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSend = async () => {
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.message) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Submission data
+      const portfolioContactData = {
+        ...formData,
+        ownerDetail: userData?.username
+      };
+
+      const response = await axios.post('/email/contact', {
+        portfolioContactData
+      });
+
+      const result = response.data;
+
+      if (result.success) {
+        alert('Thank you! Your message has been sent successfully.');
+        closeModal();
+      } else {
+        alert(result.message || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('An error occurred while sending your message. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalClick = (e) => {
+    // Close modal if clicking on backdrop
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -455,20 +538,22 @@ const ExecutiveTemplate = ({ userData }) => {
             </p>
           </div>
           
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 sm:mb-8">
+
             {userData?.email && (
-              <a 
-                href={`mailto:${userData.email}`}
-                className="bg-blue-600 hover:bg-blue-700 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base"
+              <button 
+                onClick={openModal}
+                className="bg-blue-600 cursor-pointer hover:bg-blue-700 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base"
               >
                 <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                Schedule a Meeting
-              </a>
+                Get in Touch
+              </button>
             )}
-            
+
             <button 
               onClick={() => window.print()}
-              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base"
+              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base cursor-pointer"
             >
               <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
               Download Executive Resume
@@ -485,6 +570,148 @@ const ExecutiveTemplate = ({ userData }) => {
           </div>
         </div>
       </footer>
+
+      {/* Contact Modal - Executive Style */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={handleModalClick}
+        >
+          <div className="bg-white rounded-xl max-w-lg w-full mx-auto shadow-2xl relative overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 relative">
+              <button
+                onClick={closeModal}
+                disabled={isLoading}
+                className={`absolute top-4 right-4 text-white/80 hover:text-white transition-colors ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                }`}
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="pr-8">
+                <h3 className="text-2xl font-bold mb-2">Let's Get in Touch</h3>
+                <p className="text-blue-100">I'm eager to connect and discuss how we might work together.</p>
+              </div>
+            </div>
+            
+            {/* Loading overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-600 font-medium">Sending your message...</p>
+                </div>
+              </div>
+            )}
+
+            <div className="p-6">
+              {/* Contact Form */}
+              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                {/* Name Field */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
+                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                    }`}
+                    placeholder="What's your name?"
+                  />
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
+                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                    }`}
+                    placeholder="What's your email?"
+                  />
+                </div>
+
+                {/* Message Field */}
+                <div>
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    rows={4}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none ${
+                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                    }`}
+                    placeholder="Tell me about the opportunity, project, or partnership you'd like to discuss..."
+                  />
+                </div>
+
+                {/* Send Button */}
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={isLoading}
+                  className={`w-full py-4 px-6 rounded-lg transition-all duration-300 font-semibold text-white shadow-lg flex items-center justify-center ${
+                    isLoading
+                      ? 'bg-gray-400 cursor-not-allowed shadow-none'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
+                      Sending Message...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-3" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Direct Email */}
+              {userData?.email && !isLoading && (
+                <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+                  <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
+                  <a 
+                    href={`mailto:${userData.email}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    {userData.email}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

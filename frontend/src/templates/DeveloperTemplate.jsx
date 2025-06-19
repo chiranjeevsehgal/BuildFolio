@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap } from 'lucide-react';
+import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap, X, Send } from 'lucide-react';
+import axios from 'axios';
 
 const DeveloperTemplate = ({ userData }) => {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
   // Fixed validation helpers based on actual data structure
   const hasBasicInfo = userData?.firstName || userData?.lastName;
   const hasTitle = userData?.professional?.title;
@@ -21,6 +31,19 @@ const DeveloperTemplate = ({ userData }) => {
   // Terminal typing animation state
   const [currentCommand, setCurrentCommand] = useState('');
   const [showCursor, setShowCursor] = useState(true);
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Setting up axios defaults
+  useEffect(() => {
+    axios.defaults.baseURL = API_BASE_URL;
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, [API_BASE_URL]);
 
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
@@ -42,6 +65,72 @@ const DeveloperTemplate = ({ userData }) => {
       });
     } catch {
       return dateString;
+    }
+  };
+
+  // Modal handlers
+  const openModal = () => setIsModalOpen(true);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ name: '', email: '', message: '' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSend = async () => {
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.message) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Submission data
+      const portfolioContactData = {
+        ...formData,
+        ownerDetail: userData?.username
+      };
+
+      const response = await axios.post('/email/contact', {
+        portfolioContactData
+      });
+
+      const result = response.data;
+
+      if (result.success) {
+        alert('Thank you! Your message has been sent successfully.');
+        closeModal();
+      } else {
+        alert(result.message || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('An error occurred while sending your message. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalClick = (e) => {
+    // Close modal if clicking on backdrop
+    if (e.target === e.currentTarget) {
+      closeModal();
     }
   };
 
@@ -393,7 +482,10 @@ const DeveloperTemplate = ({ userData }) => {
                 </p>
               )}
               <p className="text-green-400 text-sm sm:text-base">
-                echo "Download resume: <button onClick={() => window.print()} className="text-yellow-400 hover:text-yellow-300 underline cursor-pointer">portfolio.pdf</button>"
+                echo "Send message: <button onClick={openModal} className="text-yellow-400 hover:text-yellow-300 underline cursor-pointer">contact.sh</button>"
+              </p>
+              <p className="text-green-400 text-sm sm:text-base">
+                echo "Download resume: <button onClick={() => window.print()} className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer">portfolio.pdf</button>"
               </p>
               <p className="text-gray-400 mt-4 text-xs sm:text-sm break-words">
                 # © {new Date().getFullYear()} {hasBasicInfo 
@@ -405,6 +497,173 @@ const DeveloperTemplate = ({ userData }) => {
           </div>
         </section>
       </main>
+
+      {/* Contact Modal - Terminal Style */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={handleModalClick}
+        >
+          <div className="bg-gray-900 border-2 border-green-500 rounded-lg max-w-md w-full mx-auto shadow-2xl font-mono relative overflow-hidden">
+            {/* Terminal Header */}
+            <div className="bg-black border-b border-green-500 p-3 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span className="text-gray-400 text-sm">terminal — contact.sh</span>
+              </div>
+              <button
+                onClick={closeModal}
+                disabled={isLoading}
+                className={`text-red-400 hover:text-red-300 transition-colors ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                }`}
+                aria-label="Close terminal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Loading overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                  <div className="text-green-400 text-sm mb-2">Processing...</div>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="p-6 space-y-4">
+              {/* Terminal Header */}
+              <div className="text-green-400 text-sm mb-4">
+                <p><span className="text-blue-400">$</span> ./contact.sh --initialize</p>
+                <p className="text-gray-400"># Establishing secure connection...</p>
+                <p className="text-yellow-400"># Ready to receive your message</p>
+              </div>
+
+              {/* Contact Form */}
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                {/* Name Field */}
+                <div>
+                  <p className="text-green-400 text-sm mb-1">
+                    <span className="text-blue-400">$</span> echo "Enter your name:"
+                  </p>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="> name_here"
+                  />
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <p className="text-green-400 text-sm mb-1">
+                    <span className="text-blue-400">$</span> echo "Enter your email:"
+                  </p>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="> email@domain.com"
+                  />
+                </div>
+
+                {/* Message Field */}
+                <div>
+                  <p className="text-green-400 text-sm mb-1">
+                    <span className="text-blue-400">$</span> cat &gt; message.txt
+                  </p>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    rows={4}
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="> Your message here..."
+                  />
+                </div>
+
+                {/* Send Button */}
+                <div className="pt-2">
+                  <p className="text-green-400 text-sm mb-2">
+                    <span className="text-blue-400">$</span> ./send_message.sh
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleSend}
+                    disabled={isLoading}
+                    className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${
+                      isLoading
+                        ? 'border-gray-600 bg-gray-800 text-gray-400 cursor-not-allowed'
+                        : 'border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 cursor-pointer'
+                    }`}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="flex space-x-1 mr-2">
+                          <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
+                          <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                          <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                        </div>
+                        EXECUTING...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        EXECUTE
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {/* Direct Email */}
+              {userData?.email && !isLoading && (
+                <div className="pt-4 border-t border-gray-700">
+                  <p className="text-gray-400 text-xs mb-2"># Alternative connection method:</p>
+                  <p className="text-green-400 text-sm">
+                    <span className="text-blue-400">$</span> mail -s "Direct Contact" 
+                    <a 
+                      href={`mailto:${userData.email}`}
+                      className="text-yellow-400 hover:text-yellow-300 underline ml-1"
+                    >
+                      {userData.email}
+                    </a>
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style>{`
@@ -422,6 +681,9 @@ const DeveloperTemplate = ({ userData }) => {
         @media (prefers-reduced-motion: reduce) {
           .transition-colors {
             transition: none;
+          }
+          .animate-pulse {
+            animation: none;
           }
         }
         
