@@ -310,7 +310,7 @@ const updateProfile = async (req, res) => {
         message: 'Validation failed',
         errors: errors.array()
       });
-    }
+    }    
 
     const {
       phone,

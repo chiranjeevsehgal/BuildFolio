@@ -41,7 +41,7 @@ const upload = multer({
 // Validation rules
 const profileValidation = [
   body('phone')
-    .optional()
+    .optional({ nullable: true, checkFalsy: true })
     .isMobilePhone()
     .withMessage('Please provide a valid phone number'),
   body('website')

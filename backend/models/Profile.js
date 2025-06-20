@@ -241,7 +241,7 @@ profileSchema.pre('save', async function(next) {
     
     next();
   } catch (error) {
-    console.error('❌ Error in profile pre-save middleware:', error);
+    console.error('Error in profile pre-save middleware:', error);
     next(error);
   }
 });
