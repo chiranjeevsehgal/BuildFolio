@@ -5,6 +5,7 @@ import { ArrowLeft, Monitor, Tablet, Smartphone, Download, Share2, Settings, Eye
 import axios from 'axios';
 import { getTemplateComponent, isValidTemplateId } from '../templates/TemplateRegistry';
 import { getMockUserData } from '../utils/mockData';
+import { getTemplateById } from '../utils/templateData';
 
 const TemplatePreview = () => {
   const { templateId } = useParams();
@@ -128,12 +129,13 @@ const TemplatePreview = () => {
       // Load user profile
       await loadProfile();
 
-      // Fetch template data from API
+      // Fetch template data
       try {
-        const templateResponse = await axios.get(`/templates/${templateId}`);
-
-        if (templateResponse.data.success) {
-          const template = templateResponse.data.data;
+        const templateResponse = await getTemplateById(templateId);
+        console.log(templateResponse);
+        
+        if (templateResponse.success) {
+          const template = templateResponse.data;
 
           // Get the component from registry
           const templateInfo = getTemplateComponent(templateId);

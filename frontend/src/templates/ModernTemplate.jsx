@@ -1,12 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MapPin, Phone, Mail, Github, Linkedin, Twitter, ExternalLink, 
   Download, Calendar, Building, GraduationCap, Award, Star, 
   Code, Briefcase, User, Globe, ChevronRight, ArrowUpRight,
-  Clock, Users, Zap, Target, Eye, Heart
+  Clock, Users, Zap, Target, Eye, Heart, X, Send
 } from 'lucide-react';
 
 const ModernTemplate = ({ userData }) => {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
   // Fixed comprehensive validation helpers based on actual data structure
   const hasBasicInfo = userData?.firstName || userData?.lastName || userData?.email;
   const hasTitle = userData?.professional?.title;
@@ -25,6 +34,22 @@ const ModernTemplate = ({ userData }) => {
                         userData?.personalInfo?.location || 
                         userData?.email;
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Setting up API configuration
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    
+    // Store config for later use
+    window.apiConfig = {
+      baseURL: API_BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      }
+    };
+  }, [API_BASE_URL]);
+
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
     if (!url) return '';
@@ -33,10 +58,6 @@ const ModernTemplate = ({ userData }) => {
     }
     return `https://${url}`;
   };
-
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -49,6 +70,75 @@ const ModernTemplate = ({ userData }) => {
       });
     } catch {
       return dateString;
+    }
+  };
+
+  // Modal handlers
+  const openModal = () => setIsModalOpen(true);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ name: '', email: '', message: '' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSend = async () => {
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.message) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Submission data
+      const portfolioContactData = {
+        ...formData,
+        ownerDetail: userData?.username
+      };
+
+      const config = window.apiConfig || {};
+      const response = await fetch(`${config.baseURL || ''}/email/contact`, {
+        method: 'POST',
+        headers: config.headers || { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ portfolioContactData })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Thank you! Your message has been sent successfully.');
+        closeModal();
+      } else {
+        alert(result.message || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('An error occurred while sending your message. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalClick = (e) => {
+    // Close modal if clicking on backdrop
+    if (e.target === e.currentTarget) {
+      closeModal();
     }
   };
 
@@ -434,18 +524,15 @@ const ModernTemplate = ({ userData }) => {
               Download Resume
             </button>
             
-            {userData?.email && (
-              <a 
-                href={`mailto:${userData.email}`}
-                className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm text-sm sm:text-base"
-              >
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
-                Get In Touch
-              </a>
-            )}
+            <button 
+              onClick={openModal}
+              className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm text-sm sm:text-base cursor-pointer"
+            >
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
+              Get In Touch
+            </button>
           </div>
         </div>
-        
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:py-20">
@@ -555,19 +642,17 @@ const ModernTemplate = ({ userData }) => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12">
-            {userData?.email && (
-              <a 
-                href={`mailto:${userData.email}`}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base"
-              >
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
-                Start a Conversation
-              </a>
-            )}
+            <button 
+              onClick={openModal}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base cursor-pointer"
+            >
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
+              Start a Conversation
+            </button>
             
             <button 
               onClick={() => window.print()}
-              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all font-semibold flex items-center justify-center group text-sm sm:text-base"
+              className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all font-semibold flex items-center justify-center group text-sm sm:text-base cursor-pointer"
             >
               <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-bounce flex-shrink-0" />
               Download Resume
@@ -637,6 +722,157 @@ const ModernTemplate = ({ userData }) => {
           </div>
         </div>
       </footer>
+
+      {/* Contact Modal - Modern Style */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
+          onClick={handleModalClick}
+        >
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl max-w-lg w-full mx-auto shadow-2xl border border-white/20 relative overflow-hidden">
+            {/* Gradient Background Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/60 to-indigo-50/80"></div>
+            
+            {/* Modal Header */}
+            <div className="relative z-10 p-6 sm:p-8 pb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Let's Connect</h3>
+                    <p className="text-gray-600 text-sm">I'd love to hear about your project</p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeModal}
+                  disabled={isLoading}
+                  className={`text-gray-400 hover:text-gray-600 transition-colors rounded-xl p-2 hover:bg-gray-100 ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
+                  aria-label="Close modal"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Loading overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-600 font-medium">Sending your message...</p>
+                </div>
+              </div>
+            )}
+
+            <div className="relative z-10 px-6 sm:px-8 pb-6 sm:pb-8">
+              {/* Contact Form */}
+              <div className="space-y-6">
+                {/* Name Field */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="What's your name?"
+                  />
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="What's your email?"
+                  />
+                </div>
+
+                {/* Message Field */}
+                <div>
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Your Message *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    required
+                    rows={4}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    placeholder="What's your message?"
+                  />
+                </div>
+
+                {/* Send Button */}
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={isLoading}
+                  className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${
+                    isLoading
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-gray-600 rounded-full animate-spin mr-3"></div>
+                      Sending Message...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-3" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Direct Email */}
+              {userData?.email && !isLoading && (
+                <div className="mt-6 pt-6 border-t border-gray-200/60 text-center">
+                  <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
+                  <a 
+                    href={`mailto:${userData.email}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    {userData.email}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles for Animations */}
       <style>{`

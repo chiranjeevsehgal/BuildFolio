@@ -326,7 +326,7 @@ export const templatesData = [{
   "__v": 0
 }]
 
-// Helper function to get the templates
+// Helper function to get all templates
 export const getTemplates = () => {
   return new Promise((resolve) => {
     // Rendering a small delay
@@ -335,6 +335,38 @@ export const getTemplates = () => {
         success: true,
         data: templatesData
       });
+    }, 100);
+  });
+};
+
+// Helper function to get specific template by ID
+export const getTemplateById = (templateId) => {
+  return new Promise((resolve, reject) => {
+    // Simulate API delay
+    setTimeout(() => {
+      try {
+        // Find the template with matching templateId
+        const template = templatesData.find(t => t.templateId === templateId);
+        
+        if (template) {
+          resolve({
+            success: true,
+            data: template
+          });
+        } else {
+          reject({
+            success: false,
+            error: `Template not found with ID: ${templateId}`,
+            data: null
+          });
+        }
+      } catch (error) {
+        reject({
+          success: false,
+          error: error.message,
+          data: null
+        });
+      }
     }, 100);
   });
 };
