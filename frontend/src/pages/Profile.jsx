@@ -72,11 +72,6 @@ const Profile = () => {
     const [completionPercentage, setCompletionPercentage] = useState(0)
     const API_BASE_URL = import.meta.env.VITE_API_URL
 
-    useEffect(() => {
-        console.log(validationErrors);
-
-    }, [validationErrors])
-
     // Enhanced validation with debouncing
     const validateProfile = useCallback(() => {
         try {
@@ -509,13 +504,16 @@ const Profile = () => {
             })
 
             if (completeResponse.data.success) {
-                showMessage('success', 'Redirecting to templates...')
 
-                // Redirect after short delay
-                setTimeout(() => {
+                if (VITE_ENV === 'development') {
+                    setTimeout(() => {
                     window.location.href = "/templates"
                 }, 1500)
+                } else {
+                    window.location.href = '/templates';
+                }
             }
+
         } catch (error) {
             handleApiError(error, 'Profile completion')
         } finally {
@@ -693,7 +691,7 @@ const Profile = () => {
                             <p className="text-xs text-slate-500 mt-2">
                                 {completionPercentage >= 60
                                     ? 'Great! You can proceed to templates'
-                                    : 'Complete at least 60% to proceed'}
+                                    : 'Complete at least 60% to deploy your portfolio'}
                             </p>
                         </div>
                     </div>
@@ -819,7 +817,7 @@ const Profile = () => {
                                         )}
                                     </div>
                                     <p className="text-xs text-slate-500">
-                                        Complete at least 60% to proceed to templates
+                                        Complete at least 60% to deploy your portfolio
                                     </p>
                                     {!isFormValid && Object.keys(validationErrors).length > 0 && (
                                         <div className="flex items-center space-x-2 mt-2">

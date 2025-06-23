@@ -48,6 +48,14 @@ export const VALIDATION_RULES = {
       minCount: 3,
       maxCount: 20,
       message: "Add at least 3 skills (maximum 20)"
+    },
+    startDate: {
+      required: true,
+      message: "Please provide a start date for your professional experience"
+    },
+    endDate: {
+      required: true,
+      message: "Please provide a end date for your professional experience"
     }
   },
   experience: {
@@ -69,7 +77,7 @@ export const VALIDATION_RULES = {
     },
     endDate: {
       conditionalRequired: (item) => !item.current,
-      message: "End date is required for past positions"
+      message: "End date is required"
     },
     description: {
       required: false,
@@ -176,6 +184,30 @@ export const validateField = (value, rules, item = null) => {
   return errors
 }
 
+export const validateDateRange = (startDate, endDate, isCurrent = false) => {
+  const errors = []
+  
+  // Skip validation if current position or if either date is missing
+  if (isCurrent || !startDate || !endDate) {
+    return errors
+  }
+  
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  
+  // Check if dates are valid
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return errors
+  }
+  
+  // Check if end date is before start date
+  if (end < start) {
+    errors.push("End date must be after start date.")
+  }
+  
+  return errors
+}
+
 export const validatePersonalInfo = (personalInfo) => {
   const errors = {}
   const rules = VALIDATION_RULES.personal
@@ -246,6 +278,16 @@ export const validateProfessionalInfo = (professionalInfo) => {
     const skillsErrors = validateField(professionalInfo.skills, rules.skills)
     if (skillsErrors.length > 0) errors.skills = skillsErrors
   }
+  
+  if (professionalInfo.startDate ) {
+    const skillsErrors = validateField(professionalInfo.startDate, rules.startDate)
+    if (skillsErrors.length > 0) errors.startDate = startDateErrors
+  }
+  
+  if (professionalInfo.endDate ) {
+    const skillsErrors = validateField(professionalInfo.endDate, rules.endDate)
+    if (skillsErrors.length > 0) errors.endDate = endDateErrors
+  }
 
   return {
     errors,
@@ -280,6 +322,12 @@ export const validateExperience = (experience) => {
           errors[`experience_${index}_${field}`] = fieldErrors
         }
       })
+      
+      // Add date range validation
+      const dateRangeErrors = validateDateRange(exp.startDate, exp.endDate, exp.current)
+      if (dateRangeErrors.length > 0) {
+        errors[`experience_${index}_dateRange`] = dateRangeErrors
+      }
     }
   })
 
@@ -316,7 +364,12 @@ export const validateEducation = (education) => {
           errors[`education_${index}_${field}`] = fieldErrors
         }
       })
+     const dateRangeErrors = validateDateRange(edu.startDate, edu.endDate, false)
+      if (dateRangeErrors.length > 0) {
+        errors[`education_${index}_dateRange`] = dateRangeErrors
+      }
     }
+    
   })
 
   return {

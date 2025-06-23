@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import {
     Edit3,
     Save,
@@ -7,6 +7,11 @@ import {
     Loader2,
     Trash2,
     Info,
+    Check,
+    X,
+    MapPin,
+    Calendar,
+    Building,
 } from "lucide-react"
 import { LocationAutocomplete } from "./Location_UniversitySearch"
 import CustomDateInput from "./CustomDateInput"
@@ -28,15 +33,18 @@ const ExperienceSection = ({
     const [originalData, setOriginalData] = useState(null)
     const [hasChanges, setHasChanges] = useState(false)
     const [showTooltip, setShowTooltip] = useState(false)
+    const [saveAttempted, setSaveAttempted] = useState(false)
+    const [lastSaveTime, setLastSaveTime] = useState(null)
     const tooltipRef = useRef(null)
+    const saveTimeoutRef = useRef(null)
 
     // Helper functions
     const getFieldError = (fieldName) => {
-        return validationErrors[fieldName] && touchedFields[fieldName] ? validationErrors[fieldName][0] : ""
+        return validationErrors[fieldName] && (touchedFields[fieldName] || saveAttempted) ? validationErrors[fieldName][0] : ""
     }
 
     const hasFieldError = (fieldName) => {
-        return !!validationErrors[fieldName] && touchedFields[fieldName]
+        return !!validationErrors[fieldName] && (touchedFields[fieldName] || saveAttempted)
     }
 
     // Deep comparison function for arrays and objects
@@ -83,26 +91,40 @@ const ExperienceSection = ({
         }))
     }
 
+    // Memoized function to get current data
+    const getCurrentData = useCallback(() => createExperienceCopy(profileData.experience), [profileData])
+
     // Check for changes when profileData changes
     useEffect(() => {
         if (originalData && editingSections.experience) {
-            const currentData = createExperienceCopy(profileData.experience)
+            const currentData = getCurrentData()
             const dataChanged = !deepEqual(originalData, currentData)
             setHasChanges(dataChanged)
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
         }
-    }, [profileData, originalData, editingSections.experience])
+    }, [profileData, originalData, editingSections.experience, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
         if (editingSections.experience && !originalData) {
-            setOriginalData(createExperienceCopy(profileData.experience))
+            const currentData = getCurrentData()
+            setOriginalData(currentData)
         } else if (!editingSections.experience) {
             // Reset when exiting edit mode
             setOriginalData(null)
             setHasChanges(false)
             setShowTooltip(false)
+            setSaveAttempted(false)
+            setLastSaveTime(null)
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current)
+            }
         }
-    }, [editingSections.experience, profileData])
+    }, [editingSections.experience, getCurrentData])
 
     // Enhanced toggle function to reset changes when canceling
     const handleToggleEdit = (sectionName) => {
@@ -122,19 +144,82 @@ const ExperienceSection = ({
         toggleSectionEdit(sectionName)
     }
 
-    // Enhanced save function
-    const handleSave = async () => {
-        if (!hasChanges) return
+    // Function to touch all experience fields
+    const touchAllFields = () => {
+        profileData.experience.forEach((_, index) => {
+            const fieldsToValidate = ['title', 'company', 'location', 'startDate', 'endDate', 'description']
+            fieldsToValidate.forEach(field => {
+                handleFieldTouch(`experience_${index}_${field}`)
+            })
+        })
+    }
 
-        const success = await saveExperienceProfile()
-        if (success) {
-            setOriginalData(createExperienceCopy(profileData.experience))
-            setHasChanges(false)
+    // Enhanced save function with better error handling
+    const handleSave = async (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (isSaving) return
+
+        // Always touch all fields and set save attempted to show errors
+        touchAllFields()
+        setSaveAttempted(true)
+
+        if (!hasChanges) {
+            return
+        }
+        if (!formsValid.experience) {
+            return
+        }
+
+        try {
+            const success = await saveExperienceProfile()
+            if (success) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+                setHasChanges(false)
+                setLastSaveTime(new Date())
+
+                // Clear save attempted after successful save
+                saveTimeoutRef.current = setTimeout(() => {
+                    setSaveAttempted(false)
+                }, 2000)
+            }
+        } catch (error) {
+            console.error('Save failed:', error)
+            // Keep saveAttempted true to show error state
+        }
+    }
+
+    // Handle input changes with validation on change
+    const handleInputChange = (index, field, value) => {
+        updateExperience(index, field, value)
+        handleFieldTouch(`experience_${index}_${field}`)
+
+        if (field === 'startDate') {
+            handleFieldTouch(`experience_${index}_endDate`)
+        } else if (field === 'endDate') {
+            handleFieldTouch(`experience_${index}_startDate`)
         }
     }
 
     const handleAddExperience = () => {
         addExperience()
+    }
+
+    const getDateRangeError = (index) => {
+        return validationErrors[`experience_${index}_dateRange`] &&
+            (touchedFields[`experience_${index}_startDate`] ||
+                touchedFields[`experience_${index}_endDate`] ||
+                saveAttempted) ?
+            validationErrors[`experience_${index}_dateRange`][0] : ""
+    }
+
+    const hasDateRangeError = (index) => {
+        return !!validationErrors[`experience_${index}_dateRange`] &&
+            (touchedFields[`experience_${index}_startDate`] ||
+                touchedFields[`experience_${index}_endDate`] ||
+                saveAttempted)
     }
 
     const handleRemoveExperience = (index) => {
@@ -144,17 +229,44 @@ const ExperienceSection = ({
         }
     }
 
-    const shouldDisableSave = isSaving || !formsValid.experience || !hasChanges
-    const saveButtonText = isSaving ? "Saving..." : !hasChanges ? "No Changes" : "Save"
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current)
+            }
+        }
+    }, [])
 
-    // Tooltip component
-    const SaveButtonTooltip = ({ show, children }) => (
+    // Determine save button state with better logic
+    const canSave = hasChanges && formsValid.experience && !isSaving
+    const showSuccess = lastSaveTime && !hasChanges && !isSaving
+
+    const getSaveButtonState = () => {
+        if (isSaving) return { text: "Saving...", icon: Loader2, className: "bg-blue-500 text-white cursor-wait", disabled: true }
+        if (showSuccess) return { text: "Saved", icon: Check, className: "bg-green-600 text-white cursor-default", disabled: true }
+        if (!hasChanges) return { text: "No Changes", icon: Save, className: "bg-gray-300 text-gray-500 cursor-pointer", disabled: false }
+        if (!formsValid.experience) return { text: "Save Changes", icon: Save, className: "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 cursor-pointer", disabled: false }
+        return { text: "Save Changes", icon: Save, className: "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 cursor-pointer", disabled: false }
+    }
+
+    const saveButtonState = getSaveButtonState()
+
+    // Enhanced tooltip component
+    const SaveButtonTooltip = ({ show, children, message = "You haven't made any changes" }) => (
         <div className="relative inline-block">
             {children}
             {show && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg whitespace-nowrap z-50">
+                <div
+                    className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg whitespace-nowrap z-50"
+                    style={{
+                        animation: 'fadeIn 0.2s ease-out',
+                        opacity: 1,
+                        transform: 'translate(-50%, 0)'
+                    }}
+                >
                     <div className="relative">
-                        You haven't made any changes
+                        {message}
                         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                     </div>
                 </div>
@@ -162,27 +274,113 @@ const ExperienceSection = ({
         </div>
     )
 
+    // Auto-hide tooltip logic
+    const handleTooltipEnter = () => {
+        if (!canSave && !hasChanges) {
+            setShowTooltip(true)
+        }
+    }
+
+    const handleTooltipLeave = () => {
+        setShowTooltip(false)
+    }
+
+    // Enhanced read-only experience card
+    const ExperienceCard = ({ exp, index }) => (
+        <div className="group p-6 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-300">
+            <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                    <Briefcase className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                {exp.title}
+                            </h3>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600 mb-3">
+                                <div className="flex items-center space-x-1">
+                                    <Building className="w-4 h-4" />
+                                    <span>{exp.company}</span>
+                                </div>
+                                {exp.location && (
+                                    <div className="flex items-center space-x-1">
+                                        <MapPin className="w-4 h-4" />
+                                        <span>{exp.location}</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center space-x-1">
+                                    <Calendar className="w-4 h-4" />
+                                    <span>{exp.startDate} - {exp.current ? "Present" : exp.endDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {exp.current && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                Current
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-gray-700 leading-relaxed text-sm">{exp.description}</p>
+                </div>
+            </div>
+        </div>
+    )
+
     return (
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+            {/* Inline styles for animations */}
+            <style>
+                {`
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(-10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateY(-5px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-fade-in {
+                        animation: fadeIn 0.2s ease-out;
+                    }
+                    .animate-slide-down {
+                        animation: slideDown 0.15s ease-out;
+                    }
+                    .animate-pulse-custom {
+                        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                    }
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: .8; }
+                    }
+                `}
+            </style>
+
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                     <h2 className="text-2xl font-semibold text-slate-800">Work Experience</h2>
                     {editingSections.experience && hasChanges && (
-                        <div className="flex items-center space-x-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs">
+                        <div className="flex items-center space-x-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs animate-pulse-custom">
                             <Info className="w-3 h-3" />
                             <span>Unsaved changes</span>
+                        </div>
+                    )}
+                    {editingSections.experience && showSuccess && (
+                        <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs animate-fade-in">
+                            <Check className="w-3 h-3" />
+                            <span>Changes saved</span>
                         </div>
                     )}
                 </div>
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("experience")}
-                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-colors ${editingSections.experience
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-all duration-200 ${editingSections.experience
                             ? "bg-gray-600 text-white hover:bg-gray-700"
                             : "bg-slate-600 text-white hover:bg-slate-700"
                             }`}
                     >
-                        <Edit3 className="w-4 h-4" />
+                        {editingSections.experience ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                         <span>{editingSections.experience ? "Cancel" : "Edit"}</span>
                     </button>
                     {editingSections.experience && (
@@ -190,29 +388,35 @@ const ExperienceSection = ({
                             onClick={handleAddExperience}
                             className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:shadow-md transform hover:scale-105"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-4 h-4" />
                             <span>Add Experience</span>
                         </button>
                     )}
                     {editingSections.experience && (
-                        <SaveButtonTooltip show={showTooltip && !hasChanges}>
+                        <SaveButtonTooltip
+                            show={showTooltip}
+                            message={
+                                !hasChanges ? "You haven't made any changes" :
+                                    !formsValid.experience ? "Click to see validation errors" :
+                                        "Ready to save your changes"
+                            }
+                        >
                             <button
                                 ref={tooltipRef}
                                 onClick={handleSave}
-                                disabled={shouldDisableSave}
-                                onMouseEnter={() => setShowTooltip(true)}
-                                onMouseLeave={() => setShowTooltip(false)}
-                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${shouldDisableSave
-                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                    : "bg-blue-600 text-white cursor-pointer hover:bg-blue-700 hover:shadow-lg transform hover:scale-105"
-                                    }`}
+                                disabled={saveButtonState.disabled}
+                                onMouseEnter={handleTooltipEnter}
+                                onMouseLeave={handleTooltipLeave}
+                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${saveButtonState.className}`}
                             >
-                                {isSaving ? (
+                                {saveButtonState.icon === Loader2 ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : saveButtonState.icon === Check ? (
+                                    <Check className="w-4 h-4" style={{ animation: 'bounce 0.6s ease-in-out' }} />
                                 ) : (
                                     <Save className="w-4 h-4" />
                                 )}
-                                <span>{saveButtonText}</span>
+                                <span>{saveButtonState.text}</span>
                             </button>
                         </SaveButtonTooltip>
                     )}
@@ -220,17 +424,28 @@ const ExperienceSection = ({
             </div>
 
             {profileData.experience.length === 0 ? (
-                <div className="text-center py-8 text-slate-500">
-                    <Briefcase className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                    <p className="text-lg font-medium mb-2">No work experience added yet</p>
-                    <p className="text-sm">Click "Edit" then "Add Experience" to get started</p>
+                <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Briefcase className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No work experience added yet</h3>
+                    <p className="text-gray-500 mb-6">Add your professional experience to showcase your career journey</p>
+                    {editingSections.experience && (
+                        <button
+                            onClick={handleAddExperience}
+                            className="inline-flex cursor-pointer items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Add Your First Experience</span>
+                        </button>
+                    )}
                 </div>
             ) : editingSections.experience ? (
                 <div className="space-y-6">
                     {profileData.experience.map((exp, index) => (
-                        <div key={index} className="border border-slate-200 rounded-lg p-6 hover:border-slate-300 transition-colors">
+                        <div key={index} className="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 transition-all duration-200">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-medium text-slate-800">
+                                <h3 className="font-medium text-gray-900 text-lg">
                                     {exp.title || "New Position"} {exp.company && `at ${exp.company}`}
                                 </h3>
                                 <button
@@ -244,34 +459,34 @@ const ExperienceSection = ({
 
                             <div className="grid md:grid-cols-2 gap-4 mb-4">
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Title <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         value={exp.title}
-                                        onChange={(e) => updateExperience(index, "title", e.target.value)}
-                                        onBlur={() => handleFieldTouch(`experience_${index}_title`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`experience_${index}_title`) ? "border-red-500" : "border-slate-300"
+                                        onChange={(e) => handleInputChange(index, "title", e.target.value)}
+                                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 placeholder:text-gray-500 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${hasFieldError(`experience_${index}_title`) ? "border-red-500 focus:ring-red-500" : "border-gray-300"
                                             }`}
-                                        placeholder="Job Title *"
+                                        placeholder="e.g. Senior Software Engineer"
                                     />
                                     {hasFieldError(`experience_${index}_title`) && (
-                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                             <Info className="w-3 h-3" />
                                             <span>{getFieldError(`experience_${index}_title`)}</span>
                                         </p>
                                     )}
                                 </div>
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Company <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         value={exp.company}
-                                        onChange={(e) => updateExperience(index, "company", e.target.value)}
-                                        onBlur={() => handleFieldTouch(`experience_${index}_company`)}
-                                        className={`px-3 py-2 border rounded-lg focus:ring-2 placeholder:!text-gray-500 focus:ring-blue-500 focus:border-transparent w-full transition-colors ${hasFieldError(`experience_${index}_company`) ? "border-red-500" : "border-slate-300"
+                                        onChange={(e) => handleInputChange(index, "company", e.target.value)}
+                                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 placeholder:text-gray-500 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${hasFieldError(`experience_${index}_company`) ? "border-red-500 focus:ring-red-500" : "border-gray-300"
                                             }`}
-                                        placeholder="Company Name *"
+                                        placeholder="e.g. Google, Microsoft"
                                     />
                                     {hasFieldError(`experience_${index}_company`) && (
-                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                             <Info className="w-3 h-3" />
                                             <span>{getFieldError(`experience_${index}_company`)}</span>
                                         </p>
@@ -281,55 +496,57 @@ const ExperienceSection = ({
 
                             <div className="grid md:grid-cols-3 gap-4 mb-4">
                                 <div>
-                                    {/* <input
-                                        type="text"
-                                        value={exp.location}
-                                        onChange={(e) => updateExperience(index, "location", e.target.value)}
-                                        className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-colors"
-                                        placeholder="Location"
-                                    /> */}
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                                     <LocationAutocomplete
                                         value={exp.location}
-                                        onChange={(value) => updateExperience(index, "location", value)}
-                                        placeholder="Location"
+                                        onChange={(value) => handleInputChange(index, "location", value)}
+                                        placeholder="e.g. San Francisco, CA"
                                         hasError={hasFieldError(`experience_${index}_location`)}
                                     />
                                     {hasFieldError(`experience_${index}_location`) && (
-                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                             <Info className="w-3 h-3" />
                                             <span>{getFieldError(`experience_${index}_location`)}</span>
                                         </p>
                                     )}
                                 </div>
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Date <span className="text-red-500">*</span></label>
                                     <CustomDateInput
                                         value={exp.startDate}
-                                        onChange={(e) => updateExperience(index, "startDate", e.target.value)}
-                                        onBlur={() => handleFieldTouch(`experience_${index}_startDate`)}
+                                        onChange={(e) => handleInputChange(index, "startDate", e.target.value)}
                                         placeholder="Select start date"
-                                        hasError={hasFieldError(`experience_${index}_startDate`)}
+                                        hasError={hasFieldError(`experience_${index}_startDate`) || hasDateRangeError(index)}
                                     />
                                     {hasFieldError(`experience_${index}_startDate`) && (
-                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                             <Info className="w-3 h-3" />
                                             <span>{getFieldError(`experience_${index}_startDate`)}</span>
                                         </p>
                                     )}
                                 </div>
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">End Date <span className="text-red-500">*</span></label>
                                     <CustomDateInput
                                         value={exp.current ? "" : exp.endDate}
-                                        onChange={(e) => updateExperience(index, "endDate", e.target.value)}
-                                        onBlur={() => handleFieldTouch(`experience_${index}_endDate`)}
+                                        onChange={(e) => handleInputChange(index, "endDate", e.target.value)}
                                         placeholder={exp.current ? "Currently working here" : "Select end date"}
                                         disabled={exp.current}
-                                        hasError={hasFieldError(`experience_${index}_endDate`)}
+                                        hasError={hasFieldError(`experience_${index}_endDate`) || hasDateRangeError(index)}
                                     />
                                     {hasFieldError(`experience_${index}_endDate`) && (
-                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                             <Info className="w-3 h-3" />
                                             <span>{getFieldError(`experience_${index}_endDate`)}</span>
                                         </p>
+                                    )}
+                                    {hasDateRangeError(index) && (
+                                        <div className="mb-4">
+                                            <p className="text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
+                                                <Info className="w-3 h-3" />
+                                                <span>{getDateRangeError(index)}</span>
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -338,24 +555,24 @@ const ExperienceSection = ({
                                 <input
                                     type="checkbox"
                                     checked={exp.current}
-                                    onChange={(e) => updateExperience(index, "current", e.target.checked)}
-                                    className="w-4 h-4 cursor-pointer text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                                    onChange={(e) => handleInputChange(index, "current", e.target.checked)}
+                                    className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                                 />
-                                <span className="text-sm text-slate-600">Current position</span>
+                                <span className="text-sm text-gray-700 font-medium">This is my current position</span>
                             </div>
 
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
                                 <textarea
-                                    rows="3"
+                                    rows="4"
                                     value={exp.description}
-                                    onChange={(e) => updateExperience(index, "description", e.target.value)}
-                                    onBlur={() => handleFieldTouch(`experience_${index}_description`)}
-                                    className={`w-full placeholder:!text-gray-500 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${hasFieldError(`experience_${index}_description`) ? "border-red-500" : "border-slate-300"
+                                    onChange={(e) => handleInputChange(index, "description", e.target.value)}
+                                    className={`w-full placeholder:text-gray-500 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 ${hasFieldError(`experience_${index}_description`) ? "border-red-500 focus:ring-red-500" : "border-gray-300"
                                         }`}
-                                    placeholder="Describe your responsibilities, achievements, and key contributions... (minimum 20 characters) *"
+                                    placeholder="Describe your responsibilities, achievements, and key contributions... (minimum 20 characters)"
                                 ></textarea>
                                 {hasFieldError(`experience_${index}_description`) && (
-                                    <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                                    <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                                         <Info className="w-3 h-3" />
                                         <span>{getFieldError(`experience_${index}_description`)}</span>
                                     </p>
@@ -365,20 +582,9 @@ const ExperienceSection = ({
                     ))}
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {profileData.experience.map((exp, index) => (
-                        <div key={index} className="border border-slate-200 rounded-lg p-6 hover:border-slate-300 hover:shadow-md transition-all duration-200">
-                            <div className="mb-4">
-                                <h3 className="font-medium text-slate-800 text-lg">
-                                    {exp.title} {exp.company && `at ${exp.company}`}
-                                </h3>
-                                <p className="text-slate-600 text-sm mt-1">
-                                    {exp.location && `${exp.location} • `}
-                                    {exp.startDate} - {exp.current ? "Present" : exp.endDate}
-                                </p>
-                            </div>
-                            <p className="text-slate-700 leading-relaxed">{exp.description}</p>
-                        </div>
+                        <ExperienceCard key={index} exp={exp} index={index} />
                     ))}
                 </div>
             )}
