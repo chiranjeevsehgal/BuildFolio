@@ -454,7 +454,6 @@ const PersonalInfoSection = ({
                                 type="url"
                                 value={profileData.personalInfo.socialLinks.linkedin}
                                 onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
-                                onBlur={() => handleFieldBlur("linkedin")}
                                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
                                     hasFieldError("linkedin") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
                                 }`}
@@ -477,7 +476,6 @@ const PersonalInfoSection = ({
                                 type="url"
                                 value={profileData.personalInfo.socialLinks.github}
                                 onChange={(e) => updateSocialLinks("github", e.target.value)}
-                                onBlur={() => handleFieldBlur("github")}
                                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
                                     hasFieldError("github") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
                                 }`}

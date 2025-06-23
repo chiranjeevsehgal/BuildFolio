@@ -507,8 +507,8 @@ const Profile = () => {
 
                 if (VITE_ENV === 'development') {
                     setTimeout(() => {
-                    window.location.href = "/templates"
-                }, 1500)
+                        window.location.href = "/templates"
+                    }, 1500)
                 } else {
                     window.location.href = '/templates';
                 }

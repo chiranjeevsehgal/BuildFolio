@@ -80,35 +80,24 @@ const AuthSuccess = () => {
 
   // Determine redirect path based on user completion status
   const getRedirectPath = (user) => {
-    console.log('User status:', {
-      isProfileCompleted: user.isProfileCompleted,
-      selectedTemplate: user.selectedTemplate,
-      portfolioDeployed: user.portfolioDeployed
-    });
 
     // Priority order for redirects
     if (!user.isProfileCompleted) {
-      console.log('Redirecting to profile - not completed');
       return '/profile';
     }
     
     if (!user.selectedTemplate) {
-      console.log('Redirecting to templates - no template selected');
       return '/templates';
     }
     
     if (user.selectedTemplate && !user.portfolioDeployed) {
-      console.log('Redirecting to portfolio - template selected but not deployed');
       return '/portfolio';
     }
     
     if (user.portfolioDeployed) {
-      console.log('Redirecting to portfolio - portfolio is deployed');
       return '/portfolio';
     }
     
-    // Fallback
-    console.log('Redirecting to templates - fallback');
     return '/templates';
   };
 
