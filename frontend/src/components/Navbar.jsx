@@ -82,7 +82,6 @@ const Navbar = ({ current }) => {
         } else {
           setNotifications(prev => [...prev, ...newNotifications]);
         }
-        console.log(response.data);
 
         setUnreadCount(response.data.data.unreadCount);
         setHasMoreNotifications(response.data.data.pagination.hasNext);

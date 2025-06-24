@@ -209,7 +209,6 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
       }
     } catch (error) {
       if (error.name === 'AbortError') {
-        console.log('University search timed out');
       } else {
         console.error('Error fetching universities:', error.message);
       }

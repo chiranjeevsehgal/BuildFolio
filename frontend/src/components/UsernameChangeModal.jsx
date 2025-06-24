@@ -53,7 +53,6 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                     'Content-Type': 'application/json'
                 }
             });
-            console.log(response.data);
 
             if (response.data.success) {
 

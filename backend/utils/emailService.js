@@ -198,7 +198,6 @@ const testConnection = async () => {
       html: '<p>This is a test email to verify Mailtrap connection.</p>'
     });
 
-    console.log('✅ Mailtrap connection successful:', response);
     return true;
   } catch (error) {
     console.error('❌ Mailtrap connection failed:', error);

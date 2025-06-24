@@ -128,7 +128,6 @@ const TemplatePreview = () => {
       // Fetch template data
       try {
         const templateResponse = await getTemplateById(templateId);
-        console.log(templateResponse);
 
         if (templateResponse.success) {
           const template = templateResponse.data;

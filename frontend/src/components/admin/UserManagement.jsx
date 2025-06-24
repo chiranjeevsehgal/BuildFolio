@@ -45,7 +45,6 @@ const UserManagement = () => {
       const response = await axios.get('/admin/users');
 
       if (response.data.success) {
-        console.log(response.data);
 
         setUsers(response.data.users || []);
         setStats({

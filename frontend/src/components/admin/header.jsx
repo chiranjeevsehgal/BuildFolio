@@ -23,7 +23,6 @@ function Header({ setSidebarOpen, sidebarOpen, currentPageDetails, setShowNotifi
 
             if (response.data.success && response.data.user) {
                 const user = response.data.user;
-                console.log(response.data);
 
                 setCurrentUser(user);
             } else {

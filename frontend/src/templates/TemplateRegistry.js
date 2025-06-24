@@ -74,7 +74,6 @@ export const getTemplateComponent = (templateId) => {
   
   if (!template) {
     console.error(`Template not found for ID: ${templateId}`);
-    console.log('Available template IDs:', Object.keys(TEMPLATE_REGISTRY));
     return null;
   }
   
