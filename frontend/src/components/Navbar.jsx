@@ -485,11 +485,7 @@ const Navbar = ({ current }) => {
                             : currentUser?.email
                           }
                         </p>
-                        {currentUser?.selectedTemplate && (
-                          <p className="text-xs text-blue-600 font-medium mt-1">
-                            {currentUser?.selectedTemplate.replace('-', ' ')}
-                          </p>
-                        )}
+                        
                       </div>
                     </div>
                   </div>
