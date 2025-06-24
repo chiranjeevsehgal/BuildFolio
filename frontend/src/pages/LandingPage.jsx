@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Zap, Globe, Users, Sparkles, Check, Star, User, LogOut } from 'lucide-react';
+import { ArrowRight, Zap, Globe, Users, Mail , Sparkles, Check, Star, User, LogOut } from 'lucide-react';
 import Footer from '../components/Footer';
 import FloatingBuyMeCoffeeButton from '../components/FloatingGpayButton';
 
@@ -278,54 +278,64 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-              Everything You Need to Shine
-            </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Professional portfolio creation made simple with powerful features
-            </p>
-          </div>
+<section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+  <div className="max-w-7xl mx-auto">
+    <div className="text-center mb-16">
+      <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+        Everything You Need to Shine
+      </h2>
+      <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+        Professional portfolio creation made simple with powerful features
+      </p>
+    </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-4">Lightning Fast Setup</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Update your profile and watch your portfolio come to life in seconds.
-                No technical skills needed.
-              </p>
-            </div>
-
-            <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Globe className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-4">Your Personal Domain</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Get your unique portfolio URL (buildfolio.in/yourname) that you can share
-                with employers and clients.
-              </p>
-            </div>
-
-            <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-4">Professional Templates</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Choose from carefully crafted templates designed by professionals.
-                Mobile-responsive and modern.
-              </p>
-            </div>
-          </div>
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+          <Zap className="w-6 h-6 text-white" />
         </div>
-      </section>
+        <h3 className="text-xl font-semibold text-slate-800 mb-4">Lightning Fast Setup</h3>
+        <p className="text-slate-600 leading-relaxed">
+          Update your profile and watch your portfolio come to life in seconds.
+          No technical skills needed.
+        </p>
+      </div>
 
+      <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+          <Globe className="w-6 h-6 text-white" />
+        </div>
+        <h3 className="text-xl font-semibold text-slate-800 mb-4">Your Personal Domain</h3>
+        <p className="text-slate-600 leading-relaxed">
+          Get your unique portfolio URL (buildfolio.in/yourname) that you can share
+          with employers and clients.
+        </p>
+      </div>
+
+      <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+          <Users className="w-6 h-6 text-white" />
+        </div>
+        <h3 className="text-xl font-semibold text-slate-800 mb-4">Professional Templates</h3>
+        <p className="text-slate-600 leading-relaxed">
+          Choose from carefully crafted templates designed by professionals.
+          Mobile-responsive and modern.
+        </p>
+      </div>
+
+      <div className="group p-8 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+          <Mail className="w-6 h-6 text-white" />
+        </div>
+        <h3 className="text-xl font-semibold text-slate-800 mb-4">Direct Contact Forms</h3>
+        <p className="text-slate-600 leading-relaxed">
+          Visitors can reach out to you directly through built-in contact forms.
+          Messages are delivered straight to your email—no middleman required.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
       {/* How It Works Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-7xl mx-auto">
