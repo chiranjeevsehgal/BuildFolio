@@ -5,6 +5,7 @@ const { validationResult } = require('express-validator');
 const passport = require('passport');
 const { verifyToken, createVerifiedToken, createTempToken, updateTokenAttempts, createPasswordResetVerifiedToken, createPasswordResetTempToken, updatePasswordResetTokenAttempts } = require('../utils/tokenUtils');
 const { generateOTP, hashOTP, verifyOTP } = require('../utils/otpUtils');
+const NotificationService = require('../utils/notificationService');
 
 // @desc    Register user
 // @route   POST /api/auth/register

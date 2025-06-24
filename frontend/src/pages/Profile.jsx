@@ -30,6 +30,7 @@ const Profile = () => {
     const [validationErrors, setValidationErrors] = useState({})
     const [touchedFields, setTouchedFields] = useState({})
     const [isFormValid, setIsFormValid] = useState(true)
+    const [currentUser, setCurrentUser] = useState();
 
     const [editingSections, setEditingSections] = useState({
         personalInfo: false,
@@ -184,12 +185,27 @@ const Profile = () => {
         )
 
         loadProfile()
-
+        getUserData()
         // Cleanup interceptor
         return () => {
             axios.interceptors.response.eject(interceptor)
         }
     }, [API_BASE_URL, showMessage])
+
+    const getUserData = async () => {
+        try {
+            const response = await axios.get('/auth/profile');
+
+            if (response.data.success && response.data.user) {
+                const user = response.data.user;
+                setCurrentUser(user);
+            } else {
+                throw new Error('Failed to load user data');
+            }
+        } catch (error) {
+            console.error('Error response:', error.response?.data);
+        }
+    };
 
     // Enhanced profile loading with better error handling
     const loadProfile = async () => {
@@ -698,11 +714,13 @@ const Profile = () => {
                         </div>
 
                         {/* Redeploy Notice */}
-<div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-    <p className="text-sm text-blue-700 text-center">
-        <span className="font-medium">💡 Tip:</span> Remember to redeploy your portfolio after making profile changes to see updates live
-    </p>
-</div>
+                        {currentUser?.portfolioDeployed && (
+                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p className="text-sm text-blue-700 text-center">
+                                    <span className="font-medium">💡 Tip:</span> Remember to redeploy your portfolio after making profile changes to see updates live
+                                </p>
+                            </div>
+                        )}
                     </div>
 
 
