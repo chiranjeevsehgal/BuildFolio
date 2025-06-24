@@ -11,6 +11,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TemplateModal from '../components/TemplateModal';
 import { getTemplates } from '../utils/templateData';
+import toast, { Toaster } from 'react-hot-toast';
 
 const TemplateSelection = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -20,7 +21,6 @@ const TemplateSelection = () => {
   const [previewTemplate, setPreviewTemplate] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState({ type: '', content: '' });
   const [savingTemplate, setSavingTemplate] = useState(false);
 
   // Modal state
@@ -51,63 +51,6 @@ const TemplateSelection = () => {
     loadTemplates()
   }, [API_BASE_URL]);
 
-  // Auto-dismiss messages after 4 seconds
-  useEffect(() => {
-    if (message.content) {
-      const timer = setTimeout(() => {
-        setMessage({ type: '', content: '' });
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [message.content]);
-
-  // const loadTemplatesAndUserSelection = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     const [templatesResponse, userResponse] = await Promise.all([
-  //       axios.get('/templates'),
-  //       axios.get('/auth/profile')
-  //     ]);
-
-  //     if (templatesResponse.data.success) {
-  //       setTemplates(templatesResponse.data.data);
-  //     } else {
-  //       throw new Error(templatesResponse.data.message || 'Failed to load templates');
-  //     }
-
-  //     if (userResponse.data.success && userResponse.data.user) {
-  //       const user = userResponse.data.user;
-  //       if (user.selectedTemplate) {
-  //         setSelectedTemplate(user.selectedTemplate);
-  //         setUserSelectedTemplate(user.selectedTemplate);
-  //       }
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Failed to load data:', error);
-
-  //     if (error.config?.url?.includes('/auth/profile')) {
-  //       try {
-  //         const templatesResponse = await axios.get('/templates');
-  //         if (templatesResponse.data.success) {
-  //           setTemplates(templatesResponse.data.data);
-  //         }
-  //       } catch (templateError) {
-  //         console.error('Failed to load templates:', templateError);
-  //       }
-  //     } else {
-  //       setMessage({
-  //         type: 'error',
-  //         content: error.response?.data?.message || 'Failed to load templates. Please try again.'
-  //       });
-  //     }
-
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const loadTemplates = async () => {
     try {
       setLoading(true);
@@ -122,10 +65,7 @@ const TemplateSelection = () => {
 
     } catch (error) {
       console.error('Failed to load templates:', error);
-      setMessage({
-        type: 'error',
-        content: error.data?.message || 'Failed to load templates. Please try again.'
-      })
+      toast.error(error.data?.message || 'Failed to load templates. Please try again.')
     }
     finally {
       setLoading(false);
@@ -175,10 +115,7 @@ const TemplateSelection = () => {
 
       if (response.data.success) {
         setUserSelectedTemplate(templateId);
-        setMessage({
-          type: 'success',
-          content: 'Template selected and saved successfully!'
-        });
+        toast.success('Template selected and saved successfully!')
         // Close modal after successful selection
         setIsModalOpen(false);
       } else {
@@ -186,10 +123,7 @@ const TemplateSelection = () => {
       }
     } catch (error) {
       console.error('Failed to save template selection:', error);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to save template selection. Please try again.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to save template selection. Please try again.')
       setSelectedTemplate(userSelectedTemplate);
     } finally {
       setSavingTemplate(false);
@@ -218,10 +152,7 @@ const TemplateSelection = () => {
         window.location.href = '/portfolio';
       } catch (error) {
         console.error('Failed to navigate to portfolio:', error);
-        setMessage({
-          type: 'error',
-          content: 'Failed to proceed. Please try again.'
-        });
+        toast.error('Failed to proceed. Please try again.')
       }
     }
   };
@@ -270,28 +201,6 @@ const TemplateSelection = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
-          {/* Message Toast */}
-          {message.content && message.type !== 'info' && (
-            <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${message.type === 'success'
-              ? 'bg-green-500/90 text-white'
-              : message.type === 'error'
-                ? 'bg-red-500/90 text-white'
-                : 'bg-blue-500/90 text-white'
-              }`}>
-              {message.type === 'success' ? (
-                <Check className="w-5 h-5 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              )}
-              <span className="text-sm font-medium">{message.content}</span>
-              <button
-                onClick={() => setMessage({ type: '', content: '' })}
-                className="ml-2 text-white/80 hover:text-white transition-colors"
-              >
-                ×
-              </button>
-            </div>
-          )}
 
           {/* Filters and Controls */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-6 mb-6 border border-white/40">
@@ -677,6 +586,11 @@ const TemplateSelection = () => {
         isSelected={modalTemplate && (selectedTemplate === (modalTemplate.templateId || modalTemplate.id))}
         isCurrentlySelected={modalTemplate && (selectedTemplate === (modalTemplate.templateId || modalTemplate.id)) && (userSelectedTemplate === (modalTemplate.templateId || modalTemplate.id))}
         savingTemplate={savingTemplate}
+      />
+
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
       />
     </>
   );

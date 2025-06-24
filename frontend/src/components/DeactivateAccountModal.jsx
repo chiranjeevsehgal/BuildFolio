@@ -1,12 +1,14 @@
 import axios from 'axios';
 import { CheckCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const DeactivateAccountModal = ({ loading, setLoading, setShowDeactivateModal, showMessage: showMessageParent }) => {
-    const [localMessage, setLocalMessage] = useState({ type: '', content: '' });
 
     const showLocalMessage = useCallback((type, content) => {
-        setLocalMessage({ type, content });
+        if(type === "error"){
+            toast.error(content)
+        }
     }, []);
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -39,7 +41,7 @@ const DeactivateAccountModal = ({ loading, setLoading, setShowDeactivateModal, s
 
             if (response.data.success) {
                 setShowDeactivateModal(false);
-                showMessageParent('success', 'Account deactivated successfully.');
+                showMessageParent('sad', 'Account deactivated successfully');
 
                 if (VITE_ENV === 'development') {
                     setTimeout(() => {
@@ -66,30 +68,7 @@ const DeactivateAccountModal = ({ loading, setLoading, setShowDeactivateModal, s
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            {/* Local Message Toast */}
-            {localMessage.content && (
-                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-60 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transition-all duration-300 ${localMessage.type === 'success'
-                        ? 'bg-green-500/90 text-white'
-                        : localMessage.type === 'error'
-                            ? 'bg-red-500/90 text-white'
-                            : localMessage.type === 'warning'
-                                ? 'bg-amber-500/90 text-white'
-                                : 'bg-blue-500/90 text-white'
-                    }`}>
-                    {localMessage.type === 'success' ? (
-                        <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                    ) : (
-                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm font-medium">{localMessage.content}</span>
-                    <button
-                        onClick={() => setLocalMessage({ type: '', content: '' })}
-                        className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
+            
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                 <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
@@ -142,6 +121,10 @@ const DeactivateAccountModal = ({ loading, setLoading, setShowDeactivateModal, s
                     </button>
                 </div>
             </div>
+            <Toaster
+                position="top-center"
+                reverseOrder={true}
+            />
         </div>
     )
 };

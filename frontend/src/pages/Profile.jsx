@@ -356,10 +356,10 @@ const Profile = () => {
         })
 
         // Check if we have any valid experiences to save
-        if (validExperiences.length === 0) {
-            showMessage('error', 'Please complete at least one experience with all required fields before saving.')
-            return false
-        }
+        // if (validExperiences.length === 0) {
+        //     showMessage('error', 'Please complete at least one experience with all required fields before saving.')
+        //     return false
+        // }
 
         // Update profileData with filtered experiences before saving
         const originalExperiences = profileData.experience
@@ -392,11 +392,11 @@ const Profile = () => {
                 edu.endDate && edu.endDate.trim() !== ""
         })
 
-        // Check if we have any valid educations to save
-        if (validEducations.length === 0) {
-            showMessage('error', 'Please complete at least one education with all required fields before saving.')
-            return false
-        }
+        // // Check if we have any valid educations to save
+        // if (validEducations.length === 0) {
+        //     showMessage('error', 'Please complete at least one education with all required fields before saving.')
+        //     return false
+        // }
 
         // Update profileData with filtered educations before saving
         const originalEducations = profileData.education
@@ -431,11 +431,11 @@ const Profile = () => {
             return projectToSave
         })
 
-        // Check if we have any valid projects to save
-        if (validProjects.length === 0) {
-            showMessage('error', 'Please complete at least one project with all required fields before saving.')
-            return false
-        }
+        // // Check if we have any valid projects to save
+        // if (validProjects.length === 0) {
+        //     showMessage('error', 'Please complete at least one project with all required fields before saving.')
+        //     return false
+        // }
 
         // Update profileData with filtered projects before saving
         const originalProjects = profileData.projects

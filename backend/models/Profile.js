@@ -132,7 +132,7 @@ const profileSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  
+
   // Personal Information
   profilePhoto: {
     type: String,
@@ -150,15 +150,19 @@ const profileSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  
+
   // Social Links
   socialLinks: {
     linkedin: String,
     github: String,
     twitter: String,
-    portfolio: String
+    portfolio: String,
+    behance: String,
+    dribbble: String,
+    twitter: String,
+    other: String,
   },
-  
+
   // Professional Information
   title: {
     type: String,
@@ -170,13 +174,13 @@ const profileSchema = new mongoose.Schema({
     maxlength: 1000
   },
   skills: [String],
-  
+
   // Experience and Education
   experience: [experienceSchema],
   education: [educationSchema],
   projects: [projectSchema],
   certifications: [certificationSchema],
-  
+
   // LinkedIn Import Data
   linkedinData: {
     imported: {
@@ -188,13 +192,13 @@ const profileSchema = new mongoose.Schema({
     },
     profileId: String
   },
-  
+
   // Profile Completion
   completionPercentage: {
     type: Number,
     default: 0
   },
-  
+
   // Settings
   isPublic: {
     type: Boolean,
@@ -209,26 +213,26 @@ const profileSchema = new mongoose.Schema({
 });
 
 // Calculate completion percentage
-profileSchema.methods.calculateCompletion = function() {
+profileSchema.methods.calculateCompletion = function () {
   let completed = 0;
   const total = 5;
-  
+
   // if (this.profilePhoto) completed++;
   if (this.phone || this.location || this.socialLinks.linkedin || this.socialLinks.github) completed++;
   if (this.title || this.summary || this.skills && this.skills.length > 0) completed++;
   if (this.experience && this.experience.length > 0) completed++;
   if (this.projects && this.projects.length > 0) completed++;
   if (this.education && this.education.length > 0) completed++;
-  
+
   this.completionPercentage = Math.round((completed / total) * 100);
   return this.completionPercentage;
 };
 
-profileSchema.pre('save', async function(next) {
+profileSchema.pre('save', async function (next) {
   try {
     // Calculate completion percentage
     this.calculateCompletion();
-    
+
     // If completion is 60% or more, update user's isProfileCompleted
     if (this.completionPercentage >= 60) {
       const User = mongoose.model('User');
@@ -238,7 +242,7 @@ profileSchema.pre('save', async function(next) {
         { new: true }
       );
     }
-    
+
     next();
   } catch (error) {
     console.error('Error in profile pre-save middleware:', error);

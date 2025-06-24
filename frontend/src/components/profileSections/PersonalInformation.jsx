@@ -1,5 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit3, Save, Camera, Phone, MapPin, Linkedin, Github, Loader2, Info, X, Check, ExternalLink } from "lucide-react"
+import { 
+    Edit3, Save, Camera, Phone, MapPin, Linkedin, Github, Loader2, Info, X, Check, ExternalLink,
+    Twitter, Globe, Briefcase, User, Link
+} from "lucide-react"
+
+// Utility function to ensure URL has http/https protocol
+export const ensureHttpProtocol = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+    }
+    return `https://${url}`;
+};
 
 const PersonalInfoSection = ({
     profileData,
@@ -28,6 +40,17 @@ const PersonalInfoSection = ({
     const tooltipRef = useRef(null)
     const fileInputRef = useRef(null)
     const saveTimeoutRef = useRef(null)
+
+    // Define social link configurations - simplified list with "Other" field
+    const socialLinkConfigs = [
+        { key: 'linkedin', label: 'LinkedIn', icon: Linkedin, placeholder: 'https://linkedin.com/in/username', category: 'professional' },
+        { key: 'github', label: 'GitHub', icon: Github, placeholder: 'https://github.com/username', category: 'tech' },
+        { key: 'portfolio', label: 'Portfolio Website', icon: Globe, placeholder: 'https://yourportfolio.com', category: 'professional' },
+        { key: 'behance', label: 'Behance', icon: Briefcase, placeholder: 'https://behance.net/username', category: 'creative' },
+        { key: 'dribbble', label: 'Dribbble', icon: User, placeholder: 'https://dribbble.com/username', category: 'creative' },
+        { key: 'twitter', label: 'Twitter/X', icon: Twitter, placeholder: 'https://twitter.com/username', category: 'tech' },
+        { key: 'other', label: 'Other', icon: Link, placeholder: 'https://your-other-link.com', category: 'other' },
+    ]
 
     // Helper functions
     const getFieldError = (fieldName) => {
@@ -65,15 +88,19 @@ const PersonalInfoSection = ({
         return true
     }
 
-    // Memoized function to get current data
-    const getCurrentData = useCallback(() => ({
-        phone: profileData.personalInfo.phone,
-        location: profileData.personalInfo.location,
-        socialLinks: {
-            linkedin: profileData.personalInfo.socialLinks.linkedin,
-            github: profileData.personalInfo.socialLinks.github
+    // Memoized function to get current data - updated to include all social links
+    const getCurrentData = useCallback(() => {
+        const socialLinks = {}
+        socialLinkConfigs.forEach(config => {
+            socialLinks[config.key] = profileData.personalInfo.socialLinks[config.key] || ''
+        })
+        
+        return {
+            phone: profileData.personalInfo.phone,
+            location: profileData.personalInfo.location,
+            socialLinks
         }
-    }), [profileData])
+    }, [profileData])
 
     // Check for changes when profileData changes
     useEffect(() => {
@@ -118,8 +145,9 @@ const PersonalInfoSection = ({
             if (originalData) {
                 updateProfileData("personalInfo", "phone", originalData.phone)
                 updateProfileData("personalInfo", "location", originalData.location)
-                updateSocialLinks("linkedin", originalData.socialLinks.linkedin)
-                updateSocialLinks("github", originalData.socialLinks.github)
+                socialLinkConfigs.forEach(config => {
+                    updateSocialLinks(config.key, originalData.socialLinks[config.key] || '')
+                })
             }
         }
         
@@ -134,7 +162,7 @@ const PersonalInfoSection = ({
         if (!hasChanges || isSaving) return
         
         // Touch all fields before saving to show any validation errors
-        const fieldsToValidate = ['phone', 'location', 'linkedin', 'github']
+        const fieldsToValidate = ['phone', 'location', ...socialLinkConfigs.map(config => config.key)]
         fieldsToValidate.forEach(field => {
             handleFieldTouch(field)
         })
@@ -210,7 +238,7 @@ const PersonalInfoSection = ({
                     {value ? (
                         isLink ? (
                             <button
-                                onClick={() => window.open(value, '_blank')}
+                                onClick={() => window.open(ensureHttpProtocol(value), '_blank')}
                                 className="text-blue-600 cursor-pointer hover:text-blue-700 transition-colors text-sm font-medium underline decoration-1 underline-offset-2 hover:decoration-2"
                             >
                                 {value}
@@ -397,123 +425,135 @@ const PersonalInfoSection = ({
 
             {/* Contact Information */}
             {editingSections.personalInfo ? (
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-8">
+                    {/* Basic Contact Info */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Phone
-                        </label>
-                        <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="tel"
-                                value={profileData.personalInfo.phone}
-                                onChange={(e) => handleInputChange("personalInfo", "phone", e.target.value)}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
-                                    hasFieldError("phone") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                }`}
-                                placeholder="9988776655"
-                            />
+                        <h3 className="text-lg font-medium text-slate-800 mb-4">Contact Information</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Phone
+                                </label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                                    <input
+                                        type="tel"
+                                        value={profileData.personalInfo.phone}
+                                        onChange={(e) => handleInputChange("personalInfo", "phone", e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                            hasFieldError("phone") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                        }`}
+                                        placeholder="9988776655"
+                                    />
+                                </div>
+                                {hasFieldError("phone") && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
+                                        <Info className="w-3 h-3" />
+                                        <span>{getFieldError("phone")}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Location
+                                </label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        value={profileData.personalInfo.location}
+                                        onChange={(e) => handleInputChange("personalInfo", "location", e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                            hasFieldError("location") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                        }`}
+                                        placeholder="Bangalore, India"
+                                    />
+                                </div>
+                                {hasFieldError("location") && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
+                                        <Info className="w-3 h-3" />
+                                        <span>{getFieldError("location")}</span>
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        {hasFieldError("phone") && (
-                            <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
-                                <Info className="w-3 h-3" />
-                                <span>{getFieldError("phone")}</span>
-                            </p>
-                        )}
                     </div>
 
+                    {/* Social Links */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Location
-                        </label>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                value={profileData.personalInfo.location}
-                                onChange={(e) => handleInputChange("personalInfo", "location", e.target.value)}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
-                                    hasFieldError("location") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                }`}
-                                placeholder="Bangalore, India"
-                            />
+                        <h3 className="text-lg font-medium text-slate-800 mb-4">Social & Professional Links</h3>
+                        <p className="text-sm text-slate-600 mb-6">Add your online presence to help others connect with you</p>
+                        
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {socialLinkConfigs.map((config) => (
+                                <div key={config.key}>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                        {config.label}
+                                        {config.key === 'other' && (
+                                            <span className="text-xs text-slate-500 ml-1">(Any other link)</span>
+                                        )}
+                                    </label>
+                                    <div className="relative">
+                                        <config.icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                                        <input
+                                            type="url"
+                                            value={profileData.personalInfo.socialLinks[config.key] || ''}
+                                            onChange={(e) => handleSocialChange(config.key, e.target.value)}
+                                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                                hasFieldError(config.key) ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                            }`}
+                                            placeholder={config.placeholder}
+                                        />
+                                    </div>
+                                    {hasFieldError(config.key) && (
+                                        <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
+                                            <Info className="w-3 h-3" />
+                                            <span>{getFieldError(config.key)}</span>
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                        {hasFieldError("location") && (
-                            <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
-                                <Info className="w-3 h-3" />
-                                <span>{getFieldError("location")}</span>
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">LinkedIn</label>
-                        <div className="relative">
-                            <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="url"
-                                value={profileData.personalInfo.socialLinks.linkedin}
-                                onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
-                                    hasFieldError("linkedin") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                }`}
-                                placeholder="https://linkedin.com/in/username"
-                            />
-                        </div>
-                        {hasFieldError("linkedin") && (
-                            <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
-                                <Info className="w-3 h-3" />
-                                <span>{getFieldError("linkedin")}</span>
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">GitHub</label>
-                        <div className="relative">
-                            <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="url"
-                                value={profileData.personalInfo.socialLinks.github}
-                                onChange={(e) => updateSocialLinks("github", e.target.value)}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
-                                    hasFieldError("github") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                }`}
-                                placeholder="https://github.com/username"
-                            />
-                        </div>
-                        {hasFieldError("github") && (
-                            <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
-                                <Info className="w-3 h-3" />
-                                <span>{getFieldError("github")}</span>
-                            </p>
-                        )}
                     </div>
                 </div>
             ) : (
-                <div className="grid md:grid-cols-2 gap-4">
-                    <DisplayField 
-                        label="Phone" 
-                        value={profileData.personalInfo.phone} 
-                        icon={Phone}
-                    />
-                    <DisplayField 
-                        label="Location" 
-                        value={profileData.personalInfo.location} 
-                        icon={MapPin}
-                    />
-                    <DisplayField 
-                        label="LinkedIn" 
-                        value={profileData.personalInfo.socialLinks.linkedin} 
-                        icon={Linkedin}
-                        isLink={true}
-                    />
-                    <DisplayField 
-                        label="GitHub" 
-                        value={profileData.personalInfo.socialLinks.github} 
-                        icon={Github}
-                        isLink={true}
-                    />
+                <div className="space-y-6">
+                    {/* Contact Information Display */}
+                    <div>
+                        <div className="grid md:grid-cols-2 gap-4 mb-6">
+                            <DisplayField 
+                                label="Phone" 
+                                value={profileData.personalInfo.phone} 
+                                icon={Phone}
+                            />
+                            <DisplayField 
+                                label="Location" 
+                                value={profileData.personalInfo.location} 
+                                icon={MapPin}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Social Links Display */}
+                    <div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {socialLinkConfigs.map((config) => {
+                                const value = profileData.personalInfo.socialLinks[config.key]
+                                if (!value) return null
+                                
+                                return (
+                                    <DisplayField 
+                                        key={config.key}
+                                        label={config.label} 
+                                        value={value} 
+                                        icon={config.icon}
+                                        isLink={true}
+                                    />
+                                )
+                            })}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AuthSuccess = () => {
   const navigate = useNavigate();
@@ -171,6 +172,10 @@ const AuthSuccess = () => {
           )}
         </div>
       </div>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

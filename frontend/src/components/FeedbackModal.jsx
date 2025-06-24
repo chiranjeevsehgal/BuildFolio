@@ -9,13 +9,13 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useEffect } from "react";
+import toast, { Toaster } from 'react-hot-toast';
 
 const FeedbackModal = ({ isOpen, onClose }) => {
     const [selectedTopic, setSelectedTopic] = useState('');
     const [feedback, setFeedback] = useState('');
     const [rating, setRating] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', content: '' });
 
     const topics = [
         'Bug Report',
@@ -42,14 +42,11 @@ const FeedbackModal = ({ isOpen, onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setMessage({ type: '', content: '' });
 
         // Validate rating
         if (rating === 0) {
-            setMessage({
-                type: 'error',
-                content: 'Please rate your experience before submitting.'
-            });
+            toast.error('Please rate your experience before submitting.');
+            
             setLoading(false);
             return
         }
@@ -79,27 +76,20 @@ const FeedbackModal = ({ isOpen, onClose }) => {
             const response = await axios.post('/email/feedback', feedbackData);
 
             if (response.data.success) {
-                setMessage({
-                    type: 'success',
-                    content: 'Feedback sent successfully!'
-                });
+                toast.success('Feedback sent successfully!')
 
                 // Reset form and close after delay
                 setTimeout(() => {
                     setSelectedTopic('');
                     setFeedback('');
                     setRating(0);
-                    setMessage({ type: '', content: '' });
                     onClose();
                 }, 2000);
             }
 
         } catch (error) {
             console.error('Feedback submission error:', error);
-            setMessage({
-                type: 'error',
-                content: error.response?.data?.message || 'Failed to send feedback. Please try again.'
-            });
+            toast.error(error.response?.data?.message || 'Failed to send feedback. Please try again.')
         } finally {
             setLoading(false);
         }
@@ -124,20 +114,6 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {/* Message */}
-                    {message.content && (
-                        <div className={`p-3 rounded-lg flex items-center ${message.type === 'error'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
-                            }`}>
-                            {message.type === 'error' ? (
-                                <AlertCircle className="w-4 h-4 mr-2" />
-                            ) : (
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                            )}
-                            <span className="text-sm">{message.content}</span>
-                        </div>
-                    )}
 
                     {/* Topic Selection */}
                     <div>
@@ -244,6 +220,10 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                     </button>
                 </form>
             </div>
+            <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
         </div>
     );
 };

@@ -1,11 +1,11 @@
 import { AlertCircle, CheckCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoading, loading, showMessage: showMessageParent }) => {
     if (!showPasswordModal) return null;
 
-    const [localMessage, setLocalMessage] = useState({ type: '', content: '' });
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
@@ -18,7 +18,17 @@ const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoadi
     });
 
     const showLocalMessage = useCallback((type, content) => {
-        setLocalMessage({ type, content });
+         if (type === 'success') {
+            toast.success(content)
+        }
+        else if (type === 'error') {
+            toast.error(content)
+        }
+        else if (type === 'warning') {
+            toast(content, {
+                icon: 'ℹ️',
+            });
+        }
     }, []);
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -31,16 +41,6 @@ const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoadi
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
     }, []);
-
-    // Auto-dismiss local messages
-    useEffect(() => {
-        if (localMessage.content) {
-            const timer = setTimeout(() => {
-                setLocalMessage({ type: '', content: '' });
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [localMessage.content]);
 
     const handleInputChange = (field, value) => {
         setPasswordData(prev => ({
@@ -147,7 +147,6 @@ const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoadi
             newPassword: '',
             confirmPassword: ''
         });
-        setLocalMessage({ type: '', content: '' });
         setShowPasswords({
             current: false,
             new: false,
@@ -157,31 +156,6 @@ const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoadi
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            {/* Local Message Toast */}
-            {localMessage.content && (
-                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-60 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transition-all duration-300 ${
-                    localMessage.type === 'success'
-                        ? 'bg-green-500/90 text-white'
-                        : localMessage.type === 'error'
-                        ? 'bg-red-500/90 text-white'
-                        : localMessage.type === 'warning'
-                        ? 'bg-amber-500/90 text-white'
-                        : 'bg-blue-500/90 text-white'
-                }`}>
-                    {localMessage.type === 'success' ? (
-                        <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                    ) : (
-                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm font-medium">{localMessage.content}</span>
-                    <button
-                        onClick={() => setLocalMessage({ type: '', content: '' })}
-                        className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
             
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
                 <div className="text-center mb-6">
@@ -295,6 +269,10 @@ const PasswordChangeModal = ({ showPasswordModal, setShowPasswordModal, setLoadi
                     </button>
                 </div>
             </div>
+            <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
         </div>
     );
 };

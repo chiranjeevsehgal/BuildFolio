@@ -1,15 +1,24 @@
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setNewUsername, setLoading, loading, setShowUsernameModal, setAccountData, showMessageParent }) => {
     if (!showUsernameModal) return null;
 
-
-    const [message, setMessage] = useState({ type: '', content: '' });
-
     const showMessage = useCallback((type, content) => {
-        setMessage({ type, content });
+        
+        if (type === 'success') {
+            toast.success(content)
+        }
+        else if (type === 'error') {
+            toast.error(content)
+        }
+        else if (type === 'warning') {
+            toast(content, {
+                icon: 'ℹ️',
+            });
+        }
     }, []);
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -22,16 +31,6 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
     }, []);
-
-    // Auto-dismiss messages
-    useEffect(() => {
-        if (message.content) {
-            const timer = setTimeout(() => {
-                setMessage({ type: '', content: '' });
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [message.content]);
 
     const confirmUsernameChange = async () => {
         if (!newUsername || !newUsername.trim()) {
@@ -55,9 +54,9 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                 }
             });
             console.log(response.data);
-            
+
             if (response.data.success) {
-                
+
                 setAccountData(prev => ({
                     ...prev,
                     username: response.data.user.username
@@ -105,28 +104,7 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            {/* Message Toast */}
-            {message.content && (
-                <div className={`fixed top-20 right-4 z-50 rounded-2xl p-4 flex items-center space-x-3 shadow-2xl backdrop-blur-sm max-w-sm transform transition-all duration-300 ${message.type === 'success'
-                    ? 'bg-green-500/90 text-white'
-                    : message.type === 'error'
-                        ? 'bg-red-500/90 text-white'
-                        : 'bg-blue-500/90 text-white'
-                    }`}>
-                    {message.type === 'success' ? (
-                        <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                    ) : (
-                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm font-medium">{message.content}</span>
-                    <button
-                        onClick={() => setMessage({ type: '', content: '' })}
-                        className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
+        
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -183,6 +161,10 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                     </button>
                 </div>
             </div>
+            <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
         </div>
     );
 };

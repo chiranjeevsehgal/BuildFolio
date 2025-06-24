@@ -1,4 +1,3 @@
-// TemplatePreview.jsx - Updated with correct data mapping
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Monitor, Tablet, Smartphone, Download, Share2, Settings, Eye, ExternalLink, AlertCircle } from 'lucide-react';
@@ -6,12 +5,12 @@ import axios from 'axios';
 import { getTemplateComponent, isValidTemplateId } from '../templates/TemplateRegistry';
 import { getMockUserData } from '../utils/mockData';
 import { getTemplateById } from '../utils/templateData';
+import toast, { Toaster } from 'react-hot-toast';
 
 const TemplatePreview = () => {
   const { templateId } = useParams();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('desktop');
-  const [message, setMessage] = useState({ type: "", content: "" });
   const [templateData, setTemplateData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -36,7 +35,7 @@ const TemplatePreview = () => {
         const data = await response.json();
         if (data.success && data.profile) {
           const profile = data.profile;
-          
+
           if (profile.isProfileCompleted === false) {
             setUserData(getMockUserData());
             return;
@@ -96,10 +95,7 @@ const TemplatePreview = () => {
       }
     } catch (error) {
       console.error("Load profile error:", error);
-      setMessage({
-        type: "error",
-        content: "Failed to load profile data",
-      });
+      toast.error("Failed to load profile data")
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +129,7 @@ const TemplatePreview = () => {
       try {
         const templateResponse = await getTemplateById(templateId);
         console.log(templateResponse);
-        
+
         if (templateResponse.success) {
           const template = templateResponse.data;
 
@@ -158,9 +154,6 @@ const TemplatePreview = () => {
             component: templateInfo.component
           });
 
-          // Clear any previous error messages
-          setMessage({ type: "", content: "" });
-
         } else {
           throw new Error(templateResponse.data.message || 'Template not found');
         }
@@ -179,10 +172,7 @@ const TemplatePreview = () => {
 
     } catch (error) {
       console.error('Failed to load preview data:', error);
-      setMessage({
-        type: "error",
-        content: error.message
-      });
+      toast.error(error.message)
       setTemplateData(null);
     } finally {
       setLoading(false);
@@ -198,10 +188,7 @@ const TemplatePreview = () => {
 
     // Validate template ID format
     if (!/^[a-z0-9-]+$/.test(templateId)) {
-      setMessage({
-        type: 'error',
-        content: 'Invalid template ID format. Template IDs can only contain lowercase letters, numbers, and hyphens.'
-      });
+      toast.error('Invalid template ID format. Template IDs can only contain lowercase letters, numbers, and hyphens.')
       setLoading(false);
       return;
     }
@@ -215,10 +202,7 @@ const TemplatePreview = () => {
         selectedTemplate: templateId
       });
 
-      setMessage({
-        type: 'success',
-        content: 'Template selected successfully!'
-      });
+      toast.success('Template selected successfully!')
 
       setTimeout(() => {
         navigate('/templates?selected=' + templateId);
@@ -226,10 +210,7 @@ const TemplatePreview = () => {
 
     } catch (error) {
       console.error('Failed to select template:', error);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to select template. Please try again.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to select template. Please try again.')
     }
   };
 
@@ -253,16 +234,6 @@ const TemplatePreview = () => {
     }
   };
 
-  // Clear message after 5 seconds
-  useEffect(() => {
-    if (message.content) {
-      const timer = setTimeout(() => {
-        setMessage({ type: "", content: "" });
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message.content]);
-
   // Loading state
   if (loading || !userData) {
     return (
@@ -277,13 +248,12 @@ const TemplatePreview = () => {
   }
 
   // Error state - Template not found or failed to load
-  if (!templateData && message.type === 'error') {
+  if (!templateData) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
         <div className="text-center max-w-xs sm:max-w-md mx-auto p-4 sm:p-6">
           <AlertCircle className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">Template Not Available</h2>
-          <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{message.content}</p>
 
           <div className="space-y-2 sm:space-y-3">
             <button
@@ -336,25 +306,6 @@ const TemplatePreview = () => {
 
   return (
     <div className={`min-h-screen ${isFullscreen ? 'bg-white' : 'bg-gray-100'}`}>
-      {/* Success/Error Messages */}
-      {message.content && !isFullscreen && (
-        <div className={`fixed top-2 sm:top-4 right-2 sm:right-4 z-50 p-3 sm:p-4 rounded-lg shadow-lg max-w-xs sm:max-w-sm ${message.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-700'
-            : message.type === 'error'
-              ? 'bg-red-50 border border-red-200 text-red-700'
-              : 'bg-blue-50 border border-blue-200 text-blue-700'
-          }`}>
-          <div className="flex items-start justify-between">
-            <p className="text-xs sm:text-sm font-medium pr-2">{message.content}</p>
-            <button
-              onClick={() => setMessage({ type: "", content: "" })}
-              className="text-current hover:opacity-70 text-lg leading-none flex-shrink-0"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Preview Controls - Hidden in fullscreen */}
       {!isFullscreen && (
@@ -551,6 +502,10 @@ const TemplatePreview = () => {
           </div>
         </div>
       )}
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

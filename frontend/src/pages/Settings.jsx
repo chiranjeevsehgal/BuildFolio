@@ -26,12 +26,12 @@ import axios from 'axios';
 import UsernameChangeModal from '../components/UsernameChangeModal';
 import PasswordChangeModal from '../components/PasswordChangeModal';
 import DeactivateAccountModal from '../components/DeactivateAccountModal';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const [isEditing, setIsEditing] = useState({ personal: false, resume: false });
     const [loading, setLoading] = useState({ page: true, save: false, action: '' });
-    const [message, setMessage] = useState({ type: '', content: '' });
     const [newUsername, setNewUsername] = useState('');
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -108,18 +108,15 @@ const Settings = () => {
         loadUserData();
     }, []);
 
-    // Auto-dismiss messages
-    useEffect(() => {
-        if (message.content) {
-            const timer = setTimeout(() => {
-                setMessage({ type: '', content: '' });
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [message.content]);
-
     const showMessage = useCallback((type, content) => {
-        setMessage({ type, content });
+        if (type === 'success') {
+            toast.success(content)
+        }
+        else if (type === 'sad') {
+            toast(content, {
+                icon: '😟',
+            });
+        }
     }, []);
 
     const loadUserData = async () => {
@@ -159,7 +156,7 @@ const Settings = () => {
             }
         } catch (error) {
             console.error('Failed to load user data:', error);
-            showMessage('error', 'Failed to load user data. Please refresh the page.');
+            toast.error('Failed to load user data. Please refresh the page.')
             setLoading(prev => ({ ...prev, page: false }));
         }
     };
@@ -179,7 +176,9 @@ const Settings = () => {
     const handleSavePersonalData = async () => {
         setLoading(prev => ({ ...prev, save: true }));
         if (!personalData.firstName || !personalData.firstName.trim()) {
-            showMessage('warning', 'First name cannot be empty.');
+            toast('First name cannot be empty.', {
+                icon: 'ℹ️',
+            });
             setLoading(prev => ({ ...prev, save: false }));
             return;
         }
@@ -195,7 +194,9 @@ const Settings = () => {
 
             // Check if payload has any data to send
             if (Object.keys(payload).length === 0) {
-                showMessage('warning', 'Please fill in at least one field before saving.');
+                toast('Please fill in at least one field before saving.', {
+                    icon: 'ℹ️',
+                });
                 setLoading(prev => ({ ...prev, save: false }));
                 return;
             }
@@ -210,7 +211,7 @@ const Settings = () => {
                     careerStage: response.data.user.careerStage || ''
                 }));
 
-                showMessage('success', 'Personal information updated successfully.');
+                toast.success('Personal information updated successfully.')
                 setIsEditing(prev => ({ ...prev, personal: false }));
             } else {
                 throw new Error(response.data.message || 'Failed to save personal data');
@@ -245,7 +246,7 @@ const Settings = () => {
                 errorMessage = 'Network error. Please check your connection.';
             }
 
-            showMessage('error', errorMessage);
+            toast.error(errorMessage)
         } finally {
             setLoading(prev => ({ ...prev, save: false }));
         }
@@ -271,7 +272,7 @@ const Settings = () => {
                     resumeExperience: response.data.user.resumeExperience || ''
                 }));
 
-                showMessage('success', 'Resume information updated successfully.');
+                toast.success('Resume information updated successfully.')
                 setIsEditing(prev => ({ ...prev, resume: false }));
             } else {
                 throw new Error(response.data.message || 'Failed to save resume data');
@@ -306,7 +307,7 @@ const Settings = () => {
                 errorMessage = 'Network error. Please check your connection.';
             }
 
-            showMessage('error', errorMessage);
+            toast.error(errorMessage)
         } finally {
             setLoading(prev => ({ ...prev, save: false }));
         }
@@ -347,28 +348,6 @@ const Settings = () => {
             <Navbar current="/settings" />
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-8">
                 <div className="max-w-6xl mx-auto">
-                    {/* Message Toast */}
-                    {message.content && (
-                        <div className={`fixed top-16 sm:top-20 right-2 sm:right-4 z-50 rounded-2xl p-3 sm:p-4 flex items-center space-x-2 sm:space-x-3 shadow-2xl backdrop-blur-sm max-w-xs sm:max-w-sm transform transition-all duration-300 ${message.type === 'success'
-                            ? 'bg-green-500/90 text-white'
-                            : message.type === 'error'
-                                ? 'bg-red-500/90 text-white'
-                                : 'bg-blue-500/90 text-white'
-                            }`}>
-                            {message.type === 'success' ? (
-                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                            ) : (
-                                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                            )}
-                            <span className="text-xs sm:text-sm font-medium">{message.content}</span>
-                            <button
-                                onClick={() => setMessage({ type: '', content: '' })}
-                                className="ml-2 cursor-pointer text-white/80 hover:text-white transition-colors"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )}
 
                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
                         {/* Tab Navigation */}
@@ -600,7 +579,7 @@ const Settings = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Username Section */}
                                     <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-200/50">
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
@@ -733,15 +712,18 @@ const Settings = () => {
                 setLoading={setLoading}
                 loading={loading}
                 showMessage={showMessage}
-                />}
+            />}
 
-            {showDeactivateModal && <DeactivateAccountModal 
-                loading ={loading }
+            {showDeactivateModal && <DeactivateAccountModal
+                loading={loading}
                 setLoading={setLoading}
-                setShowDeactivateModal = {setShowDeactivateModal}
+                setShowDeactivateModal={setShowDeactivateModal}
                 showMessage={showMessage}
-                />}
-
+            />}
+            <Toaster
+                position="top-center"
+                reverseOrder={true}
+            />
         </>
     );
 };

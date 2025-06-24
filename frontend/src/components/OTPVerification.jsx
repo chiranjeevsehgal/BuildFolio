@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, RefreshCw, Shield, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const OTPVerification = ({ 
   email, 
@@ -113,7 +114,7 @@ const OTPVerification = ({
       if (response.data.success) {
         onVerified(response.data.verifiedToken, response.data.email);
       } else {
-        setError(response.data.message || 'Invalid verification code');
+        toast.error(response.data.message || 'Invalid verification code')
         
         // Clear OTP inputs on error
         setOtp(['', '', '', '', '', '']);
@@ -123,9 +124,9 @@ const OTPVerification = ({
       console.error('OTP verification error:', error);
       
       if (error.response?.data?.message) {
-        setError(error.response.data.message);
+        toast.error(error.response.data.message)
       } else {
-        setError('Failed to verify code. Please try again.');
+        toast.error('Failed to verify code. Please try again.')
       }
       
       setOtp(['', '', '', '', '', '']);
@@ -186,14 +187,6 @@ const OTPVerification = ({
         <Clock className="w-4 h-4" />
         <span>Code expires in: {formatTime(timeLeft)}</span>
       </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm">{error}</span>
-        </div>
-      )}
 
       {/* OTP Input */}
       <div className="space-y-4">
@@ -307,6 +300,10 @@ const OTPVerification = ({
           </div>
         </div>
       </div>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

@@ -10,10 +10,6 @@ const deployPortfolio = async (req, res) => {
   try {
     const { templateId, username, customDomain } = req.body;
     const userId = req.user._id;
-
-    console.log('Deploying portfolio for user:', userId);
-    console.log('Template ID:', templateId);
-    console.log('Username:', username);
     
     
     // Validate required fields
@@ -237,8 +233,11 @@ const unpublishPortfolio = async (req, res) => {
 // @access  Private
 const redeployPortfolio = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { templateId } = req.body; // Optional: change template during redeploy
+    const userId = req.user._id;
+    const { templateId, username } = req.body;
+
+    console.log(req.user);
+    console.log(req.body);
 
     console.log('Redeploying portfolio for user:', userId);
 
@@ -254,8 +253,10 @@ const redeployPortfolio = async (req, res) => {
 
     // Get fresh user and profile data
     const user = await User.findById(userId);
-    const profile = await Profile.findOne({ userId });
-
+    const profile = await Profile.findOne({ user:userId });
+    console.log(user);
+    console.log(profile);
+    
     if (!user || !profile) {
       return res.status(404).json({
         success: false,
@@ -292,10 +293,10 @@ const redeployPortfolio = async (req, res) => {
       userData: userData,
       updatedAt: new Date(),
       seoData: {
-        title: `${user.firstName} ${user.lastName} - Portfolio`,
-        description: profile.summary || `Professional portfolio of ${user.firstName} ${user.lastName}`,
-        keywords: (profile.skills || []).join(', ')
-      }
+          title: `${user.firstName} ${user.lastName} - Portfolio`,
+          description: profile.summary || `Professional portfolio of ${user.firstName} ${user.lastName}`,
+          keywords: (profile.skills || []).join(', ')
+        }
     };
 
     // Update template if provided

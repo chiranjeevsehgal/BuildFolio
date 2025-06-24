@@ -9,6 +9,7 @@ import {
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import toast, { Toaster } from 'react-hot-toast';
 
 const PortfolioDeployment = () => {
   const [deploymentStatus, setDeploymentStatus] = useState('checking');
@@ -16,7 +17,6 @@ const PortfolioDeployment = () => {
   const [username, setUsername] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [userData, setUserData] = useState(null);
-  const [message, setMessage] = useState({ type: '', content: '' });
   const [isDeploying, setIsDeploying] = useState(false);
   const [viewMode, setViewMode] = useState('desktop');
   const [deploymentProgress, setDeploymentProgress] = useState(0);
@@ -90,10 +90,7 @@ const PortfolioDeployment = () => {
     } catch (error) {
       console.error('Failed to check deployment status:', error);
       setDeploymentStatus('error');
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to load deployment information.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to load deployment information.')
     }
   };
 
@@ -103,7 +100,9 @@ const PortfolioDeployment = () => {
       setIsDeploying(true);
       setDeploymentStatus('deploying');
       setDeploymentProgress(0);
-      setMessage({ type: 'info', content: 'Deploying your portfolio...' });
+
+      // Create a single toast that will be updated
+      const toastId = toast.loading('Deploying your portfolio...')
 
       // Deployment steps
       const steps = [
@@ -117,7 +116,7 @@ const PortfolioDeployment = () => {
       for (const step of steps) {
         await new Promise(resolve => setTimeout(resolve, 800));
         setDeploymentProgress(step.progress);
-        setMessage({ type: 'info', content: step.message });
+        toast.loading(step.message, { id: toastId });
       }
 
       const response = await axios.post('/portfolio/deploy', {
@@ -132,11 +131,14 @@ const PortfolioDeployment = () => {
         const deployedUrl = response.data.portfolioUrl || `${PORTFOLIO_BASE_URL}/portfolio/${username}`;
         setPortfolioUrl(deployedUrl);
 
-        setMessage({
-          type: 'success',
-          content: 'Portfolio deployed successfully!'
-        });
-        window.location.reload();
+
+        toast.success('Portfolio deployed successfully!', { id: toastId });
+
+        // Wait for toast to show, then reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000); // 2 second delay
+
         setUserData(prev => ({
           ...prev,
           portfolioDeployed: true,
@@ -150,10 +152,7 @@ const PortfolioDeployment = () => {
       console.error('Deployment failed:', error);
       setDeploymentStatus('error');
       setDeploymentProgress(0);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to deploy portfolio. Please try again.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to deploy portfolio. Please try again.', { id: toastId });
     } finally {
       setIsDeploying(false);
     }
@@ -161,26 +160,20 @@ const PortfolioDeployment = () => {
 
   // Redeploy portfolio
   const redeployPortfolio = async () => {
-
-    setMessage({
-      type: 'success',
-      content: "This feature will be rolled out soon!"
-    })
-    return;
-
+    let toastId;
     try {
       setIsDeploying(true);
-      setMessage({ type: 'info', content: 'Updating your portfolio...' });
+      toastId = toast.loading('Redeploying your portfolio!')
 
       const response = await axios.post('/portfolio/redeploy', {
+        templateId: selectedTemplate,
         username: username
       });
 
       if (response.data.success) {
-        setMessage({
-          type: 'success',
-          content: 'Portfolio updated successfully!'
-        });
+        setTimeout(() => {
+          toast.success('Portfolio redeployed successfully!', { id: toastId })
+        }, 1000);
 
         if (response.data.portfolioUrl) {
           setPortfolioUrl(response.data.portfolioUrl);
@@ -190,10 +183,7 @@ const PortfolioDeployment = () => {
       }
     } catch (error) {
       console.error('Redeploy failed:', error);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to update portfolio.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to update portfolio.', { id: toastId })
     } finally {
       setIsDeploying(false);
     }
@@ -202,19 +192,17 @@ const PortfolioDeployment = () => {
   // Copy portfolio URL to clipboard
   const copyPortfolioUrl = async () => {
     if (!portfolioUrl) {
-      setMessage({
-        type: 'error',
-        content: 'No portfolio URL available to copy.'
-      });
+      toast.error('No portfolio URL available to copy.')
       return;
     }
-
+    let toastId;
     try {
       await navigator.clipboard.writeText(portfolioUrl);
-      setMessage({
-        type: 'success',
-        content: 'Portfolio URL copied to clipboard!'
-      });
+      toastId = toast.loading('Copying Portfolio URL!')
+
+      setTimeout(() => {
+        toast.success('Portfolio URL copied to clipboard!', { id: toastId })
+      }, 500);
     } catch (error) {
       const textArea = document.createElement('textarea');
       textArea.value = portfolioUrl;
@@ -223,26 +211,21 @@ const PortfolioDeployment = () => {
       document.execCommand('copy');
       document.body.removeChild(textArea);
 
-      setMessage({
-        type: 'success',
-        content: 'Portfolio URL copied to clipboard!'
-      });
+      toast.success('Portfolio URL copied to clipboard', { id: toastId })
     }
   };
 
   // Unpublish portfolio
   const unpublishPortfolio = async () => {
+    let toastId;
     try {
       setIsDeploying(true);
-      setMessage({ type: 'info', content: 'Unpublishing your portfolio...' });
-
+      toastId = toast.loading('Unpublishing your portfolio!')
       const response = await axios.patch('/portfolio/unpublish');
 
       if (response.data.success) {
-        setMessage({
-          type: 'success',
-          content: 'Portfolio unpublished successfully!'
-        });
+        
+        toast.success('Portfolio unpublished successfully!', { id: toastId })
 
         window.location.reload();
       } else {
@@ -250,24 +233,12 @@ const PortfolioDeployment = () => {
       }
     } catch (error) {
       console.error('Unpublish failed:', error);
-      setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to unpublish portfolio.'
-      });
+      toast.error(error.response?.data?.message || 'Failed to unpublish portfolio.', { id: toastId })
     } finally {
       setIsDeploying(false);
     }
   };
 
-  // Auto-dismiss messages
-  useEffect(() => {
-    if (message.content) {
-      const timer = setTimeout(() => {
-        setMessage({ type: '', content: '' });
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [message.content]);
 
   const getStatusConfig = () => {
     switch (deploymentStatus) {
@@ -373,30 +344,6 @@ const PortfolioDeployment = () => {
         </div>
 
         <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 -mt-4 sm:-mt-6 lg:-mt-8 relative z-10">
-          {/* Message Toast */}
-          {message.content && (
-            <div className={`fixed top-16 sm:top-20 right-2 sm:right-4 z-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-start space-x-2 sm:space-x-3 shadow-2xl backdrop-blur-sm max-w-xs sm:max-w-sm transform transition-all duration-300 ${message.type === 'success'
-              ? 'bg-green-500/90 text-white'
-              : message.type === 'error'
-                ? 'bg-red-500/90 text-white'
-                : message.type === 'warning'
-                  ? 'bg-yellow-500/90 text-white'
-                  : 'bg-blue-500/90 text-white'
-              }`}>
-              {message.type === 'success' ? (
-                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
-              )}
-              <span className="text-xs sm:text-sm font-medium leading-tight">{message.content}</span>
-              <button
-                onClick={() => setMessage({ type: '', content: '' })}
-                className="ml-2 text-white/80 hover:text-white transition-colors text-lg leading-none"
-              >
-                ×
-              </button>
-            </div>
-          )}
 
           {/* Main Status Card */}
           <div className={`bg-gradient-to-br ${statusConfig.bgGradient} backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 lg:mb-10 border ${statusConfig.borderColor} bg-white/80`}>
@@ -463,7 +410,7 @@ const PortfolioDeployment = () => {
                   </div>
                   <button
                     onClick={copyPortfolioUrl}
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 transition-all duration-200 flex items-center justify-center font-medium shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base shrink-0"
+                    className="px-4 sm:px-6 py-2 sm:py-3 cursor-pointer bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 transition-all duration-200 flex items-center justify-center font-medium shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base shrink-0"
                   >
                     <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Copy
@@ -703,6 +650,10 @@ const PortfolioDeployment = () => {
         {/* Footer Section */}
         <Footer />
       </div>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </>
   );
 };
