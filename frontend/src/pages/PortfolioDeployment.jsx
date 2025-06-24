@@ -10,6 +10,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import toast, { Toaster } from 'react-hot-toast';
+import FloatingBuyMeCoffeeButton from '../components/FloatingGpayButton';
 
 const PortfolioDeployment = () => {
   const [deploymentStatus, setDeploymentStatus] = useState('checking');
@@ -224,7 +225,7 @@ const PortfolioDeployment = () => {
       const response = await axios.patch('/portfolio/unpublish');
 
       if (response.data.success) {
-        
+
         toast.success('Portfolio unpublished successfully!', { id: toastId })
 
         window.location.reload();
@@ -324,6 +325,9 @@ const PortfolioDeployment = () => {
       <Navbar current={"/portfolio"} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         {/* Hero Section */}
+        <div className="hidden md:block">
+          <FloatingBuyMeCoffeeButton />
+        </div>
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12 lg:py-16">
@@ -344,6 +348,7 @@ const PortfolioDeployment = () => {
         </div>
 
         <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 -mt-4 sm:-mt-6 lg:-mt-8 relative z-10">
+
 
           {/* Main Status Card */}
           <div className={`bg-gradient-to-br ${statusConfig.bgGradient} backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 lg:mb-10 border ${statusConfig.borderColor} bg-white/80`}>

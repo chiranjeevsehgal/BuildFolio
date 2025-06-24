@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Zap, Globe, Users, Sparkles, Check, Star, User, LogOut } from 'lucide-react';
 import Footer from '../components/Footer';
+import FloatingBuyMeCoffeeButton from '../components/FloatingGpayButton';
 
 const LandingPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -84,6 +85,7 @@ const LandingPage = () => {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
           <div className="flex justify-between items-center py-4">
             <a href='/'>
               <div className="flex items-center space-x-3">
@@ -201,6 +203,10 @@ const LandingPage = () => {
                 </>
               )}
             </h1>
+
+            <div className="hidden md:block">
+          <FloatingBuyMeCoffeeButton />
+        </div>
 
             <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               {isLoggedIn ? (
