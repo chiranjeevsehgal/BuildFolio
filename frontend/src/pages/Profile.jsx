@@ -696,6 +696,13 @@ const Profile = () => {
                                     : 'Complete at least 60% to deploy your portfolio'}
                             </p>
                         </div>
+
+                        {/* Redeploy Notice */}
+<div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+    <p className="text-sm text-blue-700 text-center">
+        <span className="font-medium">💡 Tip:</span> Remember to redeploy your portfolio after making profile changes to see updates live
+    </p>
+</div>
                     </div>
 
 
