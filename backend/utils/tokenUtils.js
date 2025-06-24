@@ -41,10 +41,10 @@ const verifyToken = (token) => {
 const updateTokenAttempts = (token, newAttempts) => {
   const decoded = jwt.verify(token, JWT_SECRET);
 
-   // Calculate remaining time in seconds
+  // Calculate remaining time in seconds
   const currentTime = Math.floor(Date.now() / 1000);
   const remainingTime = Math.max(0, decoded.exp - currentTime);
-  
+
   // Create new payload without JWT standard claims
   const payload = {
     email: decoded.email,
@@ -54,7 +54,7 @@ const updateTokenAttempts = (token, newAttempts) => {
     maxAttempts: decoded.maxAttempts,
     iat: currentTime
   };
-  
+
   return jwt.sign(
     payload,
     JWT_SECRET,
@@ -62,9 +62,53 @@ const updateTokenAttempts = (token, newAttempts) => {
   );
 };
 
+// Create temporary token for password reset
+const createPasswordResetTempToken = (email, otpHash) => {
+  const payload = {
+    email,
+    otpHash,
+    type: 'password_reset',
+    attempts: 0,
+    maxAttempts: 3
+  };
+
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10m' });
+};
+
+// Create verified token for password reset
+const createPasswordResetVerifiedToken = (email) => {
+  const payload = {
+    email,
+    type: 'password_reset_verified',
+    otpVerified: true
+  };
+
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
+};
+
+// Update attempts for password reset token
+const updatePasswordResetTokenAttempts = (token, newAttempts) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const newPayload = {
+      ...decoded,
+      attempts: newAttempts,
+      iat: Math.floor(Date.now() / 1000)
+    };
+
+    delete newPayload.exp;
+    return jwt.sign(newPayload, process.env.JWT_SECRET, { expiresIn: '10m' });
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
+};
+
 module.exports = {
   createTempToken,
   createVerifiedToken,
   verifyToken,
-  updateTokenAttempts
+  updateTokenAttempts,
+  createPasswordResetTempToken,
+  createPasswordResetVerifiedToken,
+  updatePasswordResetTokenAttempts
 };

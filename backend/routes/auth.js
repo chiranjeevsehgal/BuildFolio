@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const passport = require('passport');
-const { register, login, getMe, oauthSuccess, oauthFailure, markProfileCompleted, sendOtp, verifyOtp, resendOtp } = require('../controllers/authController');
+const { register, login, getMe, oauthSuccess, oauthFailure, markProfileCompleted, sendOtp, verifyOtp, resendOtp, resendPasswordResetOtp, resetPassword, verifyResetOtp, forgotPassword } = require('../controllers/authController');
 const auth = require('../middleware/auth');
 const { otpSendLimiter, otpVerifyLimiter, registerLimiter } = require('../middleware/otprateLimiter');
 
@@ -44,6 +44,40 @@ const loginValidation = [
   body('password')
     .notEmpty()
     .withMessage('Password is required')
+];
+
+const forgotPasswordValidation = [
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Please provide a valid email address')
+];
+
+const verifyResetOtpValidation = [
+  body('otp')
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage('OTP must be a 6-digit number'),
+  body('tempToken')
+    .notEmpty()
+    .withMessage('Verification token is required')
+];
+
+const resetPasswordValidation = [
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+  body('resetToken')
+    .notEmpty()
+    .withMessage('Reset token is required')
+];
+
+const resendResetOtpValidation = [
+  body('tempToken')
+    .notEmpty()
+    .withMessage('Verification token is required')
 ];
 
 // Routes -----------------------------------
@@ -93,13 +127,37 @@ router.post('/resend-otp',
   resendOtp
 );
 
-// router.post('/register', registerValidation, register);
 
 // @desc    Register user (after email verification)
 // @route   POST /api/auth/register
 // @access  Public
 router.post('/register',
   registerLimiter,registerValidation, register
+);
+
+// Password reset routes
+router.post('/forgot-password', 
+  // otpSendLimiter,
+  forgotPasswordValidation,
+  forgotPassword
+);
+
+router.post('/verify-reset-otp',
+  otpVerifyLimiter,
+  verifyResetOtpValidation,
+  verifyResetOtp
+);
+
+router.post('/reset-password',
+  registerLimiter,
+  resetPasswordValidation,
+  resetPassword
+);
+
+router.post('/resend-reset-otp',
+  otpSendLimiter,
+  resendResetOtpValidation,
+  resendPasswordResetOtp
 );
 
 

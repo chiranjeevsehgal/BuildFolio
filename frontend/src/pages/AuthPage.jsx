@@ -3,9 +3,10 @@ import { Eye, ArrowLeft, EyeOff, Mail, Lock, User, Sparkles, Chrome, Loader2, Al
 import axios from 'axios';
 import OTPVerification from '../components/OTPVerification';
 import toast, { Toaster } from 'react-hot-toast';
+import ForgotPasswordOTPVerification from '../components/ForgotPasswordOTPVerification';
 
 const AuthPage = () => {
-  const [authMode, setAuthMode] = useState('signin'); // signin, signup, email-verification, otp-verification, complete-registration
+  const [authMode, setAuthMode] = useState('signin'); // signin, signup, email-verification, otp-verification, complete-registration, forgot-password, forgot-otp-verification, reset-password
   const [showPassword, setShowPassword] = useState(false);
   const [showCnfPassword, setShowCnfPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,6 +24,11 @@ const AuthPage = () => {
   const [tempToken, setTempToken] = useState('');
   const [verifiedToken, setVerifiedToken] = useState('');
   const [verifiedEmail, setVerifiedEmail] = useState('');
+
+  // Forgot password states
+  const [resetTempToken, setResetTempToken] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
   const VITE_ENV = import.meta.env.VITE_ENV;
@@ -89,12 +95,27 @@ const AuthPage = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (authMode === 'email-verification') {
-      // Only validate email for email verification step
+    if (authMode === 'email-verification' || authMode === 'forgot-password') {
+      // Only validate email for email verification and forgot password
       if (!formData.email) {
         errors.email = 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         errors.email = 'Please enter a valid email address';
+      }
+    } else if (authMode === 'reset-password') {
+      // Validate password reset fields
+      if (!formData.password) {
+        errors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        errors.password = 'Password must be at least 6 characters long';
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+        errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+      }
+
+      if (!formData.confirmPassword) {
+        errors.confirmPassword = 'Please confirm your password';
+      } else if (formData.password !== formData.confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match';
       }
     } else if (authMode === 'complete-registration') {
       // Validate registration fields
@@ -229,7 +250,6 @@ const AuthPage = () => {
       });
 
       if (response.data.success) {
-
         toast.success('Account created successfully. Please sign in using your credentials.');
 
         if (VITE_ENV === 'development') {
@@ -256,7 +276,7 @@ const AuthPage = () => {
     }
   };
 
-  // Handle signin (unchanged)
+  // Handle signin
   const handleSignIn = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -273,7 +293,6 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);
-        // localStorage.setItem('user', JSON.stringify(response.data.user));
 
         const user = response.data.user;
 
@@ -317,7 +336,118 @@ const AuthPage = () => {
     }
   };
 
-  // OAuth integration (unchanged)
+  // Send forgot password OTP
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('/auth/forgot-password', {
+        email: formData.email
+      });
+
+      if (response.data.success) {
+        setResetTempToken(response.data.tempToken);
+        setResetEmail(formData.email);
+        setAuthMode('forgot-otp-verification');
+        toast.success('Password reset code sent to your email!');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      if (error.response?.data?.errors) {
+        const backendErrors = {};
+        error.response.data.errors.forEach(err => {
+          backendErrors[err.param || err.path] = err.msg;
+        });
+        setFormErrors(backendErrors);
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to send reset code. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle forgot password OTP verification success
+  const handleForgotPasswordOTPVerified = (resetTokenReceived, email) => {
+    setResetToken(resetTokenReceived);
+    setResetEmail(email);
+    setAuthMode('reset-password');
+    toast.success('Code verified! Set your new password.');
+  };
+
+  // Handle forgot password resend OTP
+  const handleResendForgotPasswordOTP = async (currentTempToken) => {
+    try {
+      const response = await axios.post('/auth/resend-reset-otp', {
+        tempToken: currentTempToken
+      });
+
+      if (response.data.success) {
+        setResetTempToken(response.data.tempToken);
+        toast.success('New reset code sent!');
+        return response.data.tempToken;
+      }
+    } catch (error) {
+      console.error('Resend reset OTP error:', error);
+      toast.error(error.response?.data?.message || 'Failed to resend code. Please try again.');
+      throw error;
+    }
+  };
+
+  // Complete password reset
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('/auth/reset-password', {
+        password: formData.password,
+        resetToken
+      });
+
+      if (response.data.success) {
+        toast.success('Password reset successfully! Please sign in with your new password.');
+        
+        // Reset form and go back to signin
+        setFormData({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          username: '',
+          firstName: '',
+          lastName: ''
+        });
+        setAuthMode('signin');
+        setResetToken('');
+        setResetTempToken('');
+        setResetEmail('');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      if (error.response?.data?.errors) {
+        const backendErrors = {};
+        error.response.data.errors.forEach(err => {
+          backendErrors[err.param || err.path] = err.msg;
+        });
+        setFormErrors(backendErrors);
+      } else {
+        toast.error(error.response?.data?.message || 'Password reset failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // OAuth integration
   const handleOAuthLogin = (provider) => {
     if (provider === 'linkedin') {
       toast.success("Linkedin Auth will be rolled out soon!");
@@ -335,6 +465,14 @@ const AuthPage = () => {
       setVerifiedToken('');
     } else if (authMode === 'email-verification') {
       setAuthMode('signup');
+    } else if (authMode === 'forgot-otp-verification') {
+      setAuthMode('forgot-password');
+      setResetTempToken('');
+    } else if (authMode === 'reset-password') {
+      setAuthMode('forgot-otp-verification');
+      setResetToken('');
+    } else if (authMode === 'forgot-password') {
+      setAuthMode('signin');
     }
     setFormErrors({});
   };
@@ -354,40 +492,59 @@ const AuthPage = () => {
       );
     }
 
+    if (authMode === 'forgot-otp-verification') {
+      return (
+        <ForgotPasswordOTPVerification
+          email={resetEmail}
+          tempToken={resetTempToken}
+          onVerified={handleForgotPasswordOTPVerified}
+          onBack={handleBack}
+          onResend={handleResendForgotPasswordOTP}
+          axios={axios}
+        />
+      );
+    }
+
     return (
       <>
-        {/* OAuth Buttons */}
-        <div className="space-y-3 mb-6">
-          <button
-            onClick={() => handleOAuthLogin('google')}
-            disabled={isLoading}
-            className="w-full flex items-center cursor-pointer justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Chrome className="w-5 h-5 mr-3 text-blue-500" />
-            Continue with Google
-          </button>
-        </div>
+        {/* OAuth Buttons - Hide for forgot password flow */}
+        {!['forgot-password', 'reset-password'].includes(authMode) && (
+          <>
+            <div className="space-y-3 mb-6">
+              <button
+                onClick={() => handleOAuthLogin('google')}
+                disabled={isLoading}
+                className="w-full flex items-center cursor-pointer justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Chrome className="w-5 h-5 mr-3 text-blue-500" />
+                Continue with Google
+              </button>
+            </div>
 
-        {/* Divider */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-slate-500">Or continue with email</span>
-          </div>
-        </div>
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-slate-500">Or continue with email</span>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Email Form */}
         <form onSubmit={
           authMode === 'signin' ? handleSignIn :
             authMode === 'email-verification' ? handleSendOTP :
               authMode === 'complete-registration' ? handleCompleteRegistration :
-                handleSendOTP
+                authMode === 'forgot-password' ? handleForgotPassword :
+                  authMode === 'reset-password' ? handleResetPassword :
+                    handleSendOTP
         } className="space-y-4">
 
-          {/* Email Field - Always visible except in complete-registration */}
-          {authMode !== 'complete-registration' && (
+          {/* Email Field */}
+          {!['complete-registration', 'reset-password'].includes(authMode) && (
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
                 Email Address
@@ -404,7 +561,7 @@ const AuthPage = () => {
                   className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.email ? 'border-red-300 bg-red-50' : 'border-slate-300'
                     }`}
                   placeholder="john@example.com"
-                  disabled={isLoading || authMode === 'otp-verification'}
+                  disabled={isLoading}
                 />
               </div>
               {formErrors.email && (
@@ -498,6 +655,81 @@ const AuthPage = () => {
             </>
           )}
 
+          {/* Reset Password Fields */}
+          {authMode === 'reset-password' && (
+            <>
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  ✓ Email verified: <span className="font-semibold">{resetEmail}</span>
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                  New Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                      }`}
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    disabled={isLoading}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {formErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-2">
+                  Confirm New Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showCnfPassword ? 'text' : 'password'}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                      }`}
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCnfPassword(!showCnfPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    disabled={isLoading}
+                  >
+                    {showCnfPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {formErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+                )}
+              </div>
+            </>
+          )}
+
           {/* Password Field - Show in signin and complete-registration */}
           {(authMode === 'signin' || authMode === 'complete-registration') && (
             <div>
@@ -548,7 +780,7 @@ const AuthPage = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                  className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
                     }`}
                   placeholder="••••••••"
                   disabled={isLoading}
@@ -568,7 +800,7 @@ const AuthPage = () => {
             </div>
           )}
 
-          {/* Remember Me - Only in signin */}
+          {/* Remember Me, Forget password - Only in signin */}
           {authMode === 'signin' && (
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
@@ -579,6 +811,17 @@ const AuthPage = () => {
                 />
                 <span className="ml-2 text-slate-600">Remember me</span>
               </label>
+              <a
+                href="#"
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setAuthMode('forgot-password');
+                  setFormErrors({});
+                }}
+              >
+                Forgot password?
+              </a>
             </div>
           )}
 
@@ -593,17 +836,21 @@ const AuthPage = () => {
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 {authMode === 'signin' ? 'Signing In...' :
                   authMode === 'email-verification' ? 'Sending Code...' :
-                    authMode === 'complete-registration' ? 'Creating Account...' : 'Processing...'}
+                    authMode === 'complete-registration' ? 'Creating Account...' :
+                      authMode === 'forgot-password' ? 'Sending Reset Code...' :
+                        authMode === 'reset-password' ? 'Resetting Password...' : 'Processing...'}
               </>
             ) : (
               authMode === 'signin' ? 'Sign In' :
                 authMode === 'email-verification' ? 'Send Verification Code' :
-                  authMode === 'complete-registration' ? 'Create Account' : 'Continue'
+                  authMode === 'complete-registration' ? 'Create Account' :
+                    authMode === 'forgot-password' ? 'Send Reset Code' :
+                      authMode === 'reset-password' ? 'Reset Password' : 'Continue'
             )}
           </button>
 
-          {/* Back Button for registration flow */}
-          {(authMode === 'email-verification' || authMode === 'complete-registration') && (
+          {/* Back Button for registration and forgot password flows */}
+          {['email-verification', 'complete-registration', 'forgot-password', 'reset-password'].includes(authMode) && (
             <button
               type="button"
               onClick={handleBack}
@@ -663,14 +910,20 @@ const AuthPage = () => {
             {authMode === 'signin' ? 'Welcome back!' :
               authMode === 'email-verification' ? 'Create your account' :
                 authMode === 'otp-verification' ? 'Check your email' :
-                  authMode === 'complete-registration' ? 'Complete your registration' : 'Welcome!'}
+                  authMode === 'complete-registration' ? 'Complete your registration' :
+                    authMode === 'forgot-password' ? 'Reset your password' :
+                      authMode === 'forgot-otp-verification' ? 'Check your email' :
+                        authMode === 'reset-password' ? 'Set new password' : 'Welcome!'}
           </h2>
           <p className="text-slate-600">
             {authMode === 'signin' ? 'Sign in to access your dashboard' :
               authMode === 'email-verification' ? 'Start by verifying your email address' :
                 authMode === 'otp-verification' ? 'Enter the verification code we sent you' :
                   authMode === 'complete-registration' ? 'Fill in your details to complete registration' :
-                    'Start building your professional portfolio today'}
+                    authMode === 'forgot-password' ? 'Enter your email to receive a reset code' :
+                      authMode === 'forgot-otp-verification' ? 'Enter the reset code we sent you' :
+                        authMode === 'reset-password' ? 'Enter your new password' :
+                          'Start building your professional portfolio today'}
           </p>
         </div>
 

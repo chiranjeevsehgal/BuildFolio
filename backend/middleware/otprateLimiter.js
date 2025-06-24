@@ -1,4 +1,3 @@
-// middleware/rateLimiter.js
 const rateLimit = require('express-rate-limit');
 
 // Rate limit for sending OTP (per IP)
@@ -31,7 +30,7 @@ const registerLimiter = rateLimit({
   max: 3, // 3 registration attempts per hour per IP
   message: {
     success: false,
-    message: 'Too many registration attempts. Please try again later.'
+    message: 'Too many attempts. Please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false
