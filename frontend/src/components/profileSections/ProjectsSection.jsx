@@ -15,7 +15,8 @@ import {
     Star,
 } from "lucide-react"
 import { ensureHttpProtocol } from "../../utils/helperFunctions"
-import Toast from "../Toast"
+import toast, { Toaster } from 'react-hot-toast';
+
 
 const ProjectsSection = ({
     profileData,
@@ -39,7 +40,6 @@ const ProjectsSection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
-    const [message, setMessage] = useState({ type: "", content: "" })
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -403,11 +403,6 @@ const ProjectsSection = ({
                 `}
             </style>
 
-            <Toast
-                message={message}
-                onClose={() => setMessage({ type: "", content: "" })}
-            />
-
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                     <h2 className="text-2xl font-semibold text-slate-800">Projects</h2>
@@ -649,6 +644,10 @@ const ProjectsSection = ({
                     ))}
                 </div>
             )}
+            <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
         </div>
     )
 }

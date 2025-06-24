@@ -14,18 +14,17 @@ import ProfessionalSummarySection from "../components/profileSections/Profession
 import ExperienceSection from "../components/profileSections/ExperienceSection"
 import EducationSection from "../components/profileSections/EducationSection"
 import ProjectsSection from "../components/profileSections/ProjectsSection"
+import toast, { Toaster } from 'react-hot-toast';
 
 import {
     validateCompleteProfile,
     checkSectionValidity,
     ValidationError
 } from "../utils/profileValidation"
-import Toast from "../components/Toast"
 
 const Profile = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
-    const [message, setMessage] = useState({ type: "", content: "" })
     const [profilePhoto, setProfilePhoto] = useState(null)
     const [uploadingPhoto, setUploadingPhoto] = useState(false)
     const [validationErrors, setValidationErrors] = useState({})
@@ -85,7 +84,7 @@ const Profile = () => {
             return validation
         } catch (error) {
             console.error('Validation error:', error)
-            showMessage('error', 'Validation error occurred. Please refresh the page.')
+            toast.error('Validation error occurred. Please refresh the page.')
             return { isValid: false, errors: {} }
         }
     }, [profileData])
@@ -99,7 +98,6 @@ const Profile = () => {
         return () => clearTimeout(timeoutId)
     }, [validateProfile])
 
-    // Enhanced message handling with auto-dismiss and type safety
     const showMessage = useCallback((type, content, autoDismiss = true) => {
         const validTypes = ['success', 'error', 'warning', 'info']
         if (!validTypes.includes(type)) {
@@ -107,12 +105,16 @@ const Profile = () => {
             type = 'info'
         }
 
-        setMessage({ type, content })
-
-        if (autoDismiss) {
-            setTimeout(() => {
-                setMessage({ type: "", content: "" })
-            }, type === 'success' ? 4000 : 6000) // Slightly longer for better readability
+        if (type === 'success') {
+            toast.success(content)
+        }
+        else if (type === 'error') {
+            toast.error(content)
+        }
+        else if (type === 'warning' || type === 'info') {
+            toast(content, {
+                icon: 'ℹ️',
+            });
         }
     }, [])
 
@@ -696,11 +698,6 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* Enhanced Message Display */}
-                    <Toast
-                        message={message}
-                        onClose={() => setMessage({ type: "", content: "" })}
-                    />
 
                     {/* Profile Form */}
                     <div className="space-y-8">
@@ -854,6 +851,10 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
+            <Toaster
+                position="top-center"
+                reverseOrder={true}
+            />
         </>
     )
 }

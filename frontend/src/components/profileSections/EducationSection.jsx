@@ -13,7 +13,6 @@ import {
     Calendar,
     Building,
 } from "lucide-react"
-import Toast from "../Toast"
 import { LocationAutocomplete, UniversityAutocomplete } from "./Location_UniversitySearch"
 import CustomDateInput from "./CustomDateInput"
 
@@ -35,7 +34,6 @@ const EducationSection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
-    const [message, setMessage] = useState({ type: "", content: "" })
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -402,11 +400,6 @@ const EducationSection = ({
                     }
                 `}
             </style>
-
-            <Toast
-                message={message}
-                onClose={() => setMessage({ type: "", content: "" })}
-            />
 
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
