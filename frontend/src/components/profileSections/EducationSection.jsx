@@ -15,6 +15,8 @@ import {
 } from "lucide-react"
 import { LocationAutocomplete, UniversityAutocomplete } from "./Location_UniversitySearch"
 import CustomDateInput from "./CustomDateInput"
+import { useConfirmationModal } from '../ConfirmationModal';
+
 
 const EducationSection = ({
     profileData,
@@ -34,6 +36,7 @@ const EducationSection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
+    const { showConfirmation, ConfirmationModal } = useConfirmationModal();
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -154,19 +157,29 @@ const EducationSection = ({
     }, [editingSections.education, getCurrentData])
 
     // Enhanced toggle function to reset changes when canceling
-    const handleToggleEdit = (sectionName) => {
+    const handleToggleEdit = async (sectionName) => {
         if (editingSections.education && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-            const confirmCancel = window.confirm("You have unsaved changes. Are you sure you want to cancel?")
-            if (!confirmCancel) return
+            try {
+                await showConfirmation({
+                    title: "Unsaved Changes",
+                    message: "You have unsaved changes. Are you sure you want to cancel?",
+                    confirmText: "Yes, Cancel",
+                    cancelText: "Keep Editing",
+                    type: "warning"
+                });
 
-            // Restore original data
-            if (originalData) {
-                setProfileData(prev => ({
-                    ...prev,
-                    education: originalData
-                }))
+                // Restore original data
+                if (originalData) {
+                    setProfileData(prev => ({
+                        ...prev,
+                        education: originalData
+                    }))
+                }
+            } catch (error) {
+                return;
             }
+
         }
 
         toggleSectionEdit(sectionName)
@@ -257,14 +270,19 @@ const EducationSection = ({
     }
 
     // Enhanced remove education to track changes
-    const handleRemoveEducation = (index) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this education?")
-        if (confirmDelete) {
+    const handleRemoveEducation = async (index) => {
+          await showConfirmation({
+            title: "Delete Education",
+            message: "Are you sure you want to delete this education entry? This action cannot be undone.",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            type: "danger"
+        });
+        
             setProfileData((prev) => ({
                 ...prev,
                 education: prev.education.filter((_, i) => i !== index),
             }))
-        }
     }
 
     // Update education function
@@ -583,14 +601,14 @@ const EducationSection = ({
                                             <span>{getFieldError(`education_${index}_endDate`)}</span>
                                         </p>
                                     )}
-                                {hasDateRangeError(index) && (
-                                    <div className="mb-4">
-                                        <p className="text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
-                                            <Info className="w-3 h-3" />
-                                            <span>{getDateRangeError(index)}</span>
-                                        </p>
-                                    </div>
-                                )}
+                                    {hasDateRangeError(index) && (
+                                        <div className="mb-4">
+                                            <p className="text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
+                                                <Info className="w-3 h-3" />
+                                                <span>{getDateRangeError(index)}</span>
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -621,6 +639,7 @@ const EducationSection = ({
                     ))}
                 </div>
             )}
+            <ConfirmationModal />
         </div>
     )
 }

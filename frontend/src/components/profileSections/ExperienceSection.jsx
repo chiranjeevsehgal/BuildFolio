@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { LocationAutocomplete } from "./Location_UniversitySearch"
 import CustomDateInput from "./CustomDateInput"
+import { useConfirmationModal } from '../ConfirmationModal';
 
 const ExperienceSection = ({
     profileData,
@@ -35,6 +36,8 @@ const ExperienceSection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
+    const { showConfirmation, ConfirmationModal } = useConfirmationModal();
+
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -127,11 +130,16 @@ const ExperienceSection = ({
     }, [editingSections.experience, getCurrentData])
 
     // Enhanced toggle function to reset changes when canceling
-    const handleToggleEdit = (sectionName) => {
+    const handleToggleEdit = async (sectionName) => {
         if (editingSections.experience && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-            const confirmCancel = window.confirm("You have unsaved changes. Are you sure you want to cancel?")
-            if (!confirmCancel) return
+             await showConfirmation({
+                title: "Unsaved Changes",
+                message: "You have unsaved changes. Are you sure you want to cancel?",
+                confirmText: "Yes, Cancel",
+                cancelText: "Keep Editing",
+                type: "warning"
+            });
 
             // Restore original data
             if (originalData) {
@@ -222,11 +230,17 @@ const ExperienceSection = ({
                 saveAttempted)
     }
 
-    const handleRemoveExperience = (index) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this experience?")
-        if (confirmDelete) {
-            removeExperience(index)
-        }
+    const handleRemoveExperience = async (index) => {
+         await showConfirmation({
+            title: "Delete Experience",
+            message: "Are you sure you want to delete this experience entry? This action cannot be undone.",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            type: "danger"
+        });
+        
+        removeExperience(index)
+        
     }
 
     // Cleanup timeout on unmount
@@ -588,6 +602,7 @@ const ExperienceSection = ({
                     ))}
                 </div>
             )}
+            <ConfirmationModal />
         </div>
     )
 }

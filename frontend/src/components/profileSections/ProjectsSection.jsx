@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { ensureHttpProtocol } from "../../utils/helperFunctions"
 import toast, { Toaster } from 'react-hot-toast';
+import { useConfirmationModal } from '../ConfirmationModal';
 
 
 const ProjectsSection = ({
@@ -40,6 +41,8 @@ const ProjectsSection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
+    const { showConfirmation, ConfirmationModal } = useConfirmationModal();
+
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -51,7 +54,7 @@ const ProjectsSection = ({
         const isFieldTouched = touchedFields[fieldName]
         const fieldHasError = validationErrors[fieldName]
         const showOnSaveAttempt = saveAttempted && fieldHasError
-        
+
         return fieldHasError && (isFieldTouched || showOnSaveAttempt) ? validationErrors[fieldName][0] : ""
     }
 
@@ -62,7 +65,7 @@ const ProjectsSection = ({
         const isFieldTouched = touchedFields[fieldName]
         const fieldHasError = !!validationErrors[fieldName]
         const showOnSaveAttempt = saveAttempted && fieldHasError
-        
+
         return fieldHasError && (isFieldTouched || showOnSaveAttempt)
     }
 
@@ -119,7 +122,7 @@ const ProjectsSection = ({
             const currentData = getCurrentData()
             const dataChanged = !deepEqual(originalData, currentData)
             setHasChanges(dataChanged)
-            
+
             // Reset save attempted flag when data changes
             if (dataChanged && saveAttempted) {
                 setSaveAttempted(false)
@@ -146,11 +149,16 @@ const ProjectsSection = ({
     }, [editingSections.projects, getCurrentData])
 
     // Enhanced toggle function to reset changes when canceling
-    const handleToggleEdit = (sectionName) => {
+    const handleToggleEdit = async (sectionName) => {
         if (editingSections.projects && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-            const confirmCancel = window.confirm("You have unsaved changes. Are you sure you want to cancel?")
-            if (!confirmCancel) return
+            await showConfirmation({
+                title: "Unsaved Changes",
+                message: "You have unsaved changes. Are you sure you want to cancel?",
+                confirmText: "Yes, Cancel",
+                cancelText: "Keep Editing",
+                type: "warning"
+            });
 
             // Restore original data
             if (originalData) {
@@ -182,23 +190,23 @@ const ProjectsSection = ({
     const handleSave = async (e) => {
         e.preventDefault()
         e.stopPropagation()
-        
+
         if (isSaving) return
-        
+
         // Set save attempted to show errors for invalid fields only
         setSaveAttempted(true)
-        
+
         // If no changes, show message and return
         if (!hasChanges) {
             return
         }
-        
+
         // If there are validation errors, touch only the error fields and don't proceed with save
         if (!formsValid.projects) {
             touchErrorFields()
             return
         }
-        
+
         try {
             const success = await saveProjectProfile()
             if (success) {
@@ -206,7 +214,7 @@ const ProjectsSection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
-                
+
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {
                     setSaveAttempted(false)
@@ -244,11 +252,16 @@ const ProjectsSection = ({
     }
 
     // Enhanced remove project to track changes
-    const handleRemoveProject = (index) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this project?")
-        if (confirmDelete) {
-            removeProject(index)
-        }
+    const handleRemoveProject = async (index) => {
+        await showConfirmation({
+            title: "Delete Project",
+            message: "Are you sure you want to delete this project? This action cannot be undone.",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            type: "danger"
+        });
+
+        removeProject(index)
     }
 
     // Cleanup timeout on unmount
@@ -263,7 +276,7 @@ const ProjectsSection = ({
     // Determine save button state with better logic
     const canSave = hasChanges && formsValid.projects && !isSaving
     const showSuccess = lastSaveTime && !hasChanges && !isSaving
-    
+
     const getSaveButtonState = () => {
         if (isSaving) return { text: "Saving...", icon: Loader2, className: "bg-blue-500 text-white cursor-wait", disabled: true }
         if (showSuccess) return { text: "Saved", icon: Check, className: "bg-green-600 text-white cursor-default", disabled: true }
@@ -279,7 +292,7 @@ const ProjectsSection = ({
         <div className="relative inline-block">
             {children}
             {show && (
-                <div 
+                <div
                     className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg whitespace-nowrap z-50"
                     style={{
                         animation: 'fadeIn 0.2s ease-out',
@@ -440,12 +453,12 @@ const ProjectsSection = ({
                         </button>
                     )}
                     {editingSections.projects && (
-                        <SaveButtonTooltip 
-                            show={showTooltip} 
+                        <SaveButtonTooltip
+                            show={showTooltip}
                             message={
                                 !hasChanges ? "You haven't made any changes" :
-                                !formsValid.projects ? "Click to see validation errors" :
-                                "Ready to save your changes"
+                                    !formsValid.projects ? "Click to see validation errors" :
+                                        "Ready to save your changes"
                             }
                         >
                             <button
@@ -645,9 +658,10 @@ const ProjectsSection = ({
                 </div>
             )}
             <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+                position="top-center"
+                reverseOrder={true}
+            />
+            <ConfirmationModal />
         </div>
     )
 }

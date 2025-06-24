@@ -11,6 +11,7 @@ import {
     FileText,
     Award,
 } from "lucide-react"
+import { useConfirmationModal } from '../ConfirmationModal';
 
 const ProfessionalSummarySection = ({
     profileData,
@@ -34,6 +35,8 @@ const ProfessionalSummarySection = ({
     const [showTooltip, setShowTooltip] = useState(false)
     const [saveAttempted, setSaveAttempted] = useState(false)
     const [lastSaveTime, setLastSaveTime] = useState(null)
+    const { showConfirmation, ConfirmationModal } = useConfirmationModal();
+
     const tooltipRef = useRef(null)
     const saveTimeoutRef = useRef(null)
 
@@ -117,11 +120,16 @@ const ProfessionalSummarySection = ({
     }, [editingSections.professional, getCurrentData])
 
     // Enhanced toggle function to reset changes when canceling
-    const handleToggleEdit = (sectionName) => {
+    const handleToggleEdit = async (sectionName) => {
         if (editingSections.professional && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-            const confirmCancel = window.confirm("You have unsaved changes. Are you sure you want to cancel?")
-            if (!confirmCancel) return
+              await showConfirmation({
+                title: "Unsaved Changes",
+                message: "You have unsaved changes. Are you sure you want to cancel?",
+                confirmText: "Yes, Cancel",
+                cancelText: "Keep Editing",
+                type: "warning"
+            });
             
             // Restore original data
             if (originalData) {
@@ -480,6 +488,7 @@ const ProfessionalSummarySection = ({
                     <SkillsDisplay />
                 </div>
             )}
+            <ConfirmationModal />
         </div>
     )
 }
