@@ -448,7 +448,7 @@ const PersonalInfoSection = ({
                                         type="tel"
                                         value={profileData.personalInfo.phone}
                                         onChange={(e) => handleInputChange("personalInfo", "phone", e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
                                             hasFieldError("phone") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
                                         }`}
                                         placeholder="9988776655"
@@ -472,7 +472,7 @@ const PersonalInfoSection = ({
                                         type="text"
                                         value={profileData.personalInfo.location}
                                         onChange={(e) => handleInputChange("personalInfo", "location", e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
                                             hasFieldError("location") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
                                         }`}
                                         placeholder="Bangalore, India"
@@ -508,7 +508,7 @@ const PersonalInfoSection = ({
                                             type="url"
                                             value={profileData.personalInfo.socialLinks[config.key] || ''}
                                             onChange={(e) => handleSocialChange(config.key, e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500 ${
+                                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
                                                 hasFieldError(config.key) ? "border-red-500 focus:ring-red-500" : "border-slate-300"
                                             }`}
                                             placeholder={config.placeholder}

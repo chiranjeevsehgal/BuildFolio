@@ -76,11 +76,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  bio: {
-    type: String,
-    maxlength: [500, 'Bio cannot exceed 500 characters'],
-    default: null
-  },
   selectedTemplate: {
     type: String,
     enum: ['modern-professional', 'minimal-clean', 'creative-gradient', 'terminal-developer-focused', 'executive-suite'],

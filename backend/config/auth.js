@@ -45,6 +45,8 @@ passport.use(new GoogleStrategy({
     let user = await User.findOne({ oauthId: profile.id, oauthProvider: 'google' });
 
     if (user) {
+      user.lastLogin = new Date();
+      await user.save();
       return done(null, user);
     }
     // Check if email exists
@@ -53,6 +55,7 @@ passport.use(new GoogleStrategy({
       // Link accounts
       user.oauthProvider = 'google';
       user.oauthId = profile.id;
+      user.lastLogin = new Date();
       await user.save();
       return done(null, user);
     }
@@ -68,6 +71,7 @@ passport.use(new GoogleStrategy({
       username: uniqueUsername,
       oauthProvider: 'google',
       oauthId: profile.id,
+      lastLogin: new Date(),
       isEmailVerified: true,
       // profilePhoto: profile.photos[0]?.value
     });
