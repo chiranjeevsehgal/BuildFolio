@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, Github, Star, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, X, Send } from 'lucide-react';
+import { ExternalLink, Github, Star, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
 import axios from 'axios';
 
 const CreativeGradientTemplate = ({ userData }) => {
@@ -17,10 +17,14 @@ const CreativeGradientTemplate = ({ userData }) => {
   const hasSummary = userData?.professional?.summary;
   const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
   const hasSocialLinks = userData?.personalInfo?.socialLinks &&
-    (userData?.personalInfo?.socialLinks?.linkedin ||
-      userData?.personalInfo?.socialLinks?.github ||
-      userData?.personalInfo?.socialLinks?.twitter ||
-      userData?.personalInfo?.socialLinks?.website);
+  (userData?.personalInfo?.socialLinks?.linkedin ||
+    userData?.personalInfo?.socialLinks?.github ||
+    userData?.personalInfo?.socialLinks?.twitter ||
+    userData?.personalInfo?.socialLinks?.website ||
+    userData?.personalInfo?.socialLinks?.portfolio ||
+    userData?.personalInfo?.socialLinks?.behance ||
+    userData?.personalInfo?.socialLinks?.dribbble ||
+    userData?.personalInfo?.socialLinks?.other);
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasExperience = userData?.experience?.length > 0;
@@ -255,6 +259,50 @@ const CreativeGradientTemplate = ({ userData }) => {
                   aria-label="Personal Website"
                 >
                   <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.portfolio && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Portfolio"
+                >
+                  <Briefcase className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.behance && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Behance Profile"
+                >
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.dribbble && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Dribbble Profile"
+                >
+                  <Figma className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.other && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
+                  aria-label="Other Link"
+                >
+                  <Link className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
             </div>
@@ -540,16 +588,16 @@ const CreativeGradientTemplate = ({ userData }) => {
         </div>
       </footer>
 
- {/* Contact Modal */}
+      {/* Contact Modal */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-white/20 backdrop-blur-xl shadow-4xl shadow-gray-800 flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
           <div className="bg-white rounded-2xl max-w-md w-full mx-auto shadow-2xl animate-pulse-once relative overflow-hidden">
             {/* Modal gradient background */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 opacity-60"></div>
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -564,11 +612,10 @@ const CreativeGradientTemplate = ({ userData }) => {
             <button
               onClick={closeModal}
               disabled={isLoading}
-              className={`absolute top-4 right-4 z-20 rounded-full p-2 transition-all duration-300 shadow-lg hover:shadow-xl ${
-                isLoading 
-                  ? 'bg-gray-200 cursor-not-allowed opacity-50' 
+              className={`absolute top-4 right-4 z-20 rounded-full p-2 transition-all duration-300 shadow-lg hover:shadow-xl ${isLoading
+                  ? 'bg-gray-200 cursor-not-allowed opacity-50'
                   : 'bg-white/80 hover:bg-white cursor-pointer'
-              }`}
+                }`}
               aria-label="Close modal"
             >
               <X className={`w-5 h-5 ${isLoading ? 'text-gray-400' : 'text-gray-600'}`} />
@@ -598,9 +645,8 @@ const CreativeGradientTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your name?"
                   />
                 </div>
@@ -618,9 +664,8 @@ const CreativeGradientTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your email?"
                   />
                 </div>
@@ -638,9 +683,8 @@ const CreativeGradientTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your message?"
                   />
                 </div>
@@ -650,11 +694,10 @@ const CreativeGradientTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group ${
-                    isLoading
+                  className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group ${isLoading
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer'
-                  } text-white`}
+                    } text-white`}
                 >
                   {isLoading ? (
                     <>
@@ -674,7 +717,7 @@ const CreativeGradientTemplate = ({ userData }) => {
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-6 border-t border-gray-200 text-center">
                   <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
-                  <a 
+                  <a
                     href={`mailto:${userData.email}`}
                     className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium text-sm transition-colors duration-300"
                   >

@@ -53,8 +53,11 @@ const portfolioDeploymentSchema = new mongoose.Schema({
         linkedin: String,
         github: String,
         twitter: String,
-        instagram: String,
-        facebook: String
+        portfolio: String,
+        behance: String,
+        dribbble: String,
+        twitter: String,
+        other: String,
       }
     },
     professional: {

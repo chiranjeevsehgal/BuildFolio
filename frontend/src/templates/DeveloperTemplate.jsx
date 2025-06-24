@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap, X, Send } from 'lucide-react';
+import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
 import axios from 'axios';
 
 const DeveloperTemplate = ({ userData }) => {
@@ -18,10 +18,14 @@ const DeveloperTemplate = ({ userData }) => {
   const hasSummary = userData?.professional?.summary;
   const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
   const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-    (userData?.personalInfo?.socialLinks?.linkedin || 
-     userData?.personalInfo?.socialLinks?.github || 
-     userData?.personalInfo?.socialLinks?.twitter ||
-     userData?.personalInfo?.socialLinks?.website);
+  (userData?.personalInfo?.socialLinks?.linkedin || 
+   userData?.personalInfo?.socialLinks?.github || 
+   userData?.personalInfo?.socialLinks?.twitter ||
+   userData?.personalInfo?.socialLinks?.website ||
+   userData?.personalInfo?.socialLinks?.portfolio ||
+   userData?.personalInfo?.socialLinks?.behance ||
+   userData?.personalInfo?.socialLinks?.dribbble ||
+   userData?.personalInfo?.socialLinks?.other);
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasExperience = userData?.experience?.length > 0;
@@ -59,9 +63,9 @@ const DeveloperTemplate = ({ userData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short'
       });
     } catch {
       return dateString;
@@ -159,18 +163,18 @@ const DeveloperTemplate = ({ userData }) => {
               <span className="text-gray-400 text-xs sm:text-sm">v1.0.0</span>
             </div>
           </div>
-          
+
           <div className="space-y-2 text-sm sm:text-base">
             <p><span className="text-blue-400">$</span> whoami</p>
             {hasBasicInfo && (
               <p className="text-white break-words">
-                {userData?.firstName && userData?.lastName 
+                {userData?.firstName && userData?.lastName
                   ? `${userData.firstName} ${userData.lastName}`
                   : userData?.firstName || userData?.lastName || 'developer'
                 }
               </p>
             )}
-            
+
             <p><span className="text-blue-400">$</span> cat role.txt</p>
             {hasTitle && (
               <p className="text-white break-words">{userData.professional.title}</p>
@@ -213,7 +217,7 @@ const DeveloperTemplate = ({ userData }) => {
                 <p><span className="text-blue-400">$</span> ls social/</p>
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 pl-2 sm:pl-4">
                   {userData?.personalInfo?.socialLinks?.github && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -225,7 +229,7 @@ const DeveloperTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.linkedin && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -237,7 +241,7 @@ const DeveloperTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.twitter && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -249,7 +253,7 @@ const DeveloperTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.website && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -258,6 +262,54 @@ const DeveloperTemplate = ({ userData }) => {
                     >
                       <Globe className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                       <span className="truncate">website/</span>
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.portfolio && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-400 hover:text-orange-300 flex items-center text-sm sm:text-base"
+                      aria-label="Portfolio"
+                    >
+                      <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">portfolio/</span>
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.behance && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-pink-400 hover:text-pink-300 flex items-center text-sm sm:text-base"
+                      aria-label="Behance Profile"
+                    >
+                      <Palette className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">behance/</span>
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.dribbble && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-red-400 hover:text-red-300 flex items-center text-sm sm:text-base"
+                      aria-label="Dribbble Profile"
+                    >
+                      <Figma className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">dribbble/</span>
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.other && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-yellow-400 hover:text-yellow-300 flex items-center text-sm sm:text-base"
+                      aria-label="Other Link"
+                    >
+                      <Link className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">other/</span>
                     </a>
                   )}
                 </div>
@@ -278,7 +330,7 @@ const DeveloperTemplate = ({ userData }) => {
           <section className="mb-8 sm:mb-12">
             <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
               <Code className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="text-blue-400">const</span> 
+              <span className="text-blue-400">const</span>
               <span className="ml-1 break-words">skills = [</span>
             </h2>
             <div className="pl-4 sm:pl-6 space-y-1 bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-700 overflow-x-auto">
@@ -361,8 +413,8 @@ const DeveloperTemplate = ({ userData }) => {
                     </div>
                     <div className="flex space-x-2 sm:space-x-3 sm:ml-4 flex-shrink-0">
                       {project.githubUrl && (
-                        <a 
-                          href={ensureHttpProtocol(project.githubUrl)} 
+                        <a
+                          href={ensureHttpProtocol(project.githubUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-green-400 hover:text-green-300 transition-colors p-2 border border-gray-600 rounded hover:border-green-500"
@@ -373,8 +425,8 @@ const DeveloperTemplate = ({ userData }) => {
                         </a>
                       )}
                       {project.url && (
-                        <a 
-                          href={ensureHttpProtocol(project.url)} 
+                        <a
+                          href={ensureHttpProtocol(project.url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-400 hover:text-blue-300 transition-colors p-2 border border-gray-600 rounded hover:border-blue-500"
@@ -386,12 +438,12 @@ const DeveloperTemplate = ({ userData }) => {
                       )}
                     </div>
                   </div>
-                  
+
                   {project.skills && project.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.skills.map((skill, skillIndex) => (
-                        <span 
-                          key={skillIndex} 
+                        <span
+                          key={skillIndex}
                           className="px-2 sm:px-3 py-1 bg-gray-700 text-green-400 rounded-full text-xs sm:text-sm border border-gray-600 font-mono break-words"
                         >
                           #{skill}
@@ -452,7 +504,7 @@ const DeveloperTemplate = ({ userData }) => {
                     CERT_{(cert.name || 'CERTIFICATION').toUpperCase().replace(/\s+/g, '_')}="{cert.issuer || 'Issuer'}"
                   </p>
                   {cert.credentialUrl && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(cert.credentialUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -488,8 +540,8 @@ const DeveloperTemplate = ({ userData }) => {
                 echo "Download resume: <button onClick={() => window.print()} className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer">portfolio.pdf</button>"
               </p>
               <p className="text-gray-400 mt-4 text-xs sm:text-sm break-words">
-                # © {new Date().getFullYear()} {hasBasicInfo 
-                  ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() 
+                # © {new Date().getFullYear()} {hasBasicInfo
+                  ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
                   : 'Developer'
                 } - Built with passion and caffeine
               </p>
@@ -500,7 +552,7 @@ const DeveloperTemplate = ({ userData }) => {
 
       {/* Contact Modal - Terminal Style */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
@@ -518,15 +570,14 @@ const DeveloperTemplate = ({ userData }) => {
               <button
                 onClick={closeModal}
                 disabled={isLoading}
-                className={`text-red-400 hover:text-red-300 transition-colors ${
-                  isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
+                className={`text-red-400 hover:text-red-300 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 aria-label="Close terminal"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -564,9 +615,8 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="> name_here"
                   />
                 </div>
@@ -584,9 +634,8 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="> email@domain.com"
                   />
                 </div>
@@ -604,9 +653,8 @@ const DeveloperTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="> Your message here..."
                   />
                 </div>
@@ -620,11 +668,10 @@ const DeveloperTemplate = ({ userData }) => {
                     type="button"
                     onClick={handleSend}
                     disabled={isLoading}
-                    className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${
-                      isLoading
+                    className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${isLoading
                         ? 'border-gray-600 bg-gray-800 text-gray-400 cursor-not-allowed'
                         : 'border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 cursor-pointer'
-                    }`}
+                      }`}
                   >
                     {isLoading ? (
                       <>
@@ -650,8 +697,8 @@ const DeveloperTemplate = ({ userData }) => {
                 <div className="pt-4 border-t border-gray-700">
                   <p className="text-gray-400 text-xs mb-2"># Alternative connection method:</p>
                   <p className="text-green-400 text-sm">
-                    <span className="text-blue-400">$</span> mail -s "Direct Contact" 
-                    <a 
+                    <span className="text-blue-400">$</span> mail -s "Direct Contact"
+                    <a
                       href={`mailto:${userData.email}`}
                       className="text-yellow-400 hover:text-yellow-300 underline ml-1"
                     >

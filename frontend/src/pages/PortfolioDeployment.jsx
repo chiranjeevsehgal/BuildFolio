@@ -548,7 +548,7 @@ const PortfolioDeployment = () => {
                       ) : (
                         <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 sm:mr-3" />
                       )}
-                      <span className="hidden sm:inline">Update Portfolio</span>
+                      <span className="hidden sm:inline">Redeploy Portfolio</span>
                       <span className="sm:hidden">Update</span>
                     </button>
                   </div>

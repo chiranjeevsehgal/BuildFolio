@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Linkedin, Github, Calendar, Building, GraduationCap, ExternalLink, X, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Linkedin, Github, Calendar, Building, GraduationCap, ExternalLink, X, Send, Palette, Figma, Link, Briefcase, Globe, Twitter } from 'lucide-react';
 
 const MinimalTemplate = ({ userData }) => {
   // Modal state
@@ -21,18 +21,22 @@ const MinimalTemplate = ({ userData }) => {
   const hasEducation = userData?.education?.length > 0;
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-    (userData?.personalInfo?.socialLinks?.linkedin || 
-     userData?.personalInfo?.socialLinks?.github || 
-     userData?.personalInfo?.socialLinks?.twitter ||
-     userData?.personalInfo?.socialLinks?.website);
+  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+    (userData?.personalInfo?.socialLinks?.linkedin ||
+      userData?.personalInfo?.socialLinks?.github ||
+      userData?.personalInfo?.socialLinks?.twitter ||
+      userData?.personalInfo?.socialLinks?.website ||
+      userData?.personalInfo?.socialLinks?.portfolio ||
+      userData?.personalInfo?.socialLinks?.behance ||
+      userData?.personalInfo?.socialLinks?.dribbble ||
+      userData?.personalInfo?.socialLinks?.other);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Setting up API configuration
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    
+
     // Store config for later use
     window.apiConfig = {
       baseURL: API_BASE_URL,
@@ -57,9 +61,9 @@ const MinimalTemplate = ({ userData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short'
       });
     } catch {
       return dateString;
@@ -142,17 +146,17 @@ const MinimalTemplate = ({ userData }) => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           {hasBasicInfo && (
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-3 sm:mb-4 break-words">
-              {userData?.firstName && userData?.lastName 
+              {userData?.firstName && userData?.lastName
                 ? `${userData.firstName} ${userData.lastName}`
                 : userData?.firstName || userData?.lastName || 'Professional Portfolio'
               }
             </h1>
           )}
-          
+
           {hasTitle && (
             <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 break-words">{userData.professional.title}</p>
           )}
-          
+
           {hasContactInfo && (
             <div className="flex flex-col sm:flex-row justify-center flex-wrap gap-4 sm:gap-6 text-sm text-gray-600 mb-6">
               {userData?.personalInfo?.phone && (
@@ -184,7 +188,7 @@ const MinimalTemplate = ({ userData }) => {
           {hasSocialLinks && (
             <div className="flex justify-center space-x-4 sm:space-x-6">
               {userData?.personalInfo?.socialLinks?.linkedin && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -195,7 +199,7 @@ const MinimalTemplate = ({ userData }) => {
                 </a>
               )}
               {userData?.personalInfo?.socialLinks?.github && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -203,6 +207,72 @@ const MinimalTemplate = ({ userData }) => {
                   aria-label="GitHub Profile"
                 >
                   <Github className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.twitter && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-blue-500 transition-colors"
+                  aria-label="Twitter Profile"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.website && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-green-600 transition-colors"
+                  aria-label="Personal Website"
+                >
+                  <Globe className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.portfolio && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-purple-600 transition-colors"
+                  aria-label="Portfolio"
+                >
+                  <Briefcase className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.behance && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-indigo-600 transition-colors"
+                  aria-label="Behance Profile"
+                >
+                  <Palette className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.dribbble && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-pink-600 transition-colors"
+                  aria-label="Dribbble Profile"
+                >
+                  <Figma className="w-5 h-5" />
+                </a>
+              )}
+              {userData?.personalInfo?.socialLinks?.other && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-orange-600 transition-colors"
+                  aria-label="Other Link"
+                >
+                  <Link className="w-5 h-5" />
                 </a>
               )}
             </div>
@@ -303,7 +373,7 @@ const MinimalTemplate = ({ userData }) => {
                   )}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                     {project.url && (
-                      <a 
+                      <a
                         href={ensureHttpProtocol(project.url)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -314,7 +384,7 @@ const MinimalTemplate = ({ userData }) => {
                       </a>
                     )}
                     {project.githubUrl && (
-                      <a 
+                      <a
                         href={ensureHttpProtocol(project.githubUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -377,13 +447,13 @@ const MinimalTemplate = ({ userData }) => {
       <footer className="border-t border-gray-200 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-4">
-            <button 
+            <button
               onClick={openModal}
               className="text-gray-600 hover:text-gray-900 transition-colors text-sm sm:text-base cursor-pointer"
             >
               Get In Touch
             </button>
-            <button 
+            <button
               onClick={() => window.print()}
               className="text-gray-600 hover:text-gray-900 transition-colors text-sm sm:text-base cursor-pointer"
             >
@@ -391,8 +461,8 @@ const MinimalTemplate = ({ userData }) => {
             </button>
           </div>
           <p className="text-xs sm:text-sm text-gray-500 break-words">
-            © {new Date().getFullYear()} {hasBasicInfo 
-              ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() 
+            © {new Date().getFullYear()} {hasBasicInfo
+              ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
               : 'Professional Portfolio'
             }
           </p>
@@ -401,7 +471,7 @@ const MinimalTemplate = ({ userData }) => {
 
       {/* Contact Modal - Minimal Style */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
@@ -413,9 +483,8 @@ const MinimalTemplate = ({ userData }) => {
                 <button
                   onClick={closeModal}
                   disabled={isLoading}
-                  className={`text-gray-400 hover:text-gray-600 transition-colors ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
+                  className={`text-gray-400 hover:text-gray-600 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -423,7 +492,7 @@ const MinimalTemplate = ({ userData }) => {
               </div>
               <p className="text-gray-600 text-sm mt-2">I'd love to hear from you.</p>
             </div>
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -450,9 +519,8 @@ const MinimalTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="What's your name?"
                   />
                 </div>
@@ -470,9 +538,8 @@ const MinimalTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="What's your email?"
                   />
                 </div>
@@ -490,9 +557,8 @@ const MinimalTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors resize-none ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors resize-none ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="What's your message?"
                   />
                 </div>
@@ -502,11 +568,10 @@ const MinimalTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-3 px-4 rounded-md transition-colors font-medium flex items-center justify-center ${
-                    isLoading
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
-                  }`}
+                  className={`w-full py-3 px-4 rounded-md transition-colors font-medium flex items-center justify-center ${isLoading
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -526,7 +591,7 @@ const MinimalTemplate = ({ userData }) => {
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-4 border-t border-gray-200 text-center">
                   <p className="text-xs text-gray-500 mb-2">Or email directly:</p>
-                  <a 
+                  <a
                     href={`mailto:${userData.email}`}
                     className="text-gray-600 hover:text-gray-900 text-sm transition-colors break-all"
                   >

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MapPin, Phone, Mail, Github, Linkedin, Twitter, ExternalLink, 
-  Download, Calendar, Building, GraduationCap, Award, Star, 
+import {
+  MapPin, Phone, Mail, Github, Linkedin, Twitter, ExternalLink,
+  Download, Calendar, Building, GraduationCap, Award, Star,
   Code, Briefcase, User, Globe, ChevronRight, ArrowUpRight,
-  Clock, Users, Zap, Target, Eye, Heart, X, Send
+  Clock, Users, Zap, Target, Eye, Heart, X, Send, Palette, Figma, Link
 } from 'lucide-react';
 
 const ModernTemplate = ({ userData }) => {
@@ -26,20 +26,24 @@ const ModernTemplate = ({ userData }) => {
   const hasProjects = userData?.projects?.length > 0;
   const hasCertifications = userData?.certifications?.length > 0;
   const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-    (userData?.personalInfo?.socialLinks?.linkedin || 
-     userData?.personalInfo?.socialLinks?.github || 
-     userData?.personalInfo?.socialLinks?.twitter ||
-     userData?.personalInfo?.socialLinks?.website);
-  const hasContactInfo = userData?.personalInfo?.phone || 
-                        userData?.personalInfo?.location || 
-                        userData?.email;
+  (userData?.personalInfo?.socialLinks?.linkedin || 
+   userData?.personalInfo?.socialLinks?.github || 
+   userData?.personalInfo?.socialLinks?.twitter ||
+   userData?.personalInfo?.socialLinks?.website ||
+   userData?.personalInfo?.socialLinks?.portfolio ||
+   userData?.personalInfo?.socialLinks?.behance ||
+   userData?.personalInfo?.socialLinks?.dribbble ||
+   userData?.personalInfo?.socialLinks?.other);
+  const hasContactInfo = userData?.personalInfo?.phone ||
+    userData?.personalInfo?.location ||
+    userData?.email;
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Setting up API configuration
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    
+
     // Store config for later use
     window.apiConfig = {
       baseURL: API_BASE_URL,
@@ -64,9 +68,9 @@ const ModernTemplate = ({ userData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short'
       });
     } catch {
       return dateString;
@@ -163,20 +167,20 @@ const ModernTemplate = ({ userData }) => {
         <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words flex-1">{skill}</h3>
         <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">{category}</span>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Proficiency</span>
           <span className="font-medium text-gray-900">{level}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${level}%` }}
           ></div>
         </div>
       </div>
-      
+
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
   );
@@ -187,7 +191,7 @@ const ModernTemplate = ({ userData }) => {
         <div className="absolute -left-4 sm:-left-6 top-6 sm:top-8 w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center">
           <span className="text-white font-bold text-xs sm:text-sm">{index + 1}</span>
         </div>
-        
+
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 sm:mb-6 gap-4">
           <div className="flex-1 min-w-0">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors break-words">
@@ -206,7 +210,7 @@ const ModernTemplate = ({ userData }) => {
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm text-gray-700 font-medium flex-shrink-0">
             <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
             <span className="break-words">
@@ -214,11 +218,11 @@ const ModernTemplate = ({ userData }) => {
             </span>
           </div>
         </div>
-        
+
         {experience.description && (
           <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{experience.description}</p>
         )}
-        
+
         {experience.achievements && experience.achievements.length > 0 && (
           <div className="space-y-2">
             <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Key Achievements</h4>
@@ -238,14 +242,14 @@ const ModernTemplate = ({ userData }) => {
     <div className="group bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-300 overflow-hidden transition-all duration-300 hover:-translate-y-2">
       {project.image && (
         <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden">
-          <img 
-            src={project.image} 
+          <img
+            src={project.image}
             alt={project.title || 'Project'}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
       )}
-      
+
       <div className="p-6 sm:p-8">
         <div className="flex items-start justify-between mb-4 gap-4">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors break-words flex-1">
@@ -258,15 +262,15 @@ const ModernTemplate = ({ userData }) => {
             </span>
           )}
         </div>
-        
+
         {project.description && (
           <p className="text-gray-600 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">{project.description}</p>
         )}
-        
+
         {project.skills && project.skills.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
             {project.skills.map((skill, index) => (
-              <span 
+              <span
                 key={index}
                 className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-800 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full font-medium break-words"
               >
@@ -275,10 +279,10 @@ const ModernTemplate = ({ userData }) => {
             ))}
           </div>
         )}
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
           {project.url && (
-            <a 
+            <a
               href={ensureHttpProtocol(project.url)}
               target="_blank"
               rel="noopener noreferrer"
@@ -289,7 +293,7 @@ const ModernTemplate = ({ userData }) => {
             </a>
           )}
           {project.githubUrl && (
-            <a 
+            <a
               href={ensureHttpProtocol(project.githubUrl)}
               target="_blank"
               rel="noopener noreferrer"
@@ -322,18 +326,18 @@ const ModernTemplate = ({ userData }) => {
             )}
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 text-green-800 text-xs sm:text-sm px-3 py-1 rounded-full font-medium flex-shrink-0 text-center">
           <span className="break-words">
             {formatDate(education.startDate)} - {formatDate(education.endDate) || 'Present'}
           </span>
         </div>
       </div>
-      
+
       {education.description && (
         <p className="text-gray-600 leading-relaxed text-sm sm:text-base mb-3">{education.description}</p>
       )}
-      
+
       {education.gpa && (
         <div className="text-sm text-gray-600">
           <span className="font-medium">GPA: </span>{education.gpa}
@@ -350,9 +354,9 @@ const ModernTemplate = ({ userData }) => {
           <img src={certification.badge} alt="Badge" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0" />
         )}
       </div>
-      
+
       <p className="text-gray-600 mb-3 text-sm sm:text-base break-words">{certification.issuer || 'Issuer'}</p>
-      
+
       <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-3">
         <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
         <span className="break-words">
@@ -360,9 +364,9 @@ const ModernTemplate = ({ userData }) => {
           {certification.expiryDate && ` - ${formatDate(certification.expiryDate)}`}
         </span>
       </div>
-      
+
       {certification.credentialUrl && (
-        <a 
+        <a
           href={ensureHttpProtocol(certification.credentialUrl)}
           target="_blank"
           rel="noopener noreferrer"
@@ -387,31 +391,31 @@ const ModernTemplate = ({ userData }) => {
       {/* Hero Section */}
       <header className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-indigo-700/20"></div>
-        
+
         <div className="relative z-10 max-w-6xl mx-auto py-16 sm:py-20 text-center">
           {/* Profile Photo */}
           {userData?.profilePhoto && (
             <div className="mb-6 sm:mb-8">
               <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
-                <img 
-                  src={userData.profilePhoto} 
-                  alt="Profile" 
+                <img
+                  src={userData.profilePhoto}
+                  alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
           )}
-          
+
           {/* Name and Title */}
           {hasBasicInfo && (
             <div className="mb-6 sm:mb-8">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 leading-tight pb-2 break-words">
-                {userData?.firstName && userData?.lastName 
+                {userData?.firstName && userData?.lastName
                   ? `${userData.firstName} ${userData.lastName}`
                   : userData?.firstName || userData?.lastName || 'Professional Portfolio'
                 }
               </h1>
-              
+
               {hasTitle && (
                 <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-700 font-light mb-4 sm:mb-6 break-words">
                   {userData.professional.title}
@@ -419,7 +423,7 @@ const ModernTemplate = ({ userData }) => {
               )}
             </div>
           )}
-          
+
           {/* Summary */}
           {hasSummary && (
             <div className="mb-8 sm:mb-12">
@@ -428,12 +432,12 @@ const ModernTemplate = ({ userData }) => {
               </p>
             </div>
           )}
-          
+
           {/* Contact Info */}
           {hasContactInfo && (
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10">
               {userData?.email && (
-                <a 
+                <a
                   href={`mailto:${userData.email}`}
                   className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
@@ -441,9 +445,9 @@ const ModernTemplate = ({ userData }) => {
                   <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base break-all">{userData.email}</span>
                 </a>
               )}
-              
+
               {userData?.personalInfo?.phone && (
-                <a 
+                <a
                   href={`tel:${userData.personalInfo.phone}`}
                   className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
@@ -451,7 +455,7 @@ const ModernTemplate = ({ userData }) => {
                   <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base">{userData.personalInfo.phone}</span>
                 </a>
               )}
-              
+
               {userData?.personalInfo?.location && (
                 <div className="flex items-center justify-center bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
@@ -460,12 +464,12 @@ const ModernTemplate = ({ userData }) => {
               )}
             </div>
           )}
-          
+
           {/* Social Links */}
           {hasSocialLinks && (
             <div className="flex justify-center space-x-3 sm:space-x-4 mb-8 sm:mb-12">
               {userData?.personalInfo?.socialLinks?.linkedin && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -475,9 +479,9 @@ const ModernTemplate = ({ userData }) => {
                   <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:text-blue-700" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.github && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -487,9 +491,9 @@ const ModernTemplate = ({ userData }) => {
                   <Github className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 group-hover:text-gray-900" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.twitter && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -499,9 +503,9 @@ const ModernTemplate = ({ userData }) => {
                   <Twitter className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 group-hover:text-blue-600" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.website && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -511,20 +515,68 @@ const ModernTemplate = ({ userData }) => {
                   <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:text-green-700" />
                 </a>
               )}
+
+              {userData?.personalInfo?.socialLinks?.portfolio && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-purple-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Portfolio"
+                >
+                  <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 group-hover:text-purple-700" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.behance && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Behance Profile"
+                >
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:text-blue-700" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.dribbble && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-pink-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Dribbble Profile"
+                >
+                  <Figma className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600 group-hover:text-pink-700" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.other && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  aria-label="Other Link"
+                >
+                  <Link className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-gray-700" />
+                </a>
+              )}
             </div>
           )}
-          
+
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button 
+            <button
               onClick={() => window.print()}
               className="bg-gradient-to-r cursor-pointer from-blue-500 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base"
             >
               <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-bounce flex-shrink-0" />
               Download Resume
             </button>
-            
-            <button 
+
+            <button
               onClick={openModal}
               className="border-2 border-white/80 text-gray-800 hover:bg-white/90 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center justify-center group backdrop-blur-sm text-sm sm:text-base cursor-pointer"
             >
@@ -539,17 +591,17 @@ const ModernTemplate = ({ userData }) => {
         {/* Skills Section */}
         {hasSkills && (
           <Section>
-            <SectionTitle 
-              icon={Code} 
-              title="Skills & Expertise" 
+            <SectionTitle
+              icon={Code}
+              title="Skills & Expertise"
               subtitle="Technologies and tools I work with to bring ideas to life"
               gradient="from-blue-500 to-cyan-500"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {userData.professional.skills.map((skill, index) => (
-                <SkillCard 
-                  key={index} 
-                  skill={skill} 
+                <SkillCard
+                  key={index}
+                  skill={skill}
                   level={Math.floor(Math.random() * 20) + 80} // Random level between 80-100
                   category={index % 3 === 0 ? 'Frontend' : index % 3 === 1 ? 'Backend' : 'Tools'}
                 />
@@ -561,9 +613,9 @@ const ModernTemplate = ({ userData }) => {
         {/* Experience Section */}
         {hasExperience && (
           <Section>
-            <SectionTitle 
-              icon={Briefcase} 
-              title="Professional Journey" 
+            <SectionTitle
+              icon={Briefcase}
+              title="Professional Journey"
               subtitle="My career path and the impact I've made along the way"
               gradient="from-purple-500 to-pink-500"
             />
@@ -581,9 +633,9 @@ const ModernTemplate = ({ userData }) => {
         {/* Projects Section */}
         {hasProjects && (
           <Section>
-            <SectionTitle 
-              icon={Award} 
-              title="Featured Projects" 
+            <SectionTitle
+              icon={Award}
+              title="Featured Projects"
               subtitle="A showcase of my recent work and creative solutions"
               gradient="from-green-500 to-blue-500"
             />
@@ -598,9 +650,9 @@ const ModernTemplate = ({ userData }) => {
         {/* Education Section */}
         {hasEducation && (
           <Section>
-            <SectionTitle 
-              icon={GraduationCap} 
-              title="Education" 
+            <SectionTitle
+              icon={GraduationCap}
+              title="Education"
               subtitle="Academic foundation and continuous learning journey"
               gradient="from-indigo-500 to-purple-500"
             />
@@ -615,9 +667,9 @@ const ModernTemplate = ({ userData }) => {
         {/* Certifications Section */}
         {hasCertifications && (
           <Section>
-            <SectionTitle 
-              icon={Award} 
-              title="Certifications" 
+            <SectionTitle
+              icon={Award}
+              title="Certifications"
               subtitle="Professional credentials and achievements"
               gradient="from-yellow-500 to-orange-500"
             />
@@ -636,21 +688,21 @@ const ModernTemplate = ({ userData }) => {
           <div className="mb-6 sm:mb-8">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Let's Create Something Amazing Together</h3>
             <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              I'm always excited to take on new challenges and collaborate with innovative teams. 
+              I'm always excited to take on new challenges and collaborate with innovative teams.
               Let's discuss how we can bring your ideas to life.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12">
-            <button 
+            <button
               onClick={openModal}
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group text-sm sm:text-base cursor-pointer"
             >
               <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:animate-pulse flex-shrink-0" />
               Start a Conversation
             </button>
-            
-            <button 
+
+            <button
               onClick={() => window.print()}
               className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl transition-all font-semibold flex items-center justify-center group text-sm sm:text-base cursor-pointer"
             >
@@ -658,12 +710,12 @@ const ModernTemplate = ({ userData }) => {
               Download Resume
             </button>
           </div>
-          
+
           {/* Social Links Footer */}
           {hasSocialLinks && (
             <div className="flex justify-center space-x-4 sm:space-x-6 mb-6 sm:mb-8">
               {userData?.personalInfo?.socialLinks?.linkedin && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -673,9 +725,9 @@ const ModernTemplate = ({ userData }) => {
                   <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.github && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -685,9 +737,9 @@ const ModernTemplate = ({ userData }) => {
                   <Github className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.twitter && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -697,9 +749,9 @@ const ModernTemplate = ({ userData }) => {
                   <Twitter className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
-              
+
               {userData?.personalInfo?.socialLinks?.website && (
-                <a 
+                <a
                   href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -709,14 +761,62 @@ const ModernTemplate = ({ userData }) => {
                   <Globe className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
                 </a>
               )}
+
+              {userData?.personalInfo?.socialLinks?.portfolio && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-gray-800 hover:bg-purple-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Portfolio"
+                >
+                  <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.behance && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-gray-800 hover:bg-blue-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Behance Profile"
+                >
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.dribbble && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-gray-800 hover:bg-pink-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Dribbble Profile"
+                >
+                  <Figma className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
+                </a>
+              )}
+
+              {userData?.personalInfo?.socialLinks?.other && (
+                <a
+                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-gray-800 hover:bg-gray-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
+                  aria-label="Other Link"
+                >
+                  <Link className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-white" />
+                </a>
+              )}
             </div>
           )}
-          
+
           <div className="border-t border-gray-800 pt-6 sm:pt-8">
             <p className="text-gray-400 text-sm sm:text-base break-words">
-              © {new Date().getFullYear()} {userData?.firstName && userData?.lastName 
-                ? `${userData.firstName} ${userData.lastName}` 
-                : 'Professional Portfolio'}. 
+              © {new Date().getFullYear()} {userData?.firstName && userData?.lastName
+                ? `${userData.firstName} ${userData.lastName}`
+                : 'Professional Portfolio'}.
               Crafted with passion and attention to detail.
             </p>
           </div>
@@ -725,14 +825,14 @@ const ModernTemplate = ({ userData }) => {
 
       {/* Contact Modal - Modern Style */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
           <div className="bg-white/95 backdrop-blur-xl rounded-3xl max-w-lg w-full mx-auto shadow-2xl border border-white/20 relative overflow-hidden">
             {/* Gradient Background Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/60 to-indigo-50/80"></div>
-            
+
             {/* Modal Header */}
             <div className="relative z-10 p-6 sm:p-8 pb-4">
               <div className="flex items-center justify-between mb-4">
@@ -748,16 +848,15 @@ const ModernTemplate = ({ userData }) => {
                 <button
                   onClick={closeModal}
                   disabled={isLoading}
-                  className={`text-gray-400 hover:text-gray-600 transition-colors rounded-xl p-2 hover:bg-gray-100 ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
+                  className={`text-gray-400 hover:text-gray-600 transition-colors rounded-xl p-2 hover:bg-gray-100 ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                   aria-label="Close modal"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -784,9 +883,8 @@ const ModernTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your name?"
                   />
                 </div>
@@ -804,9 +902,8 @@ const ModernTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your email?"
                   />
                 </div>
@@ -824,9 +921,8 @@ const ModernTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     placeholder="What's your message?"
                   />
                 </div>
@@ -836,11 +932,10 @@ const ModernTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${
-                    isLoading
+                  className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${isLoading
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
-                  }`}
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -860,7 +955,7 @@ const ModernTemplate = ({ userData }) => {
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-6 border-t border-gray-200/60 text-center">
                   <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
-                  <a 
+                  <a
                     href={`mailto:${userData.email}`}
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
                   >

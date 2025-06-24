@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Mail, Linkedin, Building, Calendar, GraduationCap, Award, Users, TrendingUp, Globe, Twitter, Github, ExternalLink, Star, Briefcase, X, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Building, Calendar, GraduationCap, Award, Users, TrendingUp, Globe, Twitter, Github, ExternalLink, Star, Briefcase, X, Send, Palette, Figma, Link } from 'lucide-react';
 import axios from 'axios';
 
 const ExecutiveTemplate = ({ userData }) => {
@@ -17,11 +17,15 @@ const ExecutiveTemplate = ({ userData }) => {
   const hasTitle = userData?.professional?.title;
   const hasSummary = userData?.professional?.summary;
   const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-    (userData?.personalInfo?.socialLinks?.linkedin || 
-     userData?.personalInfo?.socialLinks?.github || 
-     userData?.personalInfo?.socialLinks?.twitter ||
-     userData?.personalInfo?.socialLinks?.website);
+  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+    (userData?.personalInfo?.socialLinks?.linkedin ||
+      userData?.personalInfo?.socialLinks?.github ||
+      userData?.personalInfo?.socialLinks?.twitter ||
+      userData?.personalInfo?.socialLinks?.website ||
+      userData?.personalInfo?.socialLinks?.portfolio ||
+      userData?.personalInfo?.socialLinks?.behance ||
+      userData?.personalInfo?.socialLinks?.dribbble ||
+      userData?.personalInfo?.socialLinks?.other);
   const hasExperience = userData?.experience?.length > 0;
   const hasEducation = userData?.education?.length > 0;
   const hasProjects = userData?.projects?.length > 0;
@@ -55,9 +59,9 @@ const ExecutiveTemplate = ({ userData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long'
       });
     } catch {
       return dateString;
@@ -139,8 +143,8 @@ const ExecutiveTemplate = ({ userData }) => {
             {/* Profile Photo */}
             <div className="flex-shrink-0 self-center lg:self-start">
               {userData?.profilePhoto ? (
-                <img 
-                  src={userData.profilePhoto} 
+                <img
+                  src={userData.profilePhoto}
                   alt="Professional Profile"
                   className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full object-cover shadow-xl border-4 border-gray-200"
                 />
@@ -157,13 +161,13 @@ const ExecutiveTemplate = ({ userData }) => {
             <div className="flex-1 text-center lg:text-left">
               {hasBasicInfo && (
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 break-words">
-                  {userData?.firstName && userData?.lastName 
+                  {userData?.firstName && userData?.lastName
                     ? `${userData.firstName} ${userData.lastName}`
                     : userData?.firstName || userData?.lastName || 'Executive Professional'
                   }
                 </h1>
               )}
-              
+
               {hasTitle && (
                 <p className="text-lg sm:text-xl lg:text-2xl text-blue-600 font-semibold mb-4 sm:mb-6 break-words">{userData.professional.title}</p>
               )}
@@ -173,7 +177,7 @@ const ExecutiveTemplate = ({ userData }) => {
                   {userData.professional.summary}
                 </p>
               )}
-              
+
               {/* Contact Information */}
               {hasContactInfo && (
                 <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 lg:gap-6 text-gray-600 mb-4 sm:mb-6 justify-center lg:justify-start">
@@ -184,7 +188,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     </div>
                   )}
                   {userData?.email && (
-                    <a 
+                    <a
                       href={`mailto:${userData.email}`}
                       className="flex items-center justify-center lg:justify-start bg-gray-100 hover:bg-blue-50 px-3 sm:px-4 py-2 rounded-full transition-colors"
                     >
@@ -193,7 +197,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.phone && (
-                    <a 
+                    <a
                       href={`tel:${userData.personalInfo.phone}`}
                       className="flex items-center justify-center lg:justify-start bg-gray-100 hover:bg-blue-50 px-3 sm:px-4 py-2 rounded-full transition-colors"
                     >
@@ -208,7 +212,7 @@ const ExecutiveTemplate = ({ userData }) => {
               {hasSocialLinks && (
                 <div className="flex justify-center lg:justify-start space-x-3 sm:space-x-4">
                   {userData?.personalInfo?.socialLinks?.linkedin && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -219,7 +223,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.github && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -230,7 +234,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.twitter && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -241,7 +245,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     </a>
                   )}
                   {userData?.personalInfo?.socialLinks?.website && (
-                    <a 
+                    <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -249,6 +253,50 @@ const ExecutiveTemplate = ({ userData }) => {
                       aria-label="Personal Website"
                     >
                       <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.portfolio && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-purple-600 hover:bg-purple-700 text-white p-2 sm:p-3 rounded-full transition-colors shadow-lg"
+                      aria-label="Portfolio"
+                    >
+                      <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.behance && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 sm:p-3 rounded-full transition-colors shadow-lg"
+                      aria-label="Behance Profile"
+                    >
+                      <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.dribbble && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-pink-600 hover:bg-pink-700 text-white p-2 sm:p-3 rounded-full transition-colors shadow-lg"
+                      aria-label="Dribbble Profile"
+                    >
+                      <Figma className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </a>
+                  )}
+                  {userData?.personalInfo?.socialLinks?.other && (
+                    <a
+                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-600 hover:bg-orange-700 text-white p-2 sm:p-3 rounded-full transition-colors shadow-lg"
+                      aria-label="Other Link"
+                    >
+                      <Link className="w-4 h-4 sm:w-5 sm:h-5" />
                     </a>
                   )}
                 </div>
@@ -320,13 +368,13 @@ const ExecutiveTemplate = ({ userData }) => {
                   {index !== userData.experience.length - 1 && (
                     <div className="absolute left-5 sm:left-6 top-12 w-0.5 h-full bg-blue-200 hidden sm:block"></div>
                   )}
-                  
+
                   <div className="flex items-start space-x-4 sm:space-x-6">
                     {/* Timeline dot */}
                     <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
                       <Building className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    
+
                     <div className="flex-1 bg-gray-50 rounded-lg p-4 sm:p-6 min-w-0">
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
                         <div className="min-w-0 flex-1">
@@ -351,11 +399,11 @@ const ExecutiveTemplate = ({ userData }) => {
                           </span>
                         </div>
                       </div>
-                      
+
                       {exp.description && (
                         <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{exp.description}</p>
                       )}
-                      
+
                       {exp.achievements && exp.achievements.length > 0 && (
                         <div>
                           <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Key Achievements</h4>
@@ -395,11 +443,11 @@ const ExecutiveTemplate = ({ userData }) => {
                       </span>
                     )}
                   </div>
-                  
+
                   {project.description && (
                     <p className="text-gray-700 mb-4 leading-relaxed text-sm sm:text-base">{project.description}</p>
                   )}
-                  
+
                   {project.skills && project.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.skills.map((skill, idx) => (
@@ -409,10 +457,10 @@ const ExecutiveTemplate = ({ userData }) => {
                       ))}
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     {project.url && (
-                      <a 
+                      <a
                         href={ensureHttpProtocol(project.url)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -423,7 +471,7 @@ const ExecutiveTemplate = ({ userData }) => {
                       </a>
                     )}
                     {project.githubUrl && (
-                      <a 
+                      <a
                         href={ensureHttpProtocol(project.githubUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -509,7 +557,7 @@ const ExecutiveTemplate = ({ userData }) => {
                       </span>
                     </div>
                     {cert.credentialUrl && (
-                      <a 
+                      <a
                         href={ensureHttpProtocol(cert.credentialUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -533,16 +581,16 @@ const ExecutiveTemplate = ({ userData }) => {
           <div className="mb-6 sm:mb-8">
             <h3 className="text-xl sm:text-2xl font-bold mb-4">Let's Connect</h3>
             <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
-              Open to executive opportunities and strategic partnerships. 
+              Open to executive opportunities and strategic partnerships.
               Let's discuss how we can drive success together.
             </p>
           </div>
-          
-          
+
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 sm:mb-8">
 
             {userData?.email && (
-              <button 
+              <button
                 onClick={openModal}
                 className="bg-blue-600 cursor-pointer hover:bg-blue-700 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base"
               >
@@ -551,7 +599,7 @@ const ExecutiveTemplate = ({ userData }) => {
               </button>
             )}
 
-            <button 
+            <button
               onClick={() => window.print()}
               className="border-2 border-gray-600 hover:bg-gray-800 px-6 sm:px-8 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center text-sm sm:text-base cursor-pointer"
             >
@@ -559,12 +607,12 @@ const ExecutiveTemplate = ({ userData }) => {
               Download Executive Resume
             </button>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-6 sm:pt-8">
             <p className="text-gray-400 text-sm sm:text-base">
-              © {new Date().getFullYear()} {hasBasicInfo 
-                ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() 
-                : 'Executive Professional'}. 
+              © {new Date().getFullYear()} {hasBasicInfo
+                ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
+                : 'Executive Professional'}.
               All rights reserved.
             </p>
           </div>
@@ -573,7 +621,7 @@ const ExecutiveTemplate = ({ userData }) => {
 
       {/* Contact Modal - Executive Style */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
@@ -583,20 +631,19 @@ const ExecutiveTemplate = ({ userData }) => {
               <button
                 onClick={closeModal}
                 disabled={isLoading}
-                className={`absolute top-4 right-4 text-white/80 hover:text-white transition-colors ${
-                  isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
+                className={`absolute top-4 right-4 text-white/80 hover:text-white transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 aria-label="Close modal"
               >
                 <X className="w-6 h-6" />
               </button>
-              
+
               <div className="pr-8">
                 <h3 className="text-2xl font-bold mb-2">Let's Get in Touch</h3>
                 <p className="text-blue-100">I'm eager to connect and discuss how we might work together.</p>
               </div>
             </div>
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -623,9 +670,8 @@ const ExecutiveTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="What's your name?"
                   />
                 </div>
@@ -643,9 +689,8 @@ const ExecutiveTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="What's your email?"
                   />
                 </div>
@@ -663,9 +708,8 @@ const ExecutiveTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none ${
-                      isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
-                    }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'
+                      }`}
                     placeholder="Tell me about the opportunity, project, or partnership you'd like to discuss..."
                   />
                 </div>
@@ -675,11 +719,10 @@ const ExecutiveTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-4 px-6 rounded-lg transition-all duration-300 font-semibold text-white shadow-lg flex items-center justify-center ${
-                    isLoading
+                  className={`w-full py-4 px-6 rounded-lg transition-all duration-300 font-semibold text-white shadow-lg flex items-center justify-center ${isLoading
                       ? 'bg-gray-400 cursor-not-allowed shadow-none'
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
-                  }`}
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -699,7 +742,7 @@ const ExecutiveTemplate = ({ userData }) => {
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-6 border-t border-gray-200 text-center">
                   <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
-                  <a 
+                  <a
                     href={`mailto:${userData.email}`}
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
                   >
