@@ -137,7 +137,7 @@ router.post('/register',
 
 // Password reset routes
 router.post('/forgot-password', 
-  // otpSendLimiter,
+  otpSendLimiter,
   forgotPasswordValidation,
   forgotPassword
 );
