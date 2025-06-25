@@ -199,7 +199,7 @@ const sendPasswordResetOTP = async (email, otp) => {
           email
         }
       ],
-      template_uuid: process.env.REGISTER_OTP_TEMPLATE_ID,
+      template_uuid: process.env.RESET_PASSWORD_OTP_TEMPLATE_ID,
       template_variables: templateVariables
     });
 
