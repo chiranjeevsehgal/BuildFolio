@@ -60,7 +60,8 @@ passport.use(new GoogleStrategy({
       return done(null, user);
     }
     
-    const baseUsername = profile.emails[0].value.split('@')[0];
+    const emailPrefix = profile.emails[0].value.split('@')[0];
+    const baseUsername = emailPrefix.replace(/\./g, '-');
     const uniqueUsername = await generateUniqueUsername(baseUsername);
 
     // Create new user

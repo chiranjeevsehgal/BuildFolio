@@ -521,7 +521,7 @@ const ProjectsSection = ({
                             </div>
 
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Project Title *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Project Title <span className="text-red-500">*</span></label>
                                 <input
                                     type="text"
                                     value={project.title}
@@ -618,7 +618,7 @@ const ProjectsSection = ({
                             </div>
 
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Description <span className="text-red-500">*</span></label>
                                 <textarea
                                     rows="4"
                                     value={project.description}

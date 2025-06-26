@@ -108,6 +108,15 @@ const Settings = () => {
         loadUserData();
     }, []);
 
+    useEffect(() => {
+        const successMessage = sessionStorage.getItem('showSuccessMessage');
+        if (successMessage) {
+            setActiveTab('account')
+            showMessage('success', successMessage);
+            sessionStorage.removeItem('showSuccessMessage');
+        }
+    }, []);
+
     const showMessage = useCallback((type, content) => {
         if (type === 'success') {
             toast.success(content)

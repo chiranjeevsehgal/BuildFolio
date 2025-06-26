@@ -71,6 +71,7 @@ const Profile = () => {
     const [newSkill, setNewSkill] = useState("")
     const [completionPercentage, setCompletionPercentage] = useState(0)
     const API_BASE_URL = import.meta.env.VITE_API_URL
+    const VITE_ENV = import.meta.env.VITE_ENV
 
     // Enhanced validation with debouncing
     const validateProfile = useCallback(() => {

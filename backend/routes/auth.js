@@ -29,11 +29,11 @@ const registerValidation = [
     .withMessage('Username is required')
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters')
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers, and underscores'),
+    .matches(/^[a-zA-Z0-9_-]+$/)
+    .withMessage('Username can only contain letters, numbers, underscores, and hyphens'),
   body('verifiedToken')
-      .notEmpty()
-      .withMessage('Email verification token is required'),
+    .notEmpty()
+    .withMessage('Email verification token is required'),
 ];
 
 const loginValidation = [
@@ -85,7 +85,7 @@ const resendResetOtpValidation = [
 // @desc    Send OTP to email
 // @route   POST /api/auth/send-otp
 // @access  Public
-router.post('/send-otp', 
+router.post('/send-otp',
   otpSendLimiter,
   [
     body('email')
@@ -132,11 +132,11 @@ router.post('/resend-otp',
 // @route   POST /api/auth/register
 // @access  Public
 router.post('/register',
-  registerLimiter,registerValidation, register
+  registerLimiter, registerValidation, register
 );
 
 // Password reset routes
-router.post('/forgot-password', 
+router.post('/forgot-password',
   otpSendLimiter,
   forgotPasswordValidation,
   forgotPassword
@@ -167,7 +167,7 @@ router.patch('/profile/complete', auth, markProfileCompleted);
 
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/google/callback', 
+router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/failure' }), auth.checkActiveUserForOAuth,
   oauthSuccess
 );

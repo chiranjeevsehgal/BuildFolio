@@ -7,7 +7,7 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
     if (!showUsernameModal) return null;
 
     const showMessage = useCallback((type, content) => {
-        
+
         if (type === 'success') {
             toast.success(content)
         }
@@ -61,9 +61,10 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                     username: response.data.user.username
                 }));
 
-                showMessageParent('success', 'Username changed successfully.');
+                sessionStorage.setItem('showSuccessMessage', 'Username changed successfully.');
                 setNewUsername(''); // Clear the input
                 setShowUsernameModal(false);
+                window.location.reload();
             } else {
                 throw new Error(response.data.message || 'Failed to change username');
             }
@@ -103,7 +104,7 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        
+
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -161,9 +162,9 @@ const UsernameChangeModal = ({ showUsernameModal, oldUsername, newUsername, setN
                 </div>
             </div>
             <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+                position="top-center"
+                reverseOrder={true}
+            />
         </div>
     );
 };
