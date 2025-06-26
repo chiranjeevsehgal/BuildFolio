@@ -22,7 +22,8 @@ import {
   AlertTriangle,
   Check,
   CheckCheck,
-  Loader2
+  Loader2,
+  Rocket
 } from 'lucide-react';
 import axios from 'axios';
 import FeedbackModal from './FeedbackModal';
@@ -296,6 +297,17 @@ const Navbar = ({ current }) => {
           {/* Right side - Actions and User menu */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-3 xl:space-x-4">
             {/* Templates Link */}
+            <a
+              href="/portfolio"
+              className={`inline-flex items-center cursor-pointer px-2 lg:px-3 xl:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/portfolio'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <Rocket  className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+              <span className="hidden lg:inline">Manage Portfolio</span>
+              <span className="lg:hidden">Manage Portfolio</span>
+            </a>
             <a
               href="/templates"
               className={`inline-flex items-center cursor-pointer px-2 lg:px-3 xl:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/templates'
