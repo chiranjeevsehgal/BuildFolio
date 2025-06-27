@@ -14,6 +14,7 @@ import ProfessionalSummarySection from "../components/profileSections/Profession
 import ExperienceSection from "../components/profileSections/ExperienceSection"
 import EducationSection from "../components/profileSections/EducationSection"
 import ProjectsSection from "../components/profileSections/ProjectsSection"
+import ResumeUpload from "../components/profileSections/ResumeUpload" // Import the new component
 import toast, { Toaster } from 'react-hot-toast';
 
 import {
@@ -31,6 +32,7 @@ const Profile = () => {
     const [touchedFields, setTouchedFields] = useState({})
     const [isFormValid, setIsFormValid] = useState(true)
     const [currentUser, setCurrentUser] = useState();
+    const [resumeDataPopulated, setResumeDataPopulated] = useState(null);
 
     const [editingSections, setEditingSections] = useState({
         personalInfo: false,
@@ -267,6 +269,121 @@ const Profile = () => {
         }
     }
 
+    const transformProjectData = (projects) => {
+        return projects.map(proj => {
+            // Convert technologies array to the format expected by your project component
+            const transformedProject = {
+                title: proj.title || "",
+                description: proj.description || "",
+                githubUrl: proj.githubUrl || "",
+                liveUrl: proj.liveUrl || "",
+                highlights: proj.highlights || [],
+                // Create skills array from technologies for compatibility
+                skills: proj.technologies || [],
+                // Add temporary skill field for adding new skills
+                skill: "",
+            };
+
+            return transformedProject;
+        });
+    };
+
+    const handleResumeDataExtracted = useCallback((extractedData) => {
+        try {
+            // Map and populate the form data   
+            const mappedData = {
+                personalInfo: {
+                    phone: extractedData.personalInfo?.phone || "",
+                    location: extractedData.personalInfo?.location || "",
+                    socialLinks: {
+                        linkedin: extractedData.personalInfo?.socialLinks?.linkedin || "",
+                        github: extractedData.personalInfo?.socialLinks?.github || "",
+                        portfolio: extractedData.personalInfo?.socialLinks?.portfolio || "",
+                    },
+                },
+                professional: {
+                    title: extractedData.professional?.title || "",
+                    summary: extractedData.professional?.summary || "",
+                    skills: extractedData.professional?.skills || [],
+                },
+                experience: (extractedData.experience || []).map(exp => ({
+                    title: exp.title || "",
+                    company: exp.company || "",
+                    location: exp.location || "",
+                    startDate: exp.startDate || "",
+                    endDate: exp.current ? "" : exp.endDate || "",
+                    current: exp.current || false,
+                    description: exp.description || "",
+                })),
+                education: (extractedData.education || []).map(edu => ({
+                    degree: edu.degree || "",
+                    school: edu.school || "",
+                    location: edu.location || "",
+                    startDate: edu.startDate || "",
+                    endDate: edu.endDate || "",
+                    gpa: edu.gpa || "",
+                    relevantCoursework: edu.relevantCoursework || [],
+                })),
+                projects: transformProjectData(extractedData.projects || []),
+                certifications: extractedData.certifications || [],
+            };
+
+            setResumeDataPopulated(mappedData)
+
+            // Update profile data with extracted information
+            setProfileData(prevData => ({
+                ...prevData,
+                ...mappedData,
+                // Preserve existing data and merge with extracted data
+                personalInfo: {
+                    ...prevData.personalInfo,
+                    ...mappedData.personalInfo,
+                    socialLinks: {
+                        ...prevData.personalInfo.socialLinks,
+                        ...mappedData.personalInfo.socialLinks,
+                    },
+                },
+                professional: {
+                    ...prevData.professional,
+                    ...mappedData.professional,
+                    // Merge skills arrays, removing duplicates
+                    skills: [
+                        ...new Set([
+                            ...prevData.professional.skills,
+                            ...mappedData.professional.skills
+                        ])
+                    ],
+                },
+            }));
+
+            // Open all editing sections for manual review
+            setEditingSections({
+                personalInfo: true,
+                professional: true,
+                experience: true,
+                education: true,
+                projects: true,
+            });
+
+            // Clear touched fields to avoid validation errors on auto-populated data
+            setTouchedFields({});
+
+            // Show detailed success message
+            const extractedSections = [];
+            if (mappedData.personalInfo.phone || mappedData.personalInfo.location) extractedSections.push('Personal Info');
+            if (mappedData.professional.title || mappedData.professional.skills.length > 0) extractedSections.push('Professional');
+            if (mappedData.experience.length > 0) extractedSections.push('Experience');
+            if (mappedData.education.length > 0) extractedSections.push('Education');
+            if (mappedData.projects.length > 0) extractedSections.push('Projects');
+
+            showMessage('success', `Resume data populated successfully! Please review and edit as needed.`);
+
+        } catch (error) {
+            console.error('Error processing resume data:', error);
+            showMessage('error', 'Failed to populate form data. Please check the extracted information.');
+        }
+    }, [showMessage]);
+
     // Enhanced photo upload with validation
     const handlePhotoUpload = async (event) => {
         const file = event.target.files[0];
@@ -374,12 +491,6 @@ const Profile = () => {
                 exp.startDate && exp.startDate.trim() !== ""
         })
 
-        // Check if we have any valid experiences to save
-        // if (validExperiences.length === 0) {
-        //     showMessage('error', 'Please complete at least one experience with all required fields before saving.')
-        //     return false
-        // }
-
         // Update profileData with filtered experiences before saving
         const originalExperiences = profileData.experience
         setProfileData(prev => ({
@@ -410,12 +521,6 @@ const Profile = () => {
                 edu.startDate && edu.startDate.trim() !== "" &&
                 edu.endDate && edu.endDate.trim() !== ""
         })
-
-        // // Check if we have any valid educations to save
-        // if (validEducations.length === 0) {
-        //     showMessage('error', 'Please complete at least one education with all required fields before saving.')
-        //     return false
-        // }
 
         // Update profileData with filtered educations before saving
         const originalEducations = profileData.education
@@ -449,12 +554,6 @@ const Profile = () => {
             const { skill, ...projectToSave } = project
             return projectToSave
         })
-
-        // // Check if we have any valid projects to save
-        // if (validProjects.length === 0) {
-        //     showMessage('error', 'Please complete at least one project with all required fields before saving.')
-        //     return false
-        // }
 
         // Update profileData with filtered projects before saving
         const originalProjects = profileData.projects
@@ -724,12 +823,19 @@ const Profile = () => {
                         )}
                     </div>
 
-
                     {/* Profile Form */}
                     <div className="space-y-8">
+                        {/* NEW: Resume Upload Section */}
+                        <ResumeUpload
+                            onDataExtracted={handleResumeDataExtracted}
+                            showMessage={showMessage}
+                        />
+
                         {/* Personal Information */}
                         <PersonalInfoSection
                             profileData={profileData}
+                            resumeprofileData={resumeDataPopulated?.personalInfo}
+                            setResumeProfileData={setResumeDataPopulated}
                             updateProfileData={updateProfileData}
                             setProfileData={setProfileData}
                             updateSocialLinks={updateSocialLinks}
@@ -753,6 +859,8 @@ const Profile = () => {
                         <ProfessionalSummarySection
                             profileData={profileData}
                             updateProfileData={updateProfileData}
+                            resumeprofileData={resumeDataPopulated?.professional}
+                            setResumeProfileData={setResumeDataPopulated}
                             newSkill={newSkill}
                             setNewSkill={setNewSkill}
                             addSkill={addSkill}
@@ -773,6 +881,8 @@ const Profile = () => {
                         <ExperienceSection
                             profileData={profileData}
                             updateExperience={updateExperience}
+                            resumeprofileData={resumeDataPopulated?.experience}
+                            setResumeProfileData={setResumeDataPopulated}
                             addExperience={addExperience}
                             removeExperience={removeExperience}
                             editingSections={editingSections}
@@ -792,6 +902,8 @@ const Profile = () => {
                             profileData={profileData}
                             setProfileData={setProfileData}
                             editingSections={editingSections}
+                            resumeprofileData={resumeDataPopulated?.education}
+                            setResumeProfileData={setResumeDataPopulated}
                             toggleSectionEdit={toggleSectionEdit}
                             showMessage={showMessage}
                             saveEducationProfile={saveEducationProfile}
@@ -810,6 +922,8 @@ const Profile = () => {
                             setProfileData={setProfileData}
                             updateProject={updateProject}
                             removeProject={removeProject}
+                            resumeprofileData={resumeDataPopulated?.projects}
+                            setResumeProfileData={setResumeDataPopulated}
                             addProjectSkill={addProjectSkill}
                             showMessage={showMessage}
                             removeProjectSkill={removeProjectSkill}

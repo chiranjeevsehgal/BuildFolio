@@ -24,6 +24,8 @@ const EducationSection = ({
     editingSections,
     toggleSectionEdit,
     showMessage,
+    resumeprofileData,
+    setResumeProfileData,
     saveEducationProfile,
     isSaving,
     formsValid,
@@ -136,22 +138,35 @@ const EducationSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [profileData, originalData, editingSections.education, getCurrentData, saveAttempted])
+
+        if (resumeprofileData) {
+            const currentData = resumeprofileData
+            const dataChanged = !deepEqual(originalData, currentData)
+            setHasChanges(dataChanged)
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
+        }
+    }, [resumeprofileData, profileData, originalData, editingSections.education, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
-        if (editingSections.education && !originalData) {
-            const currentData = getCurrentData()
-            setOriginalData(currentData)
-        } else if (!editingSections.education) {
-            // Reset when exiting edit mode
-            setOriginalData(null)
-            setHasChanges(false)
-            setShowTooltip(false)
-            setSaveAttempted(false)
-            setLastSaveTime(null)
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
+        if (!resumeprofileData) {
+            if (editingSections.education && !originalData) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+            } else if (!editingSections.education) {
+                // Reset when exiting edit mode
+                setOriginalData(null)
+                setHasChanges(false)
+                setShowTooltip(false)
+                setSaveAttempted(false)
+                setLastSaveTime(null)
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                }
             }
         }
     }, [editingSections.education, getCurrentData])
@@ -227,6 +242,7 @@ const EducationSection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
+                setResumeProfileData(null)
 
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {
@@ -271,18 +287,18 @@ const EducationSection = ({
 
     // Enhanced remove education to track changes
     const handleRemoveEducation = async (index) => {
-          await showConfirmation({
+        await showConfirmation({
             title: "Delete Education",
             message: "Are you sure you want to delete this education entry? This action cannot be undone.",
             confirmText: "Delete",
             cancelText: "Cancel",
             type: "danger"
         });
-        
-            setProfileData((prev) => ({
-                ...prev,
-                education: prev.education.filter((_, i) => i !== index),
-            }))
+
+        setProfileData((prev) => ({
+            ...prev,
+            education: prev.education.filter((_, i) => i !== index),
+        }))
     }
 
     // Update education function

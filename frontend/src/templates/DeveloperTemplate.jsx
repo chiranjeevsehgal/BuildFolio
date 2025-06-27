@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const DeveloperTemplate = ({ userData }) => {
   // Modal state
@@ -17,15 +18,15 @@ const DeveloperTemplate = ({ userData }) => {
   const hasTitle = userData?.professional?.title;
   const hasSummary = userData?.professional?.summary;
   const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-  (userData?.personalInfo?.socialLinks?.linkedin || 
-   userData?.personalInfo?.socialLinks?.github || 
-   userData?.personalInfo?.socialLinks?.twitter ||
-   userData?.personalInfo?.socialLinks?.website ||
-   userData?.personalInfo?.socialLinks?.portfolio ||
-   userData?.personalInfo?.socialLinks?.behance ||
-   userData?.personalInfo?.socialLinks?.dribbble ||
-   userData?.personalInfo?.socialLinks?.other);
+  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+    (userData?.personalInfo?.socialLinks?.linkedin ||
+      userData?.personalInfo?.socialLinks?.github ||
+      userData?.personalInfo?.socialLinks?.twitter ||
+      userData?.personalInfo?.socialLinks?.website ||
+      userData?.personalInfo?.socialLinks?.portfolio ||
+      userData?.personalInfo?.socialLinks?.behance ||
+      userData?.personalInfo?.socialLinks?.dribbble ||
+      userData?.personalInfo?.socialLinks?.other);
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasExperience = userData?.experience?.length > 0;
@@ -91,14 +92,18 @@ const DeveloperTemplate = ({ userData }) => {
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields.');
+      toast('Please fill in all required fields.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      toast('Please enter a valid email address.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
@@ -118,14 +123,14 @@ const DeveloperTemplate = ({ userData }) => {
       const result = response.data;
 
       if (result.success) {
-        alert('Thank you! Your message has been sent successfully.');
+        toast.success('Thank you! Your message has been sent successfully.');
         closeModal();
       } else {
-        alert(result.message || 'Failed to send message. Please try again.');
+        toast.error(result.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('An error occurred while sending your message. Please try again later.');
+      toast.error('An error occurred while sending your message. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -476,7 +481,7 @@ const DeveloperTemplate = ({ userData }) => {
                     <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"location": "{edu.location}",</p>
                   )}
                   {edu.gpa && (
-                    <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"gpa": "{edu.gpa}",</p>
+                    <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"grade": "{edu.gpa}",</p>
                   )}
                   {edu.description && (
                     <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"description": "{edu.description}"</p>
@@ -669,8 +674,8 @@ const DeveloperTemplate = ({ userData }) => {
                     onClick={handleSend}
                     disabled={isLoading}
                     className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${isLoading
-                        ? 'border-gray-600 bg-gray-800 text-gray-400 cursor-not-allowed'
-                        : 'border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 cursor-pointer'
+                      ? 'border-gray-600 bg-gray-800 text-gray-400 cursor-not-allowed'
+                      : 'border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 cursor-pointer'
                       }`}
                   >
                     {isLoading ? (
@@ -758,6 +763,10 @@ const DeveloperTemplate = ({ userData }) => {
           overflow-wrap: anywhere;
         }
       `}</style>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

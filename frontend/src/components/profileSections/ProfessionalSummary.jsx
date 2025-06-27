@@ -18,6 +18,8 @@ const ProfessionalSummarySection = ({
     updateProfileData,
     newSkill,
     setNewSkill,
+    resumeprofileData,
+    setResumeProfileData,
     addSkill,
     removeSkill,
     editingSections,
@@ -52,11 +54,11 @@ const ProfessionalSummarySection = ({
     // Deep comparison function for objects and arrays
     const deepEqual = (obj1, obj2) => {
         if (obj1 === obj2) return true
-        
+
         if (obj1 == null || obj2 == null) return false
-        
+
         if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return obj1 === obj2
-        
+
         // Handle arrays
         if (Array.isArray(obj1) && Array.isArray(obj2)) {
             if (obj1.length !== obj2.length) return false
@@ -65,18 +67,18 @@ const ProfessionalSummarySection = ({
             }
             return true
         }
-        
+
         // Handle objects
         const keys1 = Object.keys(obj1)
         const keys2 = Object.keys(obj2)
-        
+
         if (keys1.length !== keys2.length) return false
-        
+
         for (let key of keys1) {
             if (!keys2.includes(key)) return false
             if (!deepEqual(obj1[key], obj2[key])) return false
         }
-        
+
         return true
     }
 
@@ -93,28 +95,41 @@ const ProfessionalSummarySection = ({
             const currentData = getCurrentData()
             const dataChanged = !deepEqual(originalData, currentData)
             setHasChanges(dataChanged)
-            
+
             // Reset save attempted flag when data changes
             if (dataChanged && saveAttempted) {
                 setSaveAttempted(false)
             }
         }
-    }, [profileData, originalData, editingSections.professional, getCurrentData, saveAttempted])
+        if (resumeprofileData) {
+            const currentData = resumeprofileData
+            const dataChanged = !deepEqual(originalData, currentData)
+            setHasChanges(dataChanged)
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
+        }
+    }, [resumeprofileData, profileData, originalData, editingSections.professional, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
-        if (editingSections.professional && !originalData) {
-            const currentData = getCurrentData()
-            setOriginalData(currentData)
-        } else if (!editingSections.professional) {
-            // Reset when exiting edit mode
-            setOriginalData(null)
-            setHasChanges(false)
-            setShowTooltip(false)
-            setSaveAttempted(false)
-            setLastSaveTime(null)
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
+        if (!resumeprofileData) {
+
+            if (editingSections.professional && !originalData) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+            } else if (!editingSections.professional) {
+                // Reset when exiting edit mode
+                setOriginalData(null)
+                setHasChanges(false)
+                setShowTooltip(false)
+                setSaveAttempted(false)
+                setLastSaveTime(null)
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                }
             }
         }
     }, [editingSections.professional, getCurrentData])
@@ -123,14 +138,14 @@ const ProfessionalSummarySection = ({
     const handleToggleEdit = async (sectionName) => {
         if (editingSections.professional && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-              await showConfirmation({
+            await showConfirmation({
                 title: "Unsaved Changes",
                 message: "You have unsaved changes. Are you sure you want to cancel?",
                 confirmText: "Yes, Cancel",
                 cancelText: "Keep Editing",
                 type: "warning"
             });
-            
+
             // Restore original data
             if (originalData) {
                 updateProfileData("professional", "title", originalData.title)
@@ -138,7 +153,7 @@ const ProfessionalSummarySection = ({
                 updateProfileData("professional", "skills", [...originalData.skills])
             }
         }
-        
+
         toggleSectionEdit(sectionName)
     }
 
@@ -146,17 +161,17 @@ const ProfessionalSummarySection = ({
     const handleSave = async (e) => {
         e.preventDefault()
         e.stopPropagation()
-        
+
         if (!hasChanges || isSaving) return
-        
+
         // Touch all fields before saving to show any validation errors
         const fieldsToValidate = ['title', 'summary', 'skills']
         fieldsToValidate.forEach(field => {
             handleFieldTouch(field)
         })
-        
+
         setSaveAttempted(true)
-        
+
         try {
             const success = await saveProfessionalProfile()
             if (success) {
@@ -165,7 +180,7 @@ const ProfessionalSummarySection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
-                
+                setResumeProfileData(null)
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {
                     setSaveAttempted(false)
@@ -203,7 +218,7 @@ const ProfessionalSummarySection = ({
     // Determine save button state with better logic
     const canSave = hasChanges && formsValid.professional && !isSaving
     const showSuccess = lastSaveTime && !hasChanges && !isSaving
-    
+
     const getSaveButtonState = () => {
         if (isSaving) return { text: "Saving...", icon: Loader2, className: "bg-blue-500 text-white cursor-wait", disabled: true }
         if (showSuccess) return { text: "Saved", icon: Check, className: "bg-green-600 text-white cursor-default", disabled: true }
@@ -262,7 +277,7 @@ const ProfessionalSummarySection = ({
         <div className="relative inline-block">
             {children}
             {show && (
-                <div 
+                <div
                     className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg whitespace-nowrap z-50"
                     style={{
                         animation: 'fadeIn 0.2s ease-out',
@@ -338,22 +353,21 @@ const ProfessionalSummarySection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("professional")}
-                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-all duration-200 ${
-                            editingSections.professional 
-                                ? "bg-gray-600 text-white hover:bg-gray-700" 
-                                : "bg-slate-600 text-white hover:bg-slate-700"
-                        }`}
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-all duration-200 ${editingSections.professional
+                            ? "bg-gray-600 text-white hover:bg-gray-700"
+                            : "bg-slate-600 text-white hover:bg-slate-700"
+                            }`}
                     >
                         {editingSections.professional ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                         <span>{editingSections.professional ? "Cancel" : "Edit"}</span>
                     </button>
                     {editingSections.professional && (
-                        <SaveButtonTooltip 
-                            show={showTooltip} 
+                        <SaveButtonTooltip
+                            show={showTooltip}
                             message={
                                 !hasChanges ? "You haven't made any changes" :
-                                !formsValid.professional ? "Please fix validation errors first" :
-                                "Ready to save your changes"
+                                    !formsValid.professional ? "Please fix validation errors first" :
+                                        "Ready to save your changes"
                             }
                         >
                             <button
@@ -388,9 +402,8 @@ const ProfessionalSummarySection = ({
                             type="text"
                             value={profileData.professional.title}
                             onChange={(e) => handleInputChange("professional", "title", e.target.value)}
-                            className={`w-full px-4 py-3 border rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                                hasFieldError("title") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${hasFieldError("title") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                }`}
                             placeholder="e.g. Senior Software Engineer"
                         />
                         {hasFieldError("title") && (
@@ -409,9 +422,8 @@ const ProfessionalSummarySection = ({
                             rows="4"
                             value={profileData.professional.summary}
                             onChange={(e) => handleInputChange("professional", "summary", e.target.value)}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 placeholder:text-gray-500 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 ${
-                                hasFieldError("summary") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 placeholder:text-gray-500 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 ${hasFieldError("summary") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                }`}
                             placeholder="Write a brief summary of your professional background and expertise... (minimum 50 characters)"
                             maxLength="1000"
                         ></textarea>
@@ -440,8 +452,8 @@ const ProfessionalSummarySection = ({
                                     className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 transition-all duration-200 hover:bg-blue-100"
                                 >
                                     {skill}
-                                    <button 
-                                        onClick={() => removeSkill(index)} 
+                                    <button
+                                        onClick={() => removeSkill(index)}
                                         className="ml-2 text-blue-600 cursor-pointer hover:text-red-600 transition-colors hover:bg-red-100 rounded-full p-0.5"
                                     >
                                         <X className="w-3.5 h-3.5" />
@@ -475,13 +487,13 @@ const ProfessionalSummarySection = ({
                 </div>
             ) : (
                 <div className="space-y-4">
-                    <DisplayField 
-                        label="Professional Title" 
+                    <DisplayField
+                        label="Professional Title"
                         value={profileData.professional.title}
                         icon={User}
                     />
-                    <DisplayField 
-                        label="Professional Summary" 
+                    <DisplayField
+                        label="Professional Summary"
                         value={profileData.professional.summary}
                         icon={FileText}
                     />

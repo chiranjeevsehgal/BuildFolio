@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, Linkedin, Github, Calendar, Building, GraduationCap, ExternalLink, X, Send, Palette, Figma, Link, Briefcase, Globe, Twitter } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const MinimalTemplate = ({ userData }) => {
   // Modal state
@@ -89,14 +90,18 @@ const MinimalTemplate = ({ userData }) => {
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields.');
+      toast('Please fill in all required fields.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      toast('Please enter a valid email address.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
@@ -119,14 +124,14 @@ const MinimalTemplate = ({ userData }) => {
       const result = await response.json();
 
       if (result.success) {
-        alert('Thank you! Your message has been sent successfully.');
+        toast.success('Thank you! Your message has been sent successfully.')
         closeModal();
       } else {
-        alert(result.message || 'Failed to send message. Please try again.');
+        toast.error(result.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('An error occurred while sending your message. Please try again later.');
+      toast.error('An error occurred while sending your message. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -434,7 +439,7 @@ const MinimalTemplate = ({ userData }) => {
                     <p className="text-gray-700 text-sm leading-relaxed mb-2">{edu.description}</p>
                   )}
                   {edu.gpa && (
-                    <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>
+                    <p className="text-gray-600 text-sm">Grade: {edu.gpa}</p>
                   )}
                 </div>
               ))}
@@ -603,6 +608,10 @@ const MinimalTemplate = ({ userData }) => {
           </div>
         </div>
       )}
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

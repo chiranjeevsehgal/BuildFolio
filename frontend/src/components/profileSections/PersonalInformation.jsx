@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { 
+import {
     Edit3, Save, Camera, Phone, MapPin, Linkedin, Github, Loader2, Info, X, Check, ExternalLink,
     Twitter, Globe, Briefcase, User, Link
 } from "lucide-react"
@@ -17,6 +17,8 @@ export const ensureHttpProtocol = (url) => {
 const PersonalInfoSection = ({
     profileData,
     updateProfileData,
+    resumeprofileData,
+    setResumeProfileData,
     updateSocialLinks,
     profilePhoto,
     setProfilePhoto,
@@ -73,21 +75,21 @@ const PersonalInfoSection = ({
     // Deep comparison function for objects
     const deepEqual = (obj1, obj2) => {
         if (obj1 === obj2) return true
-        
+
         if (obj1 == null || obj2 == null) return false
-        
+
         if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return obj1 === obj2
-        
+
         const keys1 = Object.keys(obj1)
         const keys2 = Object.keys(obj2)
-        
+
         if (keys1.length !== keys2.length) return false
-        
+
         for (let key of keys1) {
             if (!keys2.includes(key)) return false
             if (!deepEqual(obj1[key], obj2[key])) return false
         }
-        
+
         return true
     }
 
@@ -97,7 +99,7 @@ const PersonalInfoSection = ({
         socialLinkConfigs.forEach(config => {
             socialLinks[config.key] = profileData.personalInfo.socialLinks[config.key] || ''
         })
-        
+
         return {
             phone: profileData.personalInfo.phone,
             location: profileData.personalInfo.location,
@@ -111,28 +113,40 @@ const PersonalInfoSection = ({
             const currentData = getCurrentData()
             const dataChanged = !deepEqual(originalData, currentData)
             setHasChanges(dataChanged)
-            
+
             // Reset save attempted flag when data changes
             if (dataChanged && saveAttempted) {
                 setSaveAttempted(false)
             }
         }
-    }, [profileData, originalData, editingSections.personalInfo, getCurrentData, saveAttempted])
+        if (resumeprofileData) {
+            const currentData = resumeprofileData
+            const dataChanged = !deepEqual(originalData, currentData)
+            setHasChanges(dataChanged)
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
+        }
+    }, [resumeprofileData, profileData, originalData, editingSections.personalInfo, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
-        if (editingSections.personalInfo && !originalData) {
-            const currentData = getCurrentData()
-            setOriginalData(currentData)
-        } else if (!editingSections.personalInfo) {
-            // Reset when exiting edit mode
-            setOriginalData(null)
-            setHasChanges(false)
-            setShowTooltip(false)
-            setSaveAttempted(false)
-            setLastSaveTime(null)
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
+        if (!resumeprofileData) {
+            if (editingSections.personalInfo && !originalData) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+            } else if (!editingSections.personalInfo) {
+                // Reset when exiting edit mode
+                setOriginalData(null)
+                setHasChanges(false)
+                setShowTooltip(false)
+                setSaveAttempted(false)
+                setLastSaveTime(null)
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                }
             }
         }
     }, [editingSections.personalInfo, getCurrentData])
@@ -141,14 +155,14 @@ const PersonalInfoSection = ({
     const handleToggleEdit = async (sectionName) => {
         if (editingSections.personalInfo && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-             await showConfirmation({
+            await showConfirmation({
                 title: "Unsaved Changes",
                 message: "You have unsaved changes. Are you sure you want to cancel?",
                 confirmText: "Yes, Cancel",
                 cancelText: "Keep Editing",
                 type: "warning"
             });
-            
+
             // Restore original data
             if (originalData) {
                 updateProfileData("personalInfo", "phone", originalData.phone)
@@ -158,7 +172,7 @@ const PersonalInfoSection = ({
                 })
             }
         }
-        
+
         toggleSectionEdit(sectionName)
     }
 
@@ -166,17 +180,17 @@ const PersonalInfoSection = ({
     const handleSave = async (e) => {
         e.preventDefault()
         e.stopPropagation()
-        
+
         if (!hasChanges || isSaving) return
-        
+
         // Touch all fields before saving to show any validation errors
         const fieldsToValidate = ['phone', 'location', ...socialLinkConfigs.map(config => config.key)]
         fieldsToValidate.forEach(field => {
             handleFieldTouch(field)
         })
-        
+
         setSaveAttempted(true)
-        
+
         try {
             const success = await savePersonalProfile()
             if (success) {
@@ -185,7 +199,7 @@ const PersonalInfoSection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
-                
+                setResumeProfileData(null)
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {
                     setSaveAttempted(false)
@@ -223,7 +237,7 @@ const PersonalInfoSection = ({
     // Determine save button state with better logic
     const canSave = hasChanges && formsValid.personal && !isSaving
     const showSuccess = lastSaveTime && !hasChanges && !isSaving
-    
+
     const getSaveButtonState = () => {
         if (isSaving) return { text: "Saving...", icon: Loader2, className: "bg-blue-500 text-white cursor-wait", disabled: true }
         if (showSuccess) return { text: "Saved", icon: Check, className: "bg-green-600 text-white cursor-default", disabled: true }
@@ -270,7 +284,7 @@ const PersonalInfoSection = ({
         <div className="relative inline-block">
             {children}
             {show && (
-                <div 
+                <div
                     className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg whitespace-nowrap z-50"
                     style={{
                         animation: 'fadeIn 0.2s ease-out',
@@ -346,22 +360,21 @@ const PersonalInfoSection = ({
                 <div className="flex space-x-2">
                     <button
                         onClick={() => handleToggleEdit("personalInfo")}
-                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-all duration-200 ${
-                            editingSections.personalInfo 
-                                ? "bg-gray-600 text-white hover:bg-gray-700" 
-                                : "bg-slate-600 text-white hover:bg-slate-700"
-                        }`}
+                        className={`flex items-center space-x-2 px-4 py-2 cursor-pointer rounded-lg transition-all duration-200 ${editingSections.personalInfo
+                            ? "bg-gray-600 text-white hover:bg-gray-700"
+                            : "bg-slate-600 text-white hover:bg-slate-700"
+                            }`}
                     >
                         {editingSections.personalInfo ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                         <span>{editingSections.personalInfo ? "Cancel" : "Edit"}</span>
                     </button>
                     {editingSections.personalInfo && (
-                        <SaveButtonTooltip 
-                            show={showTooltip} 
+                        <SaveButtonTooltip
+                            show={showTooltip}
                             message={
                                 !hasChanges ? "You haven't made any changes" :
-                                !formsValid.personal ? "Please fix validation errors first" :
-                                "Ready to save your changes"
+                                    !formsValid.personal ? "Please fix validation errors first" :
+                                        "Ready to save your changes"
                             }
                         >
                             <button
@@ -420,8 +433,8 @@ const PersonalInfoSection = ({
                     <h3 className="font-medium text-slate-800 mb-1">Profile Photo</h3>
                     <p className="text-sm text-slate-600 mb-2">Upload a professional headshot (max 5MB)</p>
                     {editingSections.personalInfo && (
-                        <button 
-                            className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                        <button
+                            className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleUploadButtonClick}
                             disabled={uploadingPhoto}
                         >
@@ -448,9 +461,8 @@ const PersonalInfoSection = ({
                                         type="tel"
                                         value={profileData.personalInfo.phone}
                                         onChange={(e) => handleInputChange("personalInfo", "phone", e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
-                                            hasFieldError("phone") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                        }`}
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${hasFieldError("phone") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                            }`}
                                         placeholder="9988776655"
                                     />
                                 </div>
@@ -472,9 +484,8 @@ const PersonalInfoSection = ({
                                         type="text"
                                         value={profileData.personalInfo.location}
                                         onChange={(e) => handleInputChange("personalInfo", "location", e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
-                                            hasFieldError("location") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                        }`}
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${hasFieldError("location") ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                            }`}
                                         placeholder="Bangalore, India"
                                     />
                                 </div>
@@ -492,7 +503,7 @@ const PersonalInfoSection = ({
                     <div>
                         <h3 className="text-lg font-medium text-slate-800 mb-4">Social & Professional Links</h3>
                         <p className="text-sm text-slate-600 mb-6">Add your online presence to help others connect with you</p>
-                        
+
                         <div className="grid md:grid-cols-2 gap-6">
                             {socialLinkConfigs.map((config) => (
                                 <div key={config.key}>
@@ -508,9 +519,8 @@ const PersonalInfoSection = ({
                                             type="url"
                                             value={profileData.personalInfo.socialLinks[config.key] || ''}
                                             onChange={(e) => handleSocialChange(config.key, e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${
-                                                hasFieldError(config.key) ? "border-red-500 focus:ring-red-500" : "border-slate-300"
-                                            }`}
+                                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 ${hasFieldError(config.key) ? "border-red-500 focus:ring-red-500" : "border-slate-300"
+                                                }`}
                                             placeholder={config.placeholder}
                                         />
                                     </div>
@@ -530,14 +540,14 @@ const PersonalInfoSection = ({
                     {/* Contact Information Display */}
                     <div>
                         <div className="grid md:grid-cols-2 gap-4 mb-6">
-                            <DisplayField 
-                                label="Phone" 
-                                value={profileData.personalInfo.phone} 
+                            <DisplayField
+                                label="Phone"
+                                value={profileData.personalInfo.phone}
                                 icon={Phone}
                             />
-                            <DisplayField 
-                                label="Location" 
-                                value={profileData.personalInfo.location} 
+                            <DisplayField
+                                label="Location"
+                                value={profileData.personalInfo.location}
                                 icon={MapPin}
                             />
                         </div>
@@ -549,12 +559,12 @@ const PersonalInfoSection = ({
                             {socialLinkConfigs.map((config) => {
                                 const value = profileData.personalInfo.socialLinks[config.key]
                                 if (!value) return null
-                                
+
                                 return (
-                                    <DisplayField 
+                                    <DisplayField
                                         key={config.key}
-                                        label={config.label} 
-                                        value={value} 
+                                        label={config.label}
+                                        value={value}
                                         icon={config.icon}
                                         isLink={true}
                                     />

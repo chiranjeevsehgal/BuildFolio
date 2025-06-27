@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Linkedin, Building, Calendar, GraduationCap, Award, Users, TrendingUp, Globe, Twitter, Github, ExternalLink, Star, Briefcase, X, Send, Palette, Figma, Link } from 'lucide-react';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ExecutiveTemplate = ({ userData }) => {
   // Modal state
@@ -87,14 +88,18 @@ const ExecutiveTemplate = ({ userData }) => {
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields.');
+      toast('Please fill in all required fields.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      toast('Please enter a valid email address.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
@@ -114,14 +119,14 @@ const ExecutiveTemplate = ({ userData }) => {
       const result = response.data;
 
       if (result.success) {
-        alert('Thank you! Your message has been sent successfully.');
+        toast.success('Thank you! Your message has been sent successfully.');
         closeModal();
       } else {
-        alert(result.message || 'Failed to send message. Please try again.');
+        toast.error(result.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('An error occurred while sending your message. Please try again later.');
+      toast.error('An error occurred while sending your message. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -520,7 +525,7 @@ const ExecutiveTemplate = ({ userData }) => {
                     )}
                     {edu.gpa && (
                       <div className="text-gray-700 mb-2 text-sm sm:text-base">
-                        <span className="font-medium">GPA:</span> {edu.gpa}
+                        <span className="font-medium">Grade:</span> {edu.gpa}
                       </div>
                     )}
                     {edu.description && (
@@ -720,8 +725,8 @@ const ExecutiveTemplate = ({ userData }) => {
                   onClick={handleSend}
                   disabled={isLoading}
                   className={`w-full py-4 px-6 rounded-lg transition-all duration-300 font-semibold text-white shadow-lg flex items-center justify-center ${isLoading
-                      ? 'bg-gray-400 cursor-not-allowed shadow-none'
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
+                    ? 'bg-gray-400 cursor-not-allowed shadow-none'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
                     }`}
                 >
                   {isLoading ? (
@@ -755,6 +760,10 @@ const ExecutiveTemplate = ({ userData }) => {
           </div>
         </div>
       )}
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

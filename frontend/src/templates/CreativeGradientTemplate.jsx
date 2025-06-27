@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ExternalLink, Github, Star, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const CreativeGradientTemplate = ({ userData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,14 +18,14 @@ const CreativeGradientTemplate = ({ userData }) => {
   const hasSummary = userData?.professional?.summary;
   const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
   const hasSocialLinks = userData?.personalInfo?.socialLinks &&
-  (userData?.personalInfo?.socialLinks?.linkedin ||
-    userData?.personalInfo?.socialLinks?.github ||
-    userData?.personalInfo?.socialLinks?.twitter ||
-    userData?.personalInfo?.socialLinks?.website ||
-    userData?.personalInfo?.socialLinks?.portfolio ||
-    userData?.personalInfo?.socialLinks?.behance ||
-    userData?.personalInfo?.socialLinks?.dribbble ||
-    userData?.personalInfo?.socialLinks?.other);
+    (userData?.personalInfo?.socialLinks?.linkedin ||
+      userData?.personalInfo?.socialLinks?.github ||
+      userData?.personalInfo?.socialLinks?.twitter ||
+      userData?.personalInfo?.socialLinks?.website ||
+      userData?.personalInfo?.socialLinks?.portfolio ||
+      userData?.personalInfo?.socialLinks?.behance ||
+      userData?.personalInfo?.socialLinks?.dribbble ||
+      userData?.personalInfo?.socialLinks?.other);
   const hasProjects = userData?.projects?.length > 0;
   const hasSkills = userData?.professional?.skills?.length > 0;
   const hasExperience = userData?.experience?.length > 0;
@@ -87,14 +88,19 @@ const CreativeGradientTemplate = ({ userData }) => {
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields.');
+      toast('Please fill in all required fields.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      toast('Please enter a valid email address.', {
+        icon: 'ℹ️',
+      });
+
       return;
     }
 
@@ -114,14 +120,14 @@ const CreativeGradientTemplate = ({ userData }) => {
       const result = response.data;
 
       if (result.success) {
-        alert('Thank you! Your message has been sent successfully.');
+        toast.success('Thank you! Your message has been sent successfully.');
         closeModal();
       } else {
-        alert(result.message || 'Failed to send message. Please try again.');
+        toast.error(result.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('An error occurred while sending your message. Please try again later.');
+      toast.error('An error occurred while sending your message. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -497,7 +503,7 @@ const CreativeGradientTemplate = ({ userData }) => {
                       <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{edu.description}</p>
                     )}
                     {edu.gpa && (
-                      <p className="text-purple-600 font-medium mt-2 text-sm sm:text-base">GPA: {edu.gpa}</p>
+                      <p className="text-purple-600 font-medium mt-2 text-sm sm:text-base">Grade: {edu.gpa}</p>
                     )}
                   </div>
                 ))}
@@ -613,8 +619,8 @@ const CreativeGradientTemplate = ({ userData }) => {
               onClick={closeModal}
               disabled={isLoading}
               className={`absolute top-4 right-4 z-20 rounded-full p-2 transition-all duration-300 shadow-lg hover:shadow-xl ${isLoading
-                  ? 'bg-gray-200 cursor-not-allowed opacity-50'
-                  : 'bg-white/80 hover:bg-white cursor-pointer'
+                ? 'bg-gray-200 cursor-not-allowed opacity-50'
+                : 'bg-white/80 hover:bg-white cursor-pointer'
                 }`}
               aria-label="Close modal"
             >
@@ -695,8 +701,8 @@ const CreativeGradientTemplate = ({ userData }) => {
                   onClick={handleSend}
                   disabled={isLoading}
                   className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group ${isLoading
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer'
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer'
                     } text-white`}
                 >
                   {isLoading ? (
@@ -784,6 +790,10 @@ const CreativeGradientTemplate = ({ userData }) => {
           }
         }
       `}</style>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

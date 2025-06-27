@@ -16,6 +16,7 @@ const {
   reactivateAccount
 } = require('../controllers/profileController');
 const auth = require('../middleware/auth');
+const { ResumeController, uploadMiddleware } = require('../controllers/resumeController');
 
 const router = express.Router();
 
@@ -36,14 +37,19 @@ const upload = multer({
   }
 });
 
-
-
 // Validation rules
 const profileValidation = [
   body('phone')
     .optional({ nullable: true, checkFalsy: true })
-    .isMobilePhone()
-    .withMessage('Please provide a valid phone number'),
+     .custom((value) => {
+      // Remove all spaces and check format
+      const cleanPhone = value.replace(/\s+/g, '');
+      const phoneRegex = /^(\+91|0)?\d{10}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        throw new Error('Please provide a valid phone number');
+      }
+      return true;
+    }),
   body('website')
     .optional()
     .isURL()
@@ -185,6 +191,9 @@ router.put('/change-password', auth, passwordChangeValidation, changePassword);
 
 router.patch('/deactivate-account', auth, deactivateAccount);
 router.patch('/reactivate-account', auth, reactivateAccount);
+
+router.post('/upload-resume', auth, uploadMiddleware, ResumeController.uploadResume);
+
 
 
 module.exports = router;

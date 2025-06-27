@@ -5,6 +5,7 @@ import {
   Code, Briefcase, User, Globe, ChevronRight, ArrowUpRight,
   Clock, Users, Zap, Target, Eye, Heart, X, Send, Palette, Figma, Link
 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ModernTemplate = ({ userData }) => {
   // Modal state
@@ -25,15 +26,15 @@ const ModernTemplate = ({ userData }) => {
   const hasEducation = userData?.education?.length > 0;
   const hasProjects = userData?.projects?.length > 0;
   const hasCertifications = userData?.certifications?.length > 0;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks && 
-  (userData?.personalInfo?.socialLinks?.linkedin || 
-   userData?.personalInfo?.socialLinks?.github || 
-   userData?.personalInfo?.socialLinks?.twitter ||
-   userData?.personalInfo?.socialLinks?.website ||
-   userData?.personalInfo?.socialLinks?.portfolio ||
-   userData?.personalInfo?.socialLinks?.behance ||
-   userData?.personalInfo?.socialLinks?.dribbble ||
-   userData?.personalInfo?.socialLinks?.other);
+  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+    (userData?.personalInfo?.socialLinks?.linkedin ||
+      userData?.personalInfo?.socialLinks?.github ||
+      userData?.personalInfo?.socialLinks?.twitter ||
+      userData?.personalInfo?.socialLinks?.website ||
+      userData?.personalInfo?.socialLinks?.portfolio ||
+      userData?.personalInfo?.socialLinks?.behance ||
+      userData?.personalInfo?.socialLinks?.dribbble ||
+      userData?.personalInfo?.socialLinks?.other);
   const hasContactInfo = userData?.personalInfo?.phone ||
     userData?.personalInfo?.location ||
     userData?.email;
@@ -96,14 +97,18 @@ const ModernTemplate = ({ userData }) => {
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields.');
+      toast('Please fill in all required fields.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      toast('Please enter a valid email address.', {
+        icon: 'ℹ️',
+      });
       return;
     }
 
@@ -126,14 +131,14 @@ const ModernTemplate = ({ userData }) => {
       const result = await response.json();
 
       if (result.success) {
-        alert('Thank you! Your message has been sent successfully.');
+        toast.success('Thank you! Your message has been sent successfully.');
         closeModal();
       } else {
-        alert(result.message || 'Failed to send message. Please try again.');
+        toast.error(result.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('An error occurred while sending your message. Please try again later.');
+      toast.error('An error occurred while sending your message. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -340,7 +345,7 @@ const ModernTemplate = ({ userData }) => {
 
       {education.gpa && (
         <div className="text-sm text-gray-600">
-          <span className="font-medium">GPA: </span>{education.gpa}
+          <span className="font-medium">Grade: </span>{education.gpa}
         </div>
       )}
     </div>
@@ -933,8 +938,8 @@ const ModernTemplate = ({ userData }) => {
                   onClick={handleSend}
                   disabled={isLoading}
                   className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${isLoading
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
                     }`}
                 >
                   {isLoading ? (
@@ -1117,6 +1122,10 @@ const ModernTemplate = ({ userData }) => {
           }
         }
       `}</style>
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+      />
     </div>
   );
 };

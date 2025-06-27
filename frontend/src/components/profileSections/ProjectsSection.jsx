@@ -24,6 +24,8 @@ const ProjectsSection = ({
     setProfileData,
     updateProject,
     removeProject,
+    resumeprofileData,
+    setResumeProfileData,
     addProjectSkill,
     removeProjectSkill,
     editingSections,
@@ -128,22 +130,35 @@ const ProjectsSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [profileData, originalData, editingSections.projects, getCurrentData, saveAttempted])
+
+        if (resumeprofileData) {
+            const currentData = resumeprofileData
+            const dataChanged = !deepEqual(originalData, currentData)
+            setHasChanges(dataChanged)
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
+        }
+    }, [resumeprofileData, profileData, originalData, editingSections.projects, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
-        if (editingSections.projects && !originalData) {
-            const currentData = getCurrentData()
-            setOriginalData(currentData)
-        } else if (!editingSections.projects) {
-            // Reset when exiting edit mode
-            setOriginalData(null)
-            setHasChanges(false)
-            setShowTooltip(false)
-            setSaveAttempted(false)
-            setLastSaveTime(null)
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
+        if (!resumeprofileData) {
+            if (editingSections.projects && !originalData) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+            } else if (!editingSections.projects) {
+                // Reset when exiting edit mode
+                setOriginalData(null)
+                setHasChanges(false)
+                setShowTooltip(false)
+                setSaveAttempted(false)
+                setLastSaveTime(null)
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                }
             }
         }
     }, [editingSections.projects, getCurrentData])
@@ -214,6 +229,7 @@ const ProjectsSection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
+                setResumeProfileData(null)
 
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {

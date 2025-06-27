@@ -23,6 +23,8 @@ const ExperienceSection = ({
     addExperience,
     removeExperience,
     editingSections,
+    resumeprofileData,
+    setResumeProfileData,
     toggleSectionEdit,
     saveExperienceProfile,
     isSaving,
@@ -109,22 +111,36 @@ const ExperienceSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [profileData, originalData, editingSections.experience, getCurrentData, saveAttempted])
+
+        if (resumeprofileData) {
+            const currentData = resumeprofileData
+            const dataChanged = !deepEqual(originalData, currentData)
+            setHasChanges(dataChanged)
+
+
+            // Reset save attempted flag when data changes
+            if (dataChanged && saveAttempted) {
+                setSaveAttempted(false)
+            }
+        }
+    }, [resumeprofileData, profileData, originalData, editingSections.experience, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
-        if (editingSections.experience && !originalData) {
-            const currentData = getCurrentData()
-            setOriginalData(currentData)
-        } else if (!editingSections.experience) {
-            // Reset when exiting edit mode
-            setOriginalData(null)
-            setHasChanges(false)
-            setShowTooltip(false)
-            setSaveAttempted(false)
-            setLastSaveTime(null)
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
+        if (!resumeprofileData) {
+            if (editingSections.experience && !originalData) {
+                const currentData = getCurrentData()
+                setOriginalData(currentData)
+            } else if (!editingSections.experience) {
+                // Reset when exiting edit mode
+                setOriginalData(null)
+                setHasChanges(false)
+                setShowTooltip(false)
+                setSaveAttempted(false)
+                setLastSaveTime(null)
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                }
             }
         }
     }, [editingSections.experience, getCurrentData])
@@ -133,7 +149,7 @@ const ExperienceSection = ({
     const handleToggleEdit = async (sectionName) => {
         if (editingSections.experience && hasChanges) {
             // If user is canceling with changes, ask for confirmation
-             await showConfirmation({
+            await showConfirmation({
                 title: "Unsaved Changes",
                 message: "You have unsaved changes. Are you sure you want to cancel?",
                 confirmText: "Yes, Cancel",
@@ -187,7 +203,7 @@ const ExperienceSection = ({
                 setOriginalData(currentData)
                 setHasChanges(false)
                 setLastSaveTime(new Date())
-
+                setResumeProfileData(null)
                 // Clear save attempted after successful save
                 saveTimeoutRef.current = setTimeout(() => {
                     setSaveAttempted(false)
@@ -231,16 +247,16 @@ const ExperienceSection = ({
     }
 
     const handleRemoveExperience = async (index) => {
-         await showConfirmation({
+        await showConfirmation({
             title: "Delete Experience",
             message: "Are you sure you want to delete this experience entry? This action cannot be undone.",
             confirmText: "Delete",
             cancelText: "Cancel",
             type: "danger"
         });
-        
+
         removeExperience(index)
-        
+
     }
 
     // Cleanup timeout on unmount
