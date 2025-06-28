@@ -152,27 +152,34 @@ const DeveloperTemplate = ({ userData }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-green-400 font-mono">
-      {/* Terminal Header */}
-      <header className="bg-black p-4 sm:p-6 border-b border-green-500">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center mb-4">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <span className="ml-2 sm:ml-4 text-gray-400 text-sm sm:text-base truncate">terminal — developer-portfolio</span>
-            <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
-              <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-              <span className="text-gray-400 text-xs sm:text-sm">v1.0.0</span>
+    <div className="min-h-screen bg-black text-green-400 font-mono">
+      {/* Single Terminal Window */}
+      <div className="bg-black border border-green-500 min-h-screen">
+        {/* Terminal Header */}
+        <div className="bg-black border-b border-green-500 p-4 sm:p-6 sticky top-0 z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center mb-4">
+              <div className="flex space-x-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              </div>
+              <span className="ml-2 sm:ml-4 text-gray-400 text-sm sm:text-base truncate">terminal — developer-portfolio</span>
+              <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
+                <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                <span className="text-gray-400 text-xs sm:text-sm">v1.0.0</span>
+              </div>
             </div>
           </div>
+        </div>
 
+        {/* Terminal Content */}
+        <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+          {/* Basic Info Commands */}
           <div className="space-y-2 text-sm sm:text-base">
             <p><span className="text-blue-400">$</span> whoami</p>
             {hasBasicInfo && (
-              <p className="text-white break-words">
+              <p className="text-white break-words pl-2">
                 {userData?.firstName && userData?.lastName
                   ? `${userData.firstName} ${userData.lastName}`
                   : userData?.firstName || userData?.lastName || 'developer'
@@ -182,34 +189,34 @@ const DeveloperTemplate = ({ userData }) => {
 
             <p><span className="text-blue-400">$</span> cat role.txt</p>
             {hasTitle && (
-              <p className="text-white break-words">{userData.professional.title}</p>
+              <p className="text-white break-words pl-2">{userData.professional.title}</p>
             )}
 
             {hasSummary && (
               <>
                 <p><span className="text-blue-400">$</span> cat about.md</p>
-                <p className="text-gray-300 leading-relaxed break-words">{userData.professional.summary}</p>
+                <p className="text-gray-300 leading-relaxed break-words pl-2">{userData.professional.summary}</p>
               </>
             )}
 
-            {/* Contact Info as Terminal Commands */}
+            {/* Contact Info */}
             {hasContactInfo && (
               <>
                 <p><span className="text-blue-400">$</span> cat contact.json</p>
-                <div className="pl-2 sm:pl-4 text-yellow-300 text-xs sm:text-sm">
+                <div className="pl-2 text-yellow-300 text-xs sm:text-sm">
                   <p>&#123;</p>
                   {userData?.email && (
-                    <p className="pl-2 sm:pl-4 break-all">
+                    <p className="pl-2 break-all">
                       "email": "<a href={`mailto:${userData.email}`} className="text-blue-300 hover:text-blue-200 underline">{userData.email}</a>",
                     </p>
                   )}
                   {userData?.personalInfo?.phone && (
-                    <p className="pl-2 sm:pl-4 break-all">
+                    <p className="pl-2 break-all">
                       "phone": "<a href={`tel:${userData.personalInfo.phone}`} className="text-blue-300 hover:text-blue-200 underline">{userData.personalInfo.phone}</a>",
                     </p>
                   )}
                   {userData?.personalInfo?.location && (
-                    <p className="pl-2 sm:pl-4 break-words">"location": "{userData.personalInfo.location}"</p>
+                    <p className="pl-2 break-words">"location": "{userData.personalInfo.location}"</p>
                   )}
                   <p>&#125;</p>
                 </div>
@@ -220,7 +227,7 @@ const DeveloperTemplate = ({ userData }) => {
             {hasSocialLinks && (
               <>
                 <p><span className="text-blue-400">$</span> ls social/</p>
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 pl-2 sm:pl-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 pl-2">
                   {userData?.personalInfo?.socialLinks?.github && (
                     <a
                       href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
@@ -320,240 +327,248 @@ const DeveloperTemplate = ({ userData }) => {
                 </div>
               </>
             )}
+          </div>
 
-            <p className="flex items-center">
+          {/* Skills */}
+          {hasSkills && (
+            <div className="space-y-2 text-sm sm:text-base">
+              <p><span className="text-blue-400">$</span> cat skills.js</p>
+              <div className="pl-2 space-y-1">
+                <p className="text-purple-400">
+                  <span className="text-blue-400">const</span> <span className="text-white">skills</span> = [
+                </p>
+                {userData.professional.skills.map((skill, index) => (
+                  <p key={index} className="text-yellow-300 break-words pl-4">
+                    '{skill}'{index < userData.professional.skills.length - 1 ? ',' : ''}
+                  </p>
+                ))}
+                <p className="text-white">];</p>
+                <p className="text-gray-400">
+                  <span className="text-green-400">//</span> Total skills: {userData.professional.skills.length}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Experience */}
+          {hasExperience && (
+            <div className="space-y-4">
+              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> git log --oneline --work-experience</p>
+              {userData.experience.map((exp, index) => (
+                <div key={index} className="pl-2">
+                  <div className="border-l-4 border-green-500 pl-4 py-2">
+                    <p className="text-green-400 font-bold text-sm sm:text-base break-words">
+                      <span className="text-yellow-400">commit:</span> {exp.title || 'Position'}
+                    </p>
+                    <p className="text-blue-400 text-sm break-words">
+                      <span className="text-gray-400">Author:</span> {exp.company || 'Company'}
+                      {exp.location && <span className="text-gray-400"> • {exp.location}</span>}
+                    </p>
+                    <p className="text-gray-400 text-xs break-words">
+                      <span className="text-gray-500">Date:</span> {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                    </p>
+                    {exp.description && (
+                      <p className="text-gray-300 mt-2 leading-relaxed text-sm break-words">
+                        <span className="text-green-400">//</span> {exp.description}
+                      </p>
+                    )}
+                    {exp.achievements && exp.achievements.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-gray-400 text-xs mb-1">
+                          <span className="text-blue-400">$</span> git show --achievements
+                        </p>
+                        <ul className="space-y-1 pl-2">
+                          {exp.achievements.map((achievement, idx) => (
+                            <li key={idx} className="text-green-300 text-xs sm:text-sm break-words">
+                              <span className="text-green-500">+</span> {achievement}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Projects */}
+          {hasProjects && (
+            <div className="space-y-4">
+              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> ls -la repositories/</p>
+              <p className="text-gray-400 text-sm pl-2">total {userData.projects.length} repositories</p>
+              {userData.projects.map((project, index) => (
+                <div key={index} className="pl-2 border-l-2 border-gray-700 ml-2">
+                  <div className="flex items-center mb-2">
+                    <Terminal className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
+                    <h3 className="text-blue-400 text-lg font-bold break-words">
+                      {project.title || 'untitled-project'}
+                    </h3>
+                  </div>
+                  {project.description && (
+                    <p className="text-gray-300 mb-3 leading-relaxed text-sm break-words pl-6">
+                      <span className="text-green-400">//</span> {project.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex flex-wrap gap-2 mb-3 pl-6">
+                    {project.githubUrl && (
+                      <a
+                        href={ensureHttpProtocol(project.githubUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-400 hover:text-green-300 transition-colors text-sm flex items-center"
+                        title="View Source"
+                        aria-label="View Source Code"
+                      >
+                        <Github className="w-4 h-4 mr-1" />
+                        [source]
+                      </a>
+                    )}
+                    {project.url && (
+                      <a
+                        href={ensureHttpProtocol(project.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center"
+                        title="Live Demo"
+                        aria-label="View Live Demo"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        [demo]
+                      </a>
+                    )}
+                  </div>
+
+                  {project.skills && project.skills.length > 0 && (
+                    <div className="pl-6">
+                      <p className="text-gray-400 text-xs mb-1">
+                        <span className="text-blue-400">$</span> grep -o "dependencies" package.json
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {project.skills.map((skill, skillIndex) => (
+                          <span
+                            key={skillIndex}
+                            className="text-green-400 text-xs font-mono break-words"
+                          >
+                            #{skill}{skillIndex < project.skills.length - 1 ? ' ' : ''}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Education */}
+          {hasEducation && (
+            <div className="space-y-2 text-sm sm:text-base">
+              <p><span className="text-blue-400">$</span> cat education.json</p>
+              <div className="pl-2">
+                <p className="text-yellow-300">&#123;</p>
+                <p className="text-blue-400 pl-2">"education": &#123;</p>
+                {userData.education.map((edu, index) => (
+                  <div key={index} className="pl-4 mb-3">
+                    <p className="text-green-400 break-words">"{edu.degree || 'degree'}": &#123;</p>
+                    <p className="text-gray-300 pl-2 text-xs break-words">"institution": "{edu.school || edu.institution || 'Institution'}",</p>
+                    <p className="text-gray-300 pl-2 text-xs break-words">"duration": "{formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}",</p>
+                    {edu.location && (
+                      <p className="text-gray-300 pl-2 text-xs break-words">"location": "{edu.location}",</p>
+                    )}
+                    {edu.gpa && (
+                      <p className="text-gray-300 pl-2 text-xs break-words">"grade": "{edu.gpa}",</p>
+                    )}
+                    {edu.description && (
+                      <p className="text-gray-300 pl-2 text-xs break-words">"description": "{edu.description}"</p>
+                    )}
+                    <p className="text-green-400">&#125;{index < userData.education.length - 1 ? ',' : ''}</p>
+                  </div>
+                ))}
+                <p className="text-blue-400 pl-2">&#125;</p>
+                <p className="text-yellow-300">&#125;</p>
+              </div>
+            </div>
+          )}
+
+          {/* Certifications */}
+          {hasCertifications && (
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> env | grep CERT</p>
+              <div className="pl-2 space-y-1">
+                {userData.certifications.map((cert, index) => (
+                  <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <p className="text-green-400 font-mono text-xs sm:text-sm break-all flex-1">
+                      CERT_{(cert.name || 'CERTIFICATION').toUpperCase().replace(/\s+/g, '_')}="{cert.issuer || 'Issuer'}"
+                    </p>
+                    {cert.credentialUrl && (
+                      <a
+                        href={ensureHttpProtocol(cert.credentialUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-xs sm:text-sm flex-shrink-0"
+                        aria-label="Verify Credential"
+                      >
+                        [verify]
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Footer Commands */}
+          <div className="space-y-2 pt-8 border-t border-gray-700">
+            <p className="text-purple-400 text-sm">#!/bin/bash</p>
+            <p className="text-gray-400 text-sm"># Thanks for checking out my portfolio!</p>
+            <p className="text-gray-400 text-sm"># Feel free to reach out for collaboration</p>
+            <div className="space-y-2 text-sm">
+              {userData?.email && (
+                <p>
+                  <span className="text-blue-400">$</span> <span className="text-green-400">echo "Let's connect:</span>
+                  <a href={`mailto:${userData.email}`} className="text-blue-400 hover:text-blue-300 underline break-all ml-1">
+                    {userData.email}
+                  </a>
+                  <span className="text-green-400">"</span>
+                </p>
+              )}
+              <p>
+                <span className="text-blue-400">$</span> <span className="text-green-400">echo "Send message:</span>
+                <button 
+                  onClick={openModal} 
+                  className="text-yellow-400 hover:text-yellow-300 underline cursor-pointer ml-1"
+                >
+                  ./contact.sh
+                </button>
+                <span className="text-green-400">"</span>
+              </p>
+              <p>
+                <span className="text-blue-400">$</span> <span className="text-green-400">echo "Download resume:</span>
+                <button 
+                  onClick={() => window.print()} 
+                  className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer ml-1"
+                >
+                  ./print.sh
+                </button>
+                <span className="text-green-400">"</span>
+              </p>
+            </div>
+            <p className="text-gray-400 text-xs break-words pt-4">
+              <span className="text-green-400">#</span> © {new Date().getFullYear()} {hasBasicInfo
+                ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
+                : 'Developer'
+              } - Built with passion and caffeine ☕
+            </p>
+            
+            <p className="flex items-center text-sm">
               <span className="text-blue-400">$</span>
               <span className="ml-1">{showCursor ? '|' : ' '}</span>
             </p>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        {/* Skills as Code */}
-        {hasSkills && (
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
-              <Code className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="text-blue-400">const</span>
-              <span className="ml-1 break-words">skills = [</span>
-            </h2>
-            <div className="pl-4 sm:pl-6 space-y-1 bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-700 overflow-x-auto">
-              {userData.professional.skills.map((skill, index) => (
-                <p key={index} className="text-yellow-300 text-sm sm:text-base break-words">
-                  &nbsp;&nbsp;'{skill}'{index < userData.professional.skills.length - 1 ? ',' : ''}
-                </p>
-              ))}
-            </div>
-            <p className="text-white mt-2 text-sm sm:text-base">];</p>
-          </section>
-        )}
-
-        {/* Experience as Git Log */}
-        {hasExperience && (
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
-              <Terminal className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="break-words">git log --oneline --work-experience</span>
-            </h2>
-            <div className="space-y-4">
-              {userData.experience.map((exp, index) => (
-                <div key={index} className="border-l-4 border-green-500 pl-4 sm:pl-6 bg-gray-800 rounded-r-lg p-3 sm:p-4">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-green-400 font-bold text-sm sm:text-base break-words">
-                        <span className="text-yellow-400">commit:</span> {exp.title || 'Position'}
-                      </p>
-                      <p className="text-blue-400 text-sm sm:text-base break-words">
-                        <span className="text-gray-400">Author:</span> {exp.company || 'Company'}
-                        {exp.location && <span className="text-gray-400"> • {exp.location}</span>}
-                      </p>
-                      <p className="text-gray-400 text-xs sm:text-sm break-words">
-                        <span className="text-gray-500">Date:</span> {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
-                      </p>
-                    </div>
-                  </div>
-                  {exp.description && (
-                    <p className="text-gray-300 mt-3 leading-relaxed text-sm sm:text-base break-words">
-                      <span className="text-gray-500">//</span> {exp.description}
-                    </p>
-                  )}
-                  {exp.achievements && exp.achievements.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-gray-400 text-xs sm:text-sm mb-2">Achievements:</p>
-                      <ul className="space-y-1">
-                        {exp.achievements.map((achievement, idx) => (
-                          <li key={idx} className="text-green-300 text-xs sm:text-sm break-words">
-                            <span className="text-green-500">+</span> {achievement}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Projects as Repository List */}
-        {hasProjects && (
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
-              <Github className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="break-words">Repositories ({userData.projects.length})</span>
-            </h2>
-            <div className="space-y-4">
-              {userData.projects.map((project, index) => (
-                <div key={index} className="border border-gray-700 rounded-lg p-4 sm:p-6 bg-gray-800 hover:bg-gray-750 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3">
-                    <div className="flex-1 min-w-0 mb-3 sm:mb-0">
-                      <h3 className="text-blue-400 text-lg font-bold mb-2 flex items-center break-words">
-                        <Terminal className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                        <span className="break-words">{project.title || 'untitled-project'}</span>
-                      </h3>
-                      {project.description && (
-                        <p className="text-gray-300 mb-3 leading-relaxed text-sm sm:text-base break-words">{project.description}</p>
-                      )}
-                    </div>
-                    <div className="flex space-x-2 sm:space-x-3 sm:ml-4 flex-shrink-0">
-                      {project.githubUrl && (
-                        <a
-                          href={ensureHttpProtocol(project.githubUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-green-400 hover:text-green-300 transition-colors p-2 border border-gray-600 rounded hover:border-green-500"
-                          title="View Source"
-                          aria-label="View Source Code"
-                        >
-                          <Github className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </a>
-                      )}
-                      {project.url && (
-                        <a
-                          href={ensureHttpProtocol(project.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 transition-colors p-2 border border-gray-600 rounded hover:border-blue-500"
-                          title="Live Demo"
-                          aria-label="View Live Demo"
-                        >
-                          <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  {project.skills && project.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.skills.map((skill, skillIndex) => (
-                        <span
-                          key={skillIndex}
-                          className="px-2 sm:px-3 py-1 bg-gray-700 text-green-400 rounded-full text-xs sm:text-sm border border-gray-600 font-mono break-words"
-                        >
-                          #{skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Education as Package.json Dependencies */}
-        {hasEducation && (
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
-              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="break-words">cat education.json</span>
-            </h2>
-            <div className="bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-700 overflow-x-auto">
-              <p className="text-yellow-300 text-sm sm:text-base">&#123;</p>
-              <p className="text-blue-400 pl-2 sm:pl-4 text-sm sm:text-base">"education": &#123;</p>
-              {userData.education.map((edu, index) => (
-                <div key={index} className="pl-4 sm:pl-8 mb-4">
-                  <p className="text-green-400 text-sm sm:text-base break-words">"{edu.degree || 'degree'}": &#123;</p>
-                  <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"institution": "{edu.school || edu.institution || 'Institution'}",</p>
-                  <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"duration": "{formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}",</p>
-                  {edu.location && (
-                    <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"location": "{edu.location}",</p>
-                  )}
-                  {edu.gpa && (
-                    <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"grade": "{edu.gpa}",</p>
-                  )}
-                  {edu.description && (
-                    <p className="text-gray-300 pl-2 sm:pl-4 text-xs sm:text-sm break-words">"description": "{edu.description}"</p>
-                  )}
-                  <p className="text-green-400 text-sm sm:text-base">&#125;{index < userData.education.length - 1 ? ',' : ''}</p>
-                </div>
-              ))}
-              <p className="text-blue-400 pl-2 sm:pl-4 text-sm sm:text-base">&#125;</p>
-              <p className="text-yellow-300 text-sm sm:text-base">&#125;</p>
-            </div>
-          </section>
-        )}
-
-        {/* Certifications as Environment Variables */}
-        {hasCertifications && (
-          <section className="mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 text-white flex items-center">
-              <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
-              <span className="break-words">env | grep CERT</span>
-            </h2>
-            <div className="space-y-2 bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-700">
-              {userData.certifications.map((cert, index) => (
-                <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <p className="text-green-400 font-mono text-xs sm:text-sm break-all flex-1">
-                    CERT_{(cert.name || 'CERTIFICATION').toUpperCase().replace(/\s+/g, '_')}="{cert.issuer || 'Issuer'}"
-                  </p>
-                  {cert.credentialUrl && (
-                    <a
-                      href={ensureHttpProtocol(cert.credentialUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 text-xs sm:text-sm flex-shrink-0"
-                      aria-label="Verify Credential"
-                    >
-                      [verify]
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Footer as Script */}
-        <section className="mb-8 sm:mb-12">
-          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
-            <p className="text-purple-400 mb-4 text-sm sm:text-base">#!/bin/bash</p>
-            <p className="text-gray-400 text-sm sm:text-base"># Thanks for checking out my portfolio!</p>
-            <p className="text-gray-400 text-sm sm:text-base"># Feel free to reach out for collaboration</p>
-            <br />
-            <div className="space-y-2">
-              {userData?.email && (
-                <p className="text-green-400 text-sm sm:text-base break-all">
-                  echo "Let's connect: <a href={`mailto:${userData.email}`} className="text-blue-400 hover:text-blue-300 underline">{userData.email}</a>"
-                </p>
-              )}
-              <p className="text-green-400 text-sm sm:text-base">
-                echo "Send message: <button onClick={openModal} className="text-yellow-400 hover:text-yellow-300 underline cursor-pointer">contact.sh</button>"
-              </p>
-              <p className="text-green-400 text-sm sm:text-base">
-                echo "Download resume: <button onClick={() => window.print()} className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer">portfolio.pdf</button>"
-              </p>
-              <p className="text-gray-400 mt-4 text-xs sm:text-sm break-words">
-                # © {new Date().getFullYear()} {hasBasicInfo
-                  ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
-                  : 'Developer'
-                } - Built with passion and caffeine
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
+      </div>
 
       {/* Contact Modal - Terminal Style */}
       {isModalOpen && (
@@ -561,7 +576,7 @@ const DeveloperTemplate = ({ userData }) => {
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={handleModalClick}
         >
-          <div className="bg-gray-900 border-2 border-green-500 rounded-lg max-w-md w-full mx-auto shadow-2xl font-mono relative overflow-hidden">
+          <div className="bg-black border-2 border-green-500 rounded-lg max-w-md w-full mx-auto shadow-2xl font-mono relative overflow-hidden">
             {/* Terminal Header */}
             <div className="bg-black border-b border-green-500 p-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -609,7 +624,7 @@ const DeveloperTemplate = ({ userData }) => {
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 {/* Name Field */}
                 <div>
-                  <p className="text-green-400 text-sm mb-1">
+                  <p className="text-green-400 text-sm mb-2">
                     <span className="text-blue-400">$</span> echo "Enter your name:"
                   </p>
                   <input
@@ -620,7 +635,7 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     placeholder="> name_here"
                   />
@@ -628,7 +643,7 @@ const DeveloperTemplate = ({ userData }) => {
 
                 {/* Email Field */}
                 <div>
-                  <p className="text-green-400 text-sm mb-1">
+                  <p className="text-green-400 text-sm mb-2">
                     <span className="text-blue-400">$</span> echo "Enter your email:"
                   </p>
                   <input
@@ -639,7 +654,7 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     placeholder="> email@domain.com"
                   />
@@ -647,7 +662,7 @@ const DeveloperTemplate = ({ userData }) => {
 
                 {/* Message Field */}
                 <div>
-                  <p className="text-green-400 text-sm mb-1">
+                  <p className="text-green-400 text-sm mb-2">
                     <span className="text-blue-400">$</span> cat &gt; message.txt
                   </p>
                   <textarea
@@ -658,7 +673,7 @@ const DeveloperTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full bg-black border border-gray-700 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     placeholder="> Your message here..."
                   />
@@ -666,7 +681,7 @@ const DeveloperTemplate = ({ userData }) => {
 
                 {/* Send Button */}
                 <div className="pt-2">
-                  <p className="text-green-400 text-sm mb-2">
+                  <p className="text-green-400 text-sm mb-3">
                     <span className="text-blue-400">$</span> ./send_message.sh
                   </p>
                   <button
@@ -674,8 +689,8 @@ const DeveloperTemplate = ({ userData }) => {
                     onClick={handleSend}
                     disabled={isLoading}
                     className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${isLoading
-                      ? 'border-gray-600 bg-gray-800 text-gray-400 cursor-not-allowed'
-                      : 'border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 cursor-pointer'
+                      ? 'border-gray-600 bg-black text-gray-400 cursor-not-allowed'
+                      : 'border-green-500 bg-black text-green-400 hover:bg-green-500/10 cursor-pointer'
                       }`}
                   >
                     {isLoading ? (
@@ -705,7 +720,7 @@ const DeveloperTemplate = ({ userData }) => {
                     <span className="text-blue-400">$</span> mail -s "Direct Contact"
                     <a
                       href={`mailto:${userData.email}`}
-                      className="text-yellow-400 hover:text-yellow-300 underline ml-1"
+                      className="text-yellow-400 hover:text-yellow-300 underline ml-1 break-all"
                     >
                       {userData.email}
                     </a>
@@ -719,10 +734,6 @@ const DeveloperTemplate = ({ userData }) => {
 
       {/* Custom Styles */}
       <style>{`
-        .bg-gray-750 {
-          background-color: #374151;
-        }
-        
         /* Extra small breakpoint for xs: utilities */
         @media (max-width: 480px) {
           .xs\\:grid-cols-2 {
@@ -745,7 +756,7 @@ const DeveloperTemplate = ({ userData }) => {
         }
         
         ::-webkit-scrollbar-track {
-          background: #1f2937;
+          background: #000;
         }
         
         ::-webkit-scrollbar-thumb {
@@ -762,10 +773,30 @@ const DeveloperTemplate = ({ userData }) => {
           word-break: break-word;
           overflow-wrap: anywhere;
         }
+        
+        /* Focus styles for better accessibility */
+        input:focus, textarea:focus, button:focus {
+          outline: 2px solid #10b981;
+          outline-offset: 2px;
+        }
+        
+        /* Smooth transitions */
+        * {
+          transition: border-color 0.2s ease-in-out;
+        }
       `}</style>
       <Toaster
         position="top-center"
         reverseOrder={true}
+        toastOptions={{
+          style: {
+            background: '#000',
+            color: '#10b981',
+            border: '1px solid #10b981',
+            fontFamily: 'monospace',
+            fontSize: '14px'
+          }
+        }}
       />
     </div>
   );

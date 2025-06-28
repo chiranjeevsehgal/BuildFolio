@@ -312,35 +312,6 @@ const ExecutiveTemplate = ({ userData }) => {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Executive Overview Stats */}
-        {(hasEducation || hasProjects || hasSkills) && (
-          <section className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
-              <span className="break-words">Professional Overview</span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {hasProjects && (
-                <div className="text-center bg-green-50 rounded-lg p-4 sm:p-6">
-                  <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">{userData.projects.length}</div>
-                  <div className="text-gray-600 font-medium text-sm sm:text-base">Key Projects</div>
-                </div>
-              )}
-              {hasSkills && (
-                <div className="text-center bg-purple-50 rounded-lg p-4 sm:p-6">
-                  <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">{userData.professional.skills.length}</div>
-                  <div className="text-gray-600 font-medium text-sm sm:text-base">Core Skills</div>
-                </div>
-              )}
-              {hasEducation && (
-                <div className="text-center bg-orange-50 rounded-lg p-4 sm:p-6">
-                  <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-2">{userData.education.length}</div>
-                  <div className="text-gray-600 font-medium text-sm sm:text-base">Education</div>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
 
         {/* Core Competencies */}
         {hasSkills && (

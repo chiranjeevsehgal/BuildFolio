@@ -220,7 +220,7 @@ const Settings = () => {
                     careerStage: response.data.user.careerStage || ''
                 }));
 
-                toast.success('Personal information updated successfully.')
+                toast.success('Personal information updated successfully. Make sure to redeploy your portfolio to see the changes.', {duration: 3000})
                 setIsEditing(prev => ({ ...prev, personal: false }));
             } else {
                 throw new Error(response.data.message || 'Failed to save personal data');
