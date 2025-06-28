@@ -341,7 +341,6 @@ const seedTemplates = async () => {
     ];
     
     await Template.insertMany(templates);
-    console.log('Templates seeded successfully');
   } catch (error) {
     console.error('Seeding error:', error);
   }

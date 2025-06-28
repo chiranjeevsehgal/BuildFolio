@@ -139,8 +139,6 @@ const deployPortfolio = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    console.log('Portfolio deployed successfully:', deployment._id);
-
     res.status(201).json({
       success: true,
       message: 'Portfolio deployed successfully',
@@ -169,8 +167,6 @@ const deployPortfolio = async (req, res) => {
 const unpublishPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    console.log('Unpublishing portfolio for user:', userId);
 
     // Find existing deployment
     const deployment = await PortfolioDeployment.findOne({ userId });
@@ -203,8 +199,6 @@ const unpublishPortfolio = async (req, res) => {
       portfolioDeployed: false
     });
 
-    console.log('Portfolio unpublished successfully');
-
     res.json({
       success: true,
       message: 'Portfolio unpublished successfully',
@@ -236,11 +230,6 @@ const redeployPortfolio = async (req, res) => {
     const userId = req.user._id;
     const { templateId, username } = req.body;
 
-    console.log(req.user);
-    console.log(req.body);
-
-    console.log('Redeploying portfolio for user:', userId);
-
     // Get existing deployment
     const existingDeployment = await PortfolioDeployment.findOne({ userId });
     
@@ -254,9 +243,7 @@ const redeployPortfolio = async (req, res) => {
     // Get fresh user and profile data
     const user = await User.findById(userId);
     const profile = await Profile.findOne({ user:userId });
-    console.log(user);
-    console.log(profile);
-    
+
     if (!user || !profile) {
       return res.status(404).json({
         success: false,
@@ -311,8 +298,6 @@ const redeployPortfolio = async (req, res) => {
       { new: true }
     );
 
-    console.log('Portfolio redeployed successfully:', updatedDeployment._id);
-
     res.json({
       success: true,
       message: 'Portfolio updated successfully',
@@ -341,8 +326,6 @@ const getPublicPortfolio = async (req, res) => {
   try {
     const { username } = req.params;
 
-    console.log('Fetching public portfolio for username:', username);
-
     // Find active deployment by username
     const deployment = await PortfolioDeployment.findOne({ 
       username: username.toLowerCase(),
@@ -361,8 +344,6 @@ const getPublicPortfolio = async (req, res) => {
     deployment.views = (deployment.views || 0) + 1;
     deployment.lastViewedAt = new Date();
     await deployment.save();
-
-    console.log('Portfolio found, views incremented:', deployment.views);
 
     res.json({
       success: true,
@@ -396,8 +377,6 @@ const getPublicPortfolio = async (req, res) => {
 const getUserPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    console.log('Fetching portfolio info for user:', userId);
 
     const deployment = await PortfolioDeployment.findOne({ userId });
     const user = await User.findById(userId).select('portfolioDeployed portfolioUrl selectedTemplate username');
@@ -446,8 +425,6 @@ const deletePortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    console.log('Deleting portfolio for user:', userId);
-
     // Find and delete deployment
     const deployment = await PortfolioDeployment.findOneAndDelete({ userId });
 
@@ -464,8 +441,6 @@ const deletePortfolio = async (req, res) => {
       portfolioUrl: null,
       deployedAt: null
     });
-
-    console.log('Portfolio deleted successfully');
 
     res.json({
       success: true,
@@ -489,8 +464,6 @@ const updatePortfolioStatus = async (req, res) => {
   try {
     const userId = req.user.id;
     const { isActive, isPublic } = req.body;
-
-    console.log('Updating portfolio status for user:', userId);
 
     const deployment = await PortfolioDeployment.findOne({ userId });
 
@@ -539,8 +512,6 @@ const getPortfolioAnalytics = async (req, res) => {
   try {
     const userId = req.user.id;
     const { period = '30d' } = req.query; // 7d, 30d, 90d, 1y
-
-    console.log('Fetching analytics for user:', userId);
 
     const deployment = await PortfolioDeployment.findOne({ userId });
 
@@ -603,8 +574,6 @@ const checkUsernameAvailability = async (req, res) => {
   try {
     const { username } = req.params;
     const userId = req.user.id;
-
-    console.log('Checking username availability:', username);
 
     // Validate username format
     const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;

@@ -35,8 +35,6 @@ class NotificationService {
             // Create and save the notification
             const notification = new Notification(welcomeData);
             await notification.save();
-
-            console.log(`Welcome notification sent to user: ${userId}`);
             
             return {
                 success: true,
@@ -361,7 +359,6 @@ class NotificationService {
         setTimeout(async () => {
             try {
                 await notificationMethod(...args);
-                console.log(`Delayed notification sent after ${delayInHours} hours`);
             } catch (error) {
                 console.error('Delayed notification error:', error);
             }

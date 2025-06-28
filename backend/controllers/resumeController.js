@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const axios = require('axios');
 const FormData = require('form-data');
+const { geminiKeyManager } = require('../utils/GeminiKeyManager');
 
 // Configure multer for file upload
 const storage = multer.memoryStorage();
@@ -222,111 +223,136 @@ class ResumeController {
 
     // Parse resume using Gemini API
     static parseResumeWithGemini = async (resumeText) => {
-        try {
-            const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-            const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-
-            if (!GEMINI_API_KEY) {
-                throw new Error('GEMINI_API_KEY not configured');
-            }
-
-            // Prepare the request payload
-            const requestBody = {
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `${GEMINI_SYSTEM_PROMPT}\n\n${resumeText}`
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    temperature: 0.1,
-                    topK: 1,
-                    topP: 0.8,
-                    maxOutputTokens: 4096,
-                },
-                safetySettings: [
-                    {
-                        category: "HARM_CATEGORY_HARASSMENT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_HATE_SPEECH",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    }
-                ]
-            };
-
-            // Make API call to Gemini
-            const response = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, requestBody, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                timeout: 30000 // 30 second timeout
-            });
-
-            if (!response.data || !response.data.candidates || !response.data.candidates[0]) {
-                console.error('Invalid Gemini API response:', response.data);
-                throw new Error('Invalid response from Gemini API');
-            }
-
-            const generatedText = response.data.candidates[0].content.parts[0].text;
-
-            // Clean and parse JSON response
-            let cleanedText = generatedText.trim();
-            
-            // Remove markdown code blocks if present
-            if (cleanedText.startsWith('```json')) {
-                cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-            } else if (cleanedText.startsWith('```')) {
-                cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-            }
-
-            // Parse JSON
-            let parsedData;
+        let lastError = null;
+        const maxRetries = geminiKeyManager.apiKeys.length; // Try all keys once
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                parsedData = JSON.parse(cleanedText);
-            } catch (parseError) {
-                console.error('JSON parsing error:', parseError);
-                console.error('Raw response:', generatedText);
+                const GEMINI_API_KEY = geminiKeyManager.getNextApiKey();
+                const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+
+                console.log(`Attempt ${attempt + 1}: Using API key index ${(geminiKeyManager.getCurrentIndex() - 1 + geminiKeyManager.apiKeys.length) % geminiKeyManager.apiKeys.length}`);
+
+                // Prepare the request payload
+                const requestBody = {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `${GEMINI_SYSTEM_PROMPT}\n\n${resumeText}`
+                                }
+                            ]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.1,
+                        topK: 1,
+                        topP: 0.8,
+                        maxOutputTokens: 4096,
+                    },
+                    safetySettings: [
+                        {
+                            category: "HARM_CATEGORY_HARASSMENT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_HATE_SPEECH",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        }
+                    ]
+                };
+
+                // Make API call to Gemini
+                const response = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, requestBody, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 30000 // 30 second timeout
+                });
+
+                if (!response.data || !response.data.candidates || !response.data.candidates[0]) {
+                    throw new Error('Invalid response from Gemini API');
+                }
+
+                const generatedText = response.data.candidates[0].content.parts[0].text;
+
+                // Clean and parse JSON response
+                let cleanedText = generatedText.trim();
                 
-                // Try to extract JSON from the response
-                const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    try {
-                        parsedData = JSON.parse(jsonMatch[0]);
-                    } catch (secondParseError) {
-                        throw new Error('Failed to parse JSON response from Gemini');
+                // Remove markdown code blocks if present
+                if (cleanedText.startsWith('```json')) {
+                    cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+                } else if (cleanedText.startsWith('```')) {
+                    cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+                }
+
+                // Parse JSON
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(cleanedText);
+                } catch (parseError) {
+                    console.error('JSON parsing error:', parseError);
+                    console.error('Raw response:', generatedText);
+                    
+                    // Try to extract JSON from the response
+                    const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        try {
+                            parsedData = JSON.parse(jsonMatch[0]);
+                        } catch (secondParseError) {
+                            throw new Error('Failed to parse JSON response from Gemini');
+                        }
+                    } else {
+                        throw new Error('No valid JSON found in Gemini response');
                     }
-                } else {
-                    throw new Error('No valid JSON found in Gemini response');
+                }
+
+                // Validate the structure
+                const validatedData = ResumeController.validateAndCleanData(parsedData);
+                
+                console.log(`Successfully processed with API key index ${(geminiKeyManager.getCurrentIndex() - 1 + geminiKeyManager.apiKeys.length) % geminiKeyManager.apiKeys.length}`);
+                return validatedData;
+
+            } catch (error) {
+                console.error(`Attempt ${attempt + 1} failed:`, error.message);
+                lastError = error;
+                
+                // Log specific error details
+                if (error.response) {
+                    console.error('Gemini API response error:', error.response.data);
+                    
+                    // If it's a rate limit error, continue to next key
+                    if (error.response.status === 429) {
+                        console.log('Rate limit hit, trying next API key...');
+                        continue;
+                    }
+                    
+                    // If it's an authentication error, continue to next key
+                    if (error.response.status === 401 || error.response.status === 403) {
+                        console.log('Authentication error, trying next API key...');
+                        continue;
+                    }
+                }
+                
+                // For other errors, still try the next key in case it's key-specific
+                if (attempt < maxRetries - 1) {
+                    console.log('Error occurred, trying next API key...');
+                    continue;
                 }
             }
-
-            // Validate the structure
-            const validatedData = ResumeController.validateAndCleanData(parsedData);
-            
-            return validatedData;
-
-        } catch (error) {
-            console.error('Gemini API error:', error);
-            
-            if (error.response) {
-                console.error('Gemini API response error:', error.response.data);
-            }
-            
-            throw new Error('Failed to parse resume with AI');
         }
+        
+        // If all keys failed, throw the last error
+        console.error('All API keys failed');
+        throw new Error(`Failed to parse resume with AI after trying all ${maxRetries} API keys. Last error: ${lastError?.message}`);
     };
 
     // Validate and clean the parsed data

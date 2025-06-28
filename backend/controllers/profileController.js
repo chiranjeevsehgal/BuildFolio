@@ -215,7 +215,6 @@ const updateSettingsResumeData = async (req, res) => {
 
     const userId = req.user.id;
     const { industry, jobSearchTimeline, resumeExperience } = req.body;
-    console.log(req.body);
 
     // Find user by ID
     const user = await User.findById(userId);
@@ -379,8 +378,6 @@ const uploadProfilePhoto = async (req, res) => {
       });
     }
 
-    console.log('File received:', req.file.originalname, 'Size:', req.file.size);
-
     // Upload buffer directly to Cloudinary (no disk storage needed)
     const result = await cloudinary.uploader.upload_stream(
       {
@@ -410,7 +407,6 @@ const uploadProfilePhoto = async (req, res) => {
         }
 
         try {
-          console.log('Cloudinary upload successful:', result.public_id);
 
           // Find or create profile
           let profile = await Profile.findOne({ user: req.user.id });
@@ -438,7 +434,6 @@ const uploadProfilePhoto = async (req, res) => {
 
               if (oldPublicId && oldPublicId.startsWith('profile_')) {
                 await cloudinary.uploader.destroy(`buildfolio/profiles/${oldPublicId}`);
-                console.log('Old profile photo deleted from Cloudinary');
               }
             } catch (deleteOldError) {
               console.warn('Failed to delete old profile photo:', deleteOldError.message);
@@ -454,8 +449,6 @@ const uploadProfilePhoto = async (req, res) => {
           }
 
           await profile.save();
-
-          console.log('Profile updated successfully');
 
           // Send success response
           res.json({
@@ -512,9 +505,6 @@ const updateUserTemplate = async (req, res) => {
     const { selectedTemplate } = req.body;
     const userId = req.user.id;
 
-    console.log('Updating template for user:', userId);
-    console.log('New template:', selectedTemplate);
-
     if (!selectedTemplate) {
       return res.status(400).json({
         success: false,
@@ -539,7 +529,6 @@ const updateUserTemplate = async (req, res) => {
 
     // If template is changing and user had a deployed portfolio, reset deployment
     if (isTemplateChanging && wasDeployed) {
-      console.log('Template changed, resetting deployment status');
       updateData.portfolioDeployed = false;
       updateData.portfolioUrl = null;
       updateData.deployedAt = null;
@@ -565,8 +554,6 @@ const updateUserTemplate = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     );
-
-    console.log('Updated user:', user);
 
     const responseMessage = isTemplateChanging && wasDeployed
       ? 'Template updated! Your portfolio needs to be redeployed with the new design.'
@@ -671,14 +658,6 @@ const changeUsername = async (req, res) => {
 
       // Commit the transaction
       await session.commitTransaction();
-
-      console.log('Username changed successfully:', {
-        userId,
-        success: true,
-        oldUsername: user.username,
-        newUsername: newUsername.toLowerCase(),
-        deploymentsAffected: deploymentUpdateResult.modifiedCount
-      });
 
       // Return success response
       res.status(200).json({
@@ -870,7 +849,6 @@ const deactivateAccount = async (req, res) => {
 
     // Check if account is already deactivated
     if (!user.isActive) {
-      console.log('Account already deactivated:', userId);
       return res.status(409).json({
         success: false,
         message: 'Account is already deactivated'

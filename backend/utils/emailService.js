@@ -126,7 +126,6 @@ const sendWelcomeEmail = async (userData) => {
       template_variables: templateVariables
     });
 
-    console.log('Welcome email sent successfully:', response);
     return { 
       success: true, 
       messageId: response.message_ids?.[0],
@@ -165,7 +164,6 @@ const sendRegisterOTP = async (email, otp) => {
       template_variables: templateVariables
     });
 
-    console.log('Registration otp sent successfully:', response);
     return { 
       success: true, 
       messageId: response.message_ids?.[0],
@@ -203,7 +201,6 @@ const sendPasswordResetOTP = async (email, otp) => {
       template_variables: templateVariables
     });
 
-    console.log('Password reset otp sent successfully:', response);
     return { 
       success: true, 
       messageId: response.message_ids?.[0],
