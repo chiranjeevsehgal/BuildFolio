@@ -23,7 +23,8 @@ import {
   Check,
   CheckCheck,
   Loader2,
-  Rocket
+  Rocket,
+  Briefcase
 } from 'lucide-react';
 import axios from 'axios';
 import FeedbackModal from './FeedbackModal';
@@ -304,7 +305,7 @@ const Navbar = ({ current }) => {
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
-              <Rocket  className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+              <Rocket className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden lg:inline">Manage Portfolio</span>
               <span className="lg:hidden">Manage Portfolio</span>
             </a>
@@ -318,6 +319,17 @@ const Navbar = ({ current }) => {
               <Palette className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden lg:inline">Templates</span>
               <span className="lg:hidden">Templates</span>
+            </a>
+
+            <a href="/jobtracker"
+              className={`inline-flex items-center cursor-pointer px-2 lg:px-3 xl:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 border border-slate-300 ${current === '/jobtracker'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <Briefcase  className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+              <span className="hidden lg:inline">Job Tracker</span>
+              <span className="lg:hidden">Job Tracker</span>
             </a>
 
             {/* Feedback Link */}
@@ -497,7 +509,7 @@ const Navbar = ({ current }) => {
                             : currentUser?.email
                           }
                         </p>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -635,6 +647,18 @@ const Navbar = ({ current }) => {
             >
               <Palette className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
               Templates
+            </a>
+            
+            {/* Job Tracker Link */}
+            <a
+              href="/jobtracker"
+              className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${current === '/jobtracker'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-3" />
+              Job Tracker
             </a>
 
             {/* Feedback Link */}

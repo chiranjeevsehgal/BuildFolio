@@ -61,6 +61,8 @@ app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/templates', require('./routes/template'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/email', require('./routes/email'));
+app.use('/api/jobs', require('./routes/jobTracker'));
+app.use('/api/ai-insights', require('./routes/aiInsights'));
 
 // Admin routes
 app.use('/api/admin', require('./routes/admin'));

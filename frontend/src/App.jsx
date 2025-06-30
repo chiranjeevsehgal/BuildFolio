@@ -13,6 +13,7 @@ import ProtectedAdminRoute from './auth/ProtectedAdminRoute';
 import Profile from './pages/Profile';
 import AdminApp from './pages/admin/DashboardApp';
 import Settings from './pages/Settings';
+import JobTracker from './pages/JobTracker';
 
 function App() {
   return (
@@ -39,6 +40,12 @@ function App() {
           <Route path="/settings" element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/jobtracker" element={
+            <ProtectedRoute>
+              <JobTracker />
             </ProtectedRoute>
           } />
 
