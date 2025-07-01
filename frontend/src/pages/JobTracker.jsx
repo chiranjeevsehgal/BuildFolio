@@ -79,8 +79,6 @@
     const handleDrop = (e, newStatus) => {
       e.preventDefault();
       if (draggedItem && draggedItem.status !== newStatus) {
-        console.log(draggedItem);
-
         updateJobStatus(draggedItem._id, newStatus);
       }
       setDraggedItem(null);

@@ -80,7 +80,6 @@ const JobDetailsModal = ({ job, isOpen, onClose, onEdit, onDelete, onStatusChang
       });
     } catch (error) {
       // User cancelled or error occurred
-      console.log('Delete cancelled or failed');
     }
   };
 
