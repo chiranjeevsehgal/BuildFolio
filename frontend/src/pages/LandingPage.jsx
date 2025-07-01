@@ -206,7 +206,7 @@ const LandingPage = () => {
               {isLoggedIn ? (
                 <button
                   onClick={handleJobTracker}
-                  className="border-2 cursor-pointer border-purple-300 text-purple-700 px-8 py-4 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 font-semibold text-lg flex items-center justify-center"
+                  className="border-2 cursor-pointer border-indigo-600 text-indigo-600 px-8 py-4 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 font-semibold text-lg flex items-center justify-center"
                 >
                   <Briefcase className="mr-2 w-5 h-5" />
                   Job Tracker
