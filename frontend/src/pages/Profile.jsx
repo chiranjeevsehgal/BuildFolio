@@ -25,6 +25,14 @@ import {
 
 const Profile = () => {
     const [isLoading, setIsLoading] = useState(false)
+    const [savingStates, setSavingStates] = useState({
+        personalInfo: false,
+        professional: false,
+        experience: false,
+        education: false,
+        projects: false,
+    })
+    
     const [isSaving, setIsSaving] = useState(false)
     const [profilePhoto, setProfilePhoto] = useState(null)
     const [uploadingPhoto, setUploadingPhoto] = useState(false)
@@ -449,7 +457,8 @@ const Profile = () => {
             return false
         }
 
-        setIsSaving(true)
+        // Set loading state for specific section only
+        setSavingStates(prev => ({ ...prev, [sectionName]: true }))
 
         try {
             const response = await axios.put("/profiles/me", payload)
@@ -466,9 +475,11 @@ const Profile = () => {
             handleApiError(error, `Save ${sectionName}`)
             return false
         } finally {
-            setIsSaving(false)
+            // Reset loading state for specific section only
+            setSavingStates(prev => ({ ...prev, [sectionName]: false }))
         }
     }
+
 
     // Enhanced save functions
     const savePersonalProfile = () => saveSection('personalInfo', {
@@ -593,6 +604,7 @@ const Profile = () => {
             return
         }
 
+        // Use general isSaving for continue button
         setIsSaving(true)
 
         try {
@@ -622,7 +634,6 @@ const Profile = () => {
             })
 
             if (completeResponse.data.success) {
-
                 if (VITE_ENV === 'development') {
                     setTimeout(() => {
                         window.location.href = "/templates"
@@ -846,7 +857,7 @@ const Profile = () => {
                             editingSections={editingSections}
                             toggleSectionEdit={toggleSectionEdit}
                             savePersonalProfile={savePersonalProfile}
-                            isSaving={isSaving}
+                            isSaving={savingStates.personalInfo}
                             formsValid={formsValid}
                             validationErrors={validationErrors}
                             touchedFields={touchedFields}
@@ -868,7 +879,7 @@ const Profile = () => {
                             editingSections={editingSections}
                             toggleSectionEdit={toggleSectionEdit}
                             saveProfessionalProfile={saveProfessionalProfile}
-                            isSaving={isSaving}
+                            isSaving={savingStates.professional}
                             formsValid={formsValid}
                             validationErrors={validationErrors}
                             touchedFields={touchedFields}
@@ -888,7 +899,7 @@ const Profile = () => {
                             editingSections={editingSections}
                             toggleSectionEdit={toggleSectionEdit}
                             saveExperienceProfile={saveExperienceProfile}
-                            isSaving={isSaving}
+                            isSaving={savingStates.experience}
                             formsValid={formsValid}
                             validationErrors={validationErrors}
                             touchedFields={touchedFields}
@@ -907,7 +918,7 @@ const Profile = () => {
                             toggleSectionEdit={toggleSectionEdit}
                             showMessage={showMessage}
                             saveEducationProfile={saveEducationProfile}
-                            isSaving={isSaving}
+                            isSaving={savingStates.education}
                             formsValid={formsValid}
                             validationErrors={validationErrors}
                             touchedFields={touchedFields}
@@ -930,7 +941,7 @@ const Profile = () => {
                             editingSections={editingSections}
                             toggleSectionEdit={toggleSectionEdit}
                             saveProjectProfile={saveProjectProfile}
-                            isSaving={isSaving}
+                            isSaving={savingStates.projects}
                             formsValid={formsValid}
                             validationErrors={validationErrors}
                             touchedFields={touchedFields}
@@ -970,7 +981,7 @@ const Profile = () => {
                                     <button
                                         type="button"
                                         onClick={handleContinue}
-                                        disabled={completionPercentage < 60 || isSaving || !isFormValid}
+                                        disabled={completionPercentage < 60 || isSaving  || !isFormValid}
                                         className="cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transform hover:scale-105 disabled:hover:scale-100"
                                     >
                                         {isSaving ? (

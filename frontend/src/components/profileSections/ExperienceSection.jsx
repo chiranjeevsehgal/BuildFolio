@@ -97,7 +97,9 @@ const ExperienceSection = ({
     }
 
     // Memoized function to get current data
-    const getCurrentData = useCallback(() => createExperienceCopy(profileData.experience), [profileData])
+    const getCurrentData = useCallback(() => createExperienceCopy(profileData.experience), [profileData.experience])
+
+
 
     // Check for changes when profileData changes
     useEffect(() => {
@@ -123,7 +125,7 @@ const ExperienceSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [resumeprofileData, profileData, originalData, editingSections.experience, getCurrentData, saveAttempted])
+    }, [resumeprofileData, profileData.experience, originalData, editingSections.experience, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {

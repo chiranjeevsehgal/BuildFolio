@@ -124,7 +124,8 @@ const EducationSection = ({
     }
 
     // Memoized function to get current data
-    const getCurrentData = useCallback(() => createEducationCopy(profileData.education), [profileData])
+    const getCurrentData = useCallback(() => createEducationCopy(profileData.education), [profileData.education])
+
 
     // Check for changes when profileData changes
     useEffect(() => {
@@ -149,7 +150,7 @@ const EducationSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [resumeprofileData, profileData, originalData, editingSections.education, getCurrentData, saveAttempted])
+    }, [resumeprofileData, profileData.education, originalData, editingSections.education, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {

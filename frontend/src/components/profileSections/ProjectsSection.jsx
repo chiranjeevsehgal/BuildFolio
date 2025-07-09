@@ -116,7 +116,8 @@ const ProjectsSection = ({
     }
 
     // Memoized function to get current data
-    const getCurrentData = useCallback(() => createProjectsCopy(profileData.projects), [profileData])
+    const getCurrentData = useCallback(() => createProjectsCopy(profileData.projects), [profileData.projects])
+
 
     // Check for changes when profileData changes
     useEffect(() => {
@@ -141,7 +142,7 @@ const ProjectsSection = ({
                 setSaveAttempted(false)
             }
         }
-    }, [resumeprofileData, profileData, originalData, editingSections.projects, getCurrentData, saveAttempted])
+    }, [resumeprofileData, profileData.projects, originalData, editingSections.projects, getCurrentData, saveAttempted])
 
     // Store original data when entering edit mode
     useEffect(() => {
