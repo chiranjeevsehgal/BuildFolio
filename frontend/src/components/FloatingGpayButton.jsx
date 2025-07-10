@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { X, Coffee } from 'lucide-react';
+import { useState } from "react";
+import { X, Coffee } from "lucide-react";
 
-const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dqwosfxu7/image/upload/v1750758324/QR_oe9arx.jpg" }) => {
+const FloatingBuyMeCoffeeButton = ({
+  qrImageSrc = "https://res.cloudinary.com/dqwosfxu7/image/upload/v1750758324/QR_oe9arx.jpg",
+}) => {
   const [showQR, setShowQR] = useState(false);
 
   const toggleQR = () => {
@@ -16,7 +18,10 @@ const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dq
         className="fixed top-1/4 right-6 cursor-pointer transform -translate-y-1/2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white/20 backdrop-blur-sm z-40 group"
         aria-label="Buy Me a Coffee"
       >
-        <Coffee size={26} className="group-hover:rotate-12 transition-transform duration-300" />
+        <Coffee
+          size={26}
+          className="group-hover:rotate-12 transition-transform duration-300"
+        />
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
       </button>
 
@@ -32,7 +37,7 @@ const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dq
             >
               <X size={18} />
             </button>
-            
+
             {/* Header with Coffee Animation */}
             <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full sm:rounded-2xl mb-4 shadow-xl border-2 border-white/20 backdrop-blur-sm">
@@ -45,7 +50,7 @@ const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dq
                 Support my work with a coffee ☕
               </p>
             </div>
-            
+
             {/* QR Code Container */}
             <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm p-6 rounded-xl sm:rounded-2xl border border-white/40 shadow-inner">
               <img
@@ -54,7 +59,7 @@ const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dq
                 className="w-full max-w-xs mx-auto object-contain rounded-lg shadow-lg"
               />
             </div>
-            
+
             {/* Instructions */}
             <div className="mt-6 text-center">
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm border border-amber-200/40 rounded-lg sm:rounded-xl p-4 bg-white/60">
@@ -62,11 +67,12 @@ const FloatingBuyMeCoffeeButton = ({ qrImageSrc = "https://res.cloudinary.com/dq
                   📱 How to pay:
                 </p>
                 <p className="text-amber-700 text-xs leading-relaxed">
-                  Open any Payment App → Tap "Scan QR code" → Point camera at QR code above → Enter any amount → Complete payment
+                  Open any Payment App → Tap "Scan QR code" → Point camera at QR
+                  code above → Enter any amount → Complete payment
                 </p>
               </div>
             </div>
-            
+
             {/* Thank you message */}
             <div className="mt-4 text-center">
               <p className="text-slate-600 text-xs">

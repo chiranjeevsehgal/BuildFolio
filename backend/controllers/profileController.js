@@ -1,18 +1,21 @@
-const Profile = require('../models/Profile');
-const User = require('../models/User');
-const { validationResult } = require('express-validator');
-const cloudinary = require('../config/cloudinary');
-const linkedinService = require('../utils/linkedin');
-const PortfolioDeployment = require('../models/PortfolioDeployment');
-const { default: mongoose } = require('mongoose');
-const bcrypt = require('bcryptjs');
+const Profile = require("../models/Profile");
+const User = require("../models/User");
+const { validationResult } = require("express-validator");
+const cloudinary = require("../config/cloudinary");
+const linkedinService = require("../utils/linkedin");
+const PortfolioDeployment = require("../models/PortfolioDeployment");
+const { default: mongoose } = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 // @desc    Get user profile
 // @route   GET /api/profiles/me
 // @access  Private
 const getMyProfile = async (req, res) => {
   try {
-    let profile = await Profile.findOne({ user: req.user.id }).populate('user', 'firstName lastName email username');
+    let profile = await Profile.findOne({ user: req.user.id }).populate(
+      "user",
+      "firstName lastName email username",
+    );
 
     if (!profile) {
       // Create empty profile if doesn't exist
@@ -22,18 +25,19 @@ const getMyProfile = async (req, res) => {
         experience: [],
         education: [],
         projects: [],
-        certifications: []
+        certifications: [],
       });
       await profile.save();
-      await profile.populate('user', 'firstName lastName email username');
+      await profile.populate("user", "firstName lastName email username");
     }
 
     // Calculate completion percentage
     profile.calculateCompletion();
     await profile.save();
 
-    const extraData = await User.findById(req.user.id).select('selectedTemplate isProfileCompleted portfolioDeployed');
-
+    const extraData = await User.findById(req.user.id).select(
+      "selectedTemplate isProfileCompleted portfolioDeployed",
+    );
 
     res.json({
       success: true,
@@ -42,14 +46,14 @@ const getMyProfile = async (req, res) => {
         selectedTemplate: extraData?.selectedTemplate || null,
         isProfileCompleted: extraData?.isProfileCompleted || false,
         portfolioDeployed: extraData?.portfolioDeployed || false,
-      }
+      },
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    console.error("Get profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get profile',
-      error: error.message
+      message: "Failed to get profile",
+      error: error.message,
     });
   }
 };
@@ -61,47 +65,48 @@ const getSettingsData = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await User.findById(userId).select('firstName lastName careerStage email username industry oauthProvider jobSearchTimeline resumeExperience createdAt updatedAt');
+    const user = await User.findById(userId).select(
+      "firstName lastName careerStage email username industry oauthProvider jobSearchTimeline resumeExperience createdAt updatedAt",
+    );
 
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Personal data retrieved successfully',
+      message: "Personal data retrieved successfully",
       user: {
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        username: user.username || '',
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        username: user.username || "",
         email: user.email,
         oauthProvider: user.oauthProvider,
-        careerStage: user.careerStage || '',
-        industry: user.industry || '',
-        jobSearchTimeline: user.jobSearchTimeline || '',
-        resumeExperience: user.resumeExperience || '',
+        careerStage: user.careerStage || "",
+        industry: user.industry || "",
+        jobSearchTimeline: user.jobSearchTimeline || "",
+        resumeExperience: user.resumeExperience || "",
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      }
+        updatedAt: user.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('❌ Error fetching personal data:', error);
+    console.error("❌ Error fetching personal data:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 // @desc    Update current user settings personal data
 // @route   PUT /api/profiles/settings/personal
-// @access  Private 
+// @access  Private
 const updateSettingsPersonalData = async (req, res) => {
   try {
     // Check for validation errors
@@ -109,8 +114,8 @@ const updateSettingsPersonalData = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -120,10 +125,10 @@ const updateSettingsPersonalData = async (req, res) => {
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -139,44 +144,43 @@ const updateSettingsPersonalData = async (req, res) => {
       { $set: updateData },
       {
         new: true, // Return updated document
-        runValidators: true // Run mongoose validators
-      }
-    ).select('-password -__v');
+        runValidators: true, // Run mongoose validators
+      },
+    ).select("-password -__v");
 
     if (!updatedUser) {
-      console.log('Failed to update user:', userId);
+      console.log("Failed to update user:", userId);
       return res.status(500).json({
         success: false,
-        message: 'Failed to update user personal data'
+        message: "Failed to update user personal data",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Personal information updated successfully',
+      message: "Personal information updated successfully",
       user: {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         careerStage: updatedUser.careerStage,
         email: updatedUser.email,
-        updatedAt: updatedUser.updatedAt
-      }
+        updatedAt: updatedUser.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Error updating personal data:', error);
+    console.error("Error updating personal data:", error);
 
     // Handle specific mongoose errors
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => ({
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,
-        message: err.message
+        message: err.message,
       }));
 
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: validationErrors
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
@@ -184,16 +188,16 @@ const updateSettingsPersonalData = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: 'Duplicate data found',
-        error: 'This information already exists'
+        message: "Duplicate data found",
+        error: "This information already exists",
       });
     }
 
     // Generic server error
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -208,8 +212,8 @@ const updateSettingsResumeData = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -219,18 +223,20 @@ const updateSettingsResumeData = async (req, res) => {
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     // Update only the provided fields
     const updateData = {};
     if (industry !== undefined) updateData.industry = industry;
-    if (jobSearchTimeline !== undefined) updateData.jobSearchTimeline = jobSearchTimeline;
-    if (resumeExperience !== undefined) updateData.resumeExperience = resumeExperience.trim();
+    if (jobSearchTimeline !== undefined)
+      updateData.jobSearchTimeline = jobSearchTimeline;
+    if (resumeExperience !== undefined)
+      updateData.resumeExperience = resumeExperience.trim();
 
     // Update user in database
     const updatedUser = await User.findByIdAndUpdate(
@@ -238,44 +244,43 @@ const updateSettingsResumeData = async (req, res) => {
       { $set: updateData },
       {
         new: true, // Return updated document
-        runValidators: true // Run mongoose validators
-      }
-    ).select('-password -__v');
+        runValidators: true, // Run mongoose validators
+      },
+    ).select("-password -__v");
 
     if (!updatedUser) {
-      console.log('Failed to update user:', userId);
+      console.log("Failed to update user:", userId);
       return res.status(500).json({
         success: false,
-        message: 'Failed to update user resume data'
+        message: "Failed to update user resume data",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Resume information updated successfully',
+      message: "Resume information updated successfully",
       user: {
         email: updatedUser.email,
         industry: updatedUser.industry,
         jobSearchTimeline: updatedUser.jobSearchTimeline,
         resumeExperience: updatedUser.resumeExperience,
-        updatedAt: updatedUser.updatedAt
-      }
+        updatedAt: updatedUser.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Error updating resume data:', error);
+    console.error("Error updating resume data:", error);
 
     // Handle specific mongoose errors
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => ({
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,
-        message: err.message
+        message: err.message,
       }));
 
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: validationErrors
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
@@ -283,16 +288,16 @@ const updateSettingsResumeData = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: 'Duplicate data found',
-        error: 'This information already exists'
+        message: "Duplicate data found",
+        error: "This information already exists",
       });
     }
 
     // Generic server error
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -306,10 +311,10 @@ const updateProfile = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
-    }    
+    }
 
     const {
       phone,
@@ -322,7 +327,7 @@ const updateProfile = async (req, res) => {
       experience,
       education,
       projects,
-      certifications
+      certifications,
     } = req.body;
 
     let profile = await Profile.findOne({ user: req.user.id });
@@ -335,7 +340,8 @@ const updateProfile = async (req, res) => {
     if (phone !== undefined) profile.phone = phone;
     if (location !== undefined) profile.location = location;
     if (website !== undefined) profile.website = website;
-    if (socialLinks !== undefined) profile.socialLinks = { ...profile.socialLinks, ...socialLinks };
+    if (socialLinks !== undefined)
+      profile.socialLinks = { ...profile.socialLinks, ...socialLinks };
     if (title !== undefined) profile.title = title;
     if (summary !== undefined) profile.summary = summary;
     if (skills !== undefined) profile.skills = skills;
@@ -348,19 +354,19 @@ const updateProfile = async (req, res) => {
     profile.calculateCompletion();
 
     await profile.save();
-    await profile.populate('user', 'firstName lastName email username');
+    await profile.populate("user", "firstName lastName email username");
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
-      profile
+      message: "Profile updated successfully",
+      profile,
     });
   } catch (error) {
-    console.error('Update profile error:', error);
+    console.error("Update profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update profile',
-      error: error.message
+      message: "Failed to update profile",
+      error: error.message,
     });
   }
 };
@@ -374,53 +380,55 @@ const uploadProfilePhoto = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No image file provided'
+        message: "No image file provided",
       });
     }
 
     // Upload buffer directly to Cloudinary (no disk storage needed)
     const result = await cloudinary.uploader.upload_stream(
       {
-        folder: 'buildfolio/profiles',
+        folder: "buildfolio/profiles",
         public_id: `profile_${req.user.id}_${Date.now()}`, // Unique ID for each user
         transformation: [
           {
             width: 400,
             height: 400,
-            crop: 'fill',
-            gravity: 'face',
-            quality: 'auto',
-            fetch_format: 'auto'
-          }
+            crop: "fill",
+            gravity: "face",
+            quality: "auto",
+            fetch_format: "auto",
+          },
         ],
         overwrite: true, // Allow overwriting existing files
-        resource_type: 'image'
+        resource_type: "image",
       },
       async (error, result) => {
         if (error) {
-          console.error('Cloudinary upload error:', error);
+          console.error("Cloudinary upload error:", error);
           return res.status(500).json({
             success: false,
-            message: 'Failed to upload to cloud storage',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: "Failed to upload to cloud storage",
+            error:
+              process.env.NODE_ENV === "development"
+                ? error.message
+                : undefined,
           });
         }
 
         try {
-
           // Find or create profile
           let profile = await Profile.findOne({ user: req.user.id });
           if (!profile) {
             profile = new Profile({
               user: req.user.id,
               personalInfo: {
-                phone: '',
-                location: '',
+                phone: "",
+                location: "",
                 socialLinks: {
-                  linkedin: '',
-                  github: ''
-                }
-              }
+                  linkedin: "",
+                  github: "",
+                },
+              },
             });
           }
 
@@ -428,15 +436,20 @@ const uploadProfilePhoto = async (req, res) => {
           if (profile.profilePhoto) {
             try {
               // Extract public_id from old URL to delete old image
-              const urlParts = profile.profilePhoto.split('/');
+              const urlParts = profile.profilePhoto.split("/");
               const publicIdWithExtension = urlParts[urlParts.length - 1];
-              const oldPublicId = publicIdWithExtension.split('.')[0];
+              const oldPublicId = publicIdWithExtension.split(".")[0];
 
-              if (oldPublicId && oldPublicId.startsWith('profile_')) {
-                await cloudinary.uploader.destroy(`buildfolio/profiles/${oldPublicId}`);
+              if (oldPublicId && oldPublicId.startsWith("profile_")) {
+                await cloudinary.uploader.destroy(
+                  `buildfolio/profiles/${oldPublicId}`,
+                );
               }
             } catch (deleteOldError) {
-              console.warn('Failed to delete old profile photo:', deleteOldError.message);
+              console.warn(
+                "Failed to delete old profile photo:",
+                deleteOldError.message,
+              );
             }
           }
 
@@ -444,7 +457,7 @@ const uploadProfilePhoto = async (req, res) => {
           profile.profilePhoto = result.secure_url;
 
           // Calculate completion if method exists
-          if (typeof profile.calculateCompletion === 'function') {
+          if (typeof profile.calculateCompletion === "function") {
             profile.calculateCompletion();
           }
 
@@ -453,48 +466,49 @@ const uploadProfilePhoto = async (req, res) => {
           // Send success response
           res.json({
             success: true,
-            message: 'Profile photo uploaded successfully',
+            message: "Profile photo uploaded successfully",
             photoUrl: result.secure_url,
-            publicId: result.public_id
+            publicId: result.public_id,
           });
-
         } catch (dbError) {
-          console.error('Database update error:', dbError);
+          console.error("Database update error:", dbError);
           res.status(500).json({
             success: false,
-            message: 'Photo uploaded but failed to update profile',
-            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+            message: "Photo uploaded but failed to update profile",
+            error:
+              process.env.NODE_ENV === "development"
+                ? dbError.message
+                : undefined,
           });
         }
-      }
+      },
     );
 
     // Upload the buffer to Cloudinary
     result.end(req.file.buffer);
-
   } catch (error) {
-    console.error('Upload photo error:', error);
+    console.error("Upload photo error:", error);
 
     // Handle specific error types
-    if (error.message.includes('Invalid image file')) {
+    if (error.message.includes("Invalid image file")) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid image file format'
+        message: "Invalid image file format",
       });
     }
 
-    if (error.message.includes('File too large')) {
+    if (error.message.includes("File too large")) {
       return res.status(400).json({
         success: false,
-        message: 'File size too large. Maximum 5MB allowed.'
+        message: "File size too large. Maximum 5MB allowed.",
       });
     }
 
     // Generic error response
     res.status(500).json({
       success: false,
-      message: 'Failed to upload photo. Please try again.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Failed to upload photo. Please try again.",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -508,7 +522,7 @@ const updateUserTemplate = async (req, res) => {
     if (!selectedTemplate) {
       return res.status(400).json({
         success: false,
-        message: 'Template selection is required'
+        message: "Template selection is required",
       });
     }
 
@@ -517,11 +531,12 @@ const updateUserTemplate = async (req, res) => {
     if (!currentUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
-    const isTemplateChanging = currentUser.selectedTemplate !== selectedTemplate;
+    const isTemplateChanging =
+      currentUser.selectedTemplate !== selectedTemplate;
     const wasDeployed = currentUser.portfolioDeployed;
 
     // Update data object
@@ -540,24 +555,24 @@ const updateUserTemplate = async (req, res) => {
           {
             isActive: false,
             templateId: selectedTemplate, // Update to new template
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         );
       } catch (deploymentError) {
-        console.log('No existing deployment record to update');
+        console.log("No existing deployment record to update");
       }
     }
 
     // Update user record
-    const user = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const user = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
-    const responseMessage = isTemplateChanging && wasDeployed
-      ? 'Template updated! Your portfolio needs to be redeployed with the new design.'
-      : 'Template selection updated';
+    const responseMessage =
+      isTemplateChanging && wasDeployed
+        ? "Template updated! Your portfolio needs to be redeployed with the new design."
+        : "Template selection updated";
 
     res.json({
       success: true,
@@ -566,16 +581,15 @@ const updateUserTemplate = async (req, res) => {
       data: {
         selectedTemplate: user.selectedTemplate,
         portfolioDeployed: user.portfolioDeployed,
-        needsRedeployment: isTemplateChanging && wasDeployed
-      }
+        needsRedeployment: isTemplateChanging && wasDeployed,
+      },
     });
-
   } catch (error) {
-    console.error('Update template error:', error);
+    console.error("Update template error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update template selection',
-      error: error.message
+      message: "Failed to update template selection",
+      error: error.message,
     });
   }
 };
@@ -587,8 +601,8 @@ const changeUsername = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -598,23 +612,23 @@ const changeUsername = async (req, res) => {
     // Check if username is already taken
     const existingUser = await User.findOne({
       username: newUsername.toLowerCase(),
-      _id: { $ne: userId } // Exclude current user
+      _id: { $ne: userId }, // Exclude current user
     });
 
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'Username already taken. Please choose a different username.'
+        message: "Username already taken. Please choose a different username.",
       });
     }
 
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -629,17 +643,17 @@ const changeUsername = async (req, res) => {
         {
           username: newUsername.toLowerCase(),
           portfolioDeployed: false,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           new: true,
           session,
-          runValidators: true
-        }
-      ).select('-password -__v');
+          runValidators: true,
+        },
+      ).select("-password -__v");
 
       if (!updatedUser) {
-        throw new Error('Failed to update username');
+        throw new Error("Failed to update username");
       }
 
       const deploymentUpdateResult = await PortfolioDeployment.updateMany(
@@ -647,13 +661,13 @@ const changeUsername = async (req, res) => {
         {
           $set: {
             isActive: false,
-            status: 'modified',
+            status: "modified",
             unpublishedAt: new Date(),
             updatedAt: new Date(),
-            modificationReason: 'Username changed'
-          }
+            modificationReason: "Username changed",
+          },
         },
-        { session }
+        { session },
       );
 
       // Commit the transaction
@@ -662,15 +676,15 @@ const changeUsername = async (req, res) => {
       // Return success response
       res.status(200).json({
         success: true,
-        message: 'Username changed successfully. Portfolio deployment has been unpublished.',
+        message:
+          "Username changed successfully. Portfolio deployment has been unpublished.",
         user: {
           id: updatedUser._id,
           username: updatedUser.username,
           email: updatedUser.email,
-          updatedAt: updatedUser.updatedAt
+          updatedAt: updatedUser.updatedAt,
         },
       });
-
     } catch (transactionError) {
       // Rollback transaction on error
       await session.abortTransaction();
@@ -679,21 +693,20 @@ const changeUsername = async (req, res) => {
       // End session
       session.endSession();
     }
-
   } catch (error) {
-    console.error('Error changing username:', error);
+    console.error("Error changing username:", error);
 
     // Handle specific mongoose errors
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => ({
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,
-        message: err.message
+        message: err.message,
       }));
 
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: validationErrors
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
@@ -701,22 +714,22 @@ const changeUsername = async (req, res) => {
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: 'Username already taken. Please choose a different username.'
+        message: "Username already taken. Please choose a different username.",
       });
     }
 
     // Generic server error
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 // @desc    Change user's password
 // @route   PUT /api/profiles/change-password
-// @access  Private 
+// @access  Private
 const changePassword = async (req, res) => {
   try {
     // Check for validation errors
@@ -724,8 +737,8 @@ const changePassword = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -733,30 +746,34 @@ const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
 
     // Find user by ID
-    const user = await User.findById(userId).select('+password');
+    const user = await User.findById(userId).select("+password");
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
 
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     if (!user.password) {
       return res.status(400).json({
         success: false,
-        message: "Password change is not available for social logins. Please manage your account through your social provider.",
-        isOAuthUser: true
+        message:
+          "Password change is not available for social logins. Please manage your account through your social provider.",
+        isOAuthUser: true,
       });
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isCurrentPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
 
@@ -765,7 +782,7 @@ const changePassword = async (req, res) => {
     if (isSamePassword) {
       return res.status(400).json({
         success: false,
-        message: 'New password must be different from your current password'
+        message: "New password must be different from your current password",
       });
     }
 
@@ -779,60 +796,59 @@ const changePassword = async (req, res) => {
       {
         password: hashedNewPassword,
         updatedAt: new Date(),
-        lastPasswordChange: new Date()
+        lastPasswordChange: new Date(),
       },
       {
         new: true,
-        runValidators: true
-      }
-    ).select('-password -__v');
+        runValidators: true,
+      },
+    ).select("-password -__v");
 
     if (!updatedUser) {
-      console.log('Failed to update password for user:', userId);
+      console.log("Failed to update password for user:", userId);
       return res.status(500).json({
         success: false,
-        message: 'Failed to update password'
+        message: "Failed to update password",
       });
     }
 
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'Password changed successfully',
+      message: "Password changed successfully",
       user: {
         id: updatedUser._id,
         email: updatedUser.email,
-        updatedAt: updatedUser.updatedAt
-      }
+        updatedAt: updatedUser.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Error changing password:', error);
+    console.error("Error changing password:", error);
 
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => ({
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,
-        message: err.message
+        message: err.message,
       }));
 
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: validationErrors
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 // @desc    Deactivate user account
 // @route   PUT /api/profiles/deactivate-account
-// @access  Private 
+// @access  Private
 const deactivateAccount = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -840,10 +856,10 @@ const deactivateAccount = async (req, res) => {
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
-      console.log('User not found:', userId);
+      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -851,7 +867,7 @@ const deactivateAccount = async (req, res) => {
     if (!user.isActive) {
       return res.status(409).json({
         success: false,
-        message: 'Account is already deactivated'
+        message: "Account is already deactivated",
       });
     }
 
@@ -866,18 +882,18 @@ const deactivateAccount = async (req, res) => {
         {
           isActive: false,
           deactivatedAt: new Date(),
-          deactivationReason: 'User requested',
-          updatedAt: new Date()
+          deactivationReason: "User requested",
+          updatedAt: new Date(),
         },
         {
           new: true,
           session,
-          runValidators: true
-        }
-      ).select('-password -__v');
+          runValidators: true,
+        },
+      ).select("-password -__v");
 
       if (!updatedUser) {
-        throw new Error('Failed to update user account');
+        throw new Error("Failed to update user account");
       }
 
       // Update all portfolio deployments for this user
@@ -887,24 +903,24 @@ const deactivateAccount = async (req, res) => {
           $set: {
             isActive: false,
             isPublic: false,
-            status: 'deactivated',
+            status: "deactivated",
             deactivatedAt: new Date(),
-            deactivationReason: 'Account deactivated',
-            updatedAt: new Date()
-          }
+            deactivationReason: "Account deactivated",
+            updatedAt: new Date(),
+          },
         },
-        { session }
+        { session },
       );
 
       // Optionally update user profile as well
-      const Profile = mongoose.model('Profile');
+      const Profile = mongoose.model("Profile");
       await Profile.findOneAndUpdate(
         { user: userId },
         {
           isPublic: false,
-          deactivatedAt: new Date()
+          deactivatedAt: new Date(),
         },
-        { session }
+        { session },
       );
 
       // Commit the transaction
@@ -913,15 +929,14 @@ const deactivateAccount = async (req, res) => {
       // Return success response
       res.status(200).json({
         success: true,
-        message: 'Account deactivated successfully',
+        message: "Account deactivated successfully",
         user: {
           id: updatedUser._id,
           email: updatedUser.email,
           isActive: updatedUser.isActive,
-          deactivatedAt: updatedUser.deactivatedAt
-        }
+          deactivatedAt: updatedUser.deactivatedAt,
+        },
       });
-
     } catch (transactionError) {
       // Rollback transaction on error
       await session.abortTransaction();
@@ -930,111 +945,107 @@ const deactivateAccount = async (req, res) => {
       // End session
       session.endSession();
     }
-
   } catch (error) {
-    console.error('Error deactivating account:', error);
+    console.error("Error deactivating account:", error);
 
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => ({
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,
-        message: err.message
+        message: err.message,
       }));
 
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: validationErrors
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
     // Handle transaction errors
-    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+    if (error.name === "MongoError" || error.name === "MongoServerError") {
       return res.status(500).json({
         success: false,
-        message: 'Database error occurred during deactivation'
+        message: "Database error occurred during deactivation",
       });
     }
 
     // Generic server error
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 // @desc    reactivate user account
 // @route   PUT /api/profiles/reactivate-account
-// @access  Private 
+// @access  Private
 const reactivateAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const userId = req.user.id;
+      // Reactivate user account
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          isActive: true,
+          reactivatedAt: new Date(),
+          $unset: {
+            deactivatedAt: 1,
+            deactivationReason: 1,
+          },
+          updatedAt: new Date(),
+        },
+        {
+          new: true,
+          session,
+        },
+      ).select("-password -__v");
 
-        const session = await mongoose.startSession();
-        session.startTransaction();
+      // Reactivate portfolio deployments
+      const deploymentUpdateResult = await PortfolioDeployment.updateMany(
+        { userId: userId },
+        {
+          $set: {
+            isActive: true,
+            isPublic: true,
+            status: "active",
+            reactivatedAt: new Date(),
+          },
+          $unset: {
+            deactivatedAt: 1,
+            deactivationReason: 1,
+          },
+        },
+        { session },
+      );
 
-        try {
-            // Reactivate user account
-            const updatedUser = await User.findByIdAndUpdate(
-                userId,
-                { 
-                    isActive: true,
-                    reactivatedAt: new Date(),
-                    $unset: { 
-                        deactivatedAt: 1, 
-                        deactivationReason: 1 
-                    },
-                    updatedAt: new Date()
-                },
-                { 
-                    new: true,
-                    session
-                }
-            ).select('-password -__v');
+      await session.commitTransaction();
 
-            // Reactivate portfolio deployments
-            const deploymentUpdateResult = await PortfolioDeployment.updateMany(
-                { userId: userId },
-                { 
-                    $set: {
-                        isActive: true,
-                        isPublic: true,
-                        status: 'active',
-                        reactivatedAt: new Date()
-                    },
-                    $unset: {
-                        deactivatedAt: 1,
-                        deactivationReason: 1
-                    }
-                },
-                { session }
-            );
-
-            await session.commitTransaction();
-
-            res.status(200).json({
-                success: true,
-                message: 'Account reactivated successfully',
-                user: updatedUser,
-            });
-
-        } catch (transactionError) {
-            await session.abortTransaction();
-            throw transactionError;
-        } finally {
-            session.endSession();
-        }
-
-    } catch (error) {
-        console.error('Error reactivating account:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to reactivate account'
-        });
+      res.status(200).json({
+        success: true,
+        message: "Account reactivated successfully",
+        user: updatedUser,
+      });
+    } catch (transactionError) {
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
     }
+  } catch (error) {
+    console.error("Error reactivating account:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reactivate account",
+    });
+  }
 };
-
 
 module.exports = {
   getMyProfile,
@@ -1047,5 +1058,5 @@ module.exports = {
   updateUserTemplate,
   changePassword,
   deactivateAccount,
-  reactivateAccount
+  reactivateAccount,
 };

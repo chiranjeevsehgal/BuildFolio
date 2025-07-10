@@ -113,7 +113,13 @@
       "url": "https://taskflow-pm.netlify.app",
       "githubUrl": "https://github.com/alexjohnson/taskflow",
       "image": "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&h=400&fit=crop",
-      "skills": ["React.js", "Firebase", "Material-UI", "WebSocket", "Stripe API"],
+      "skills": [
+        "React.js",
+        "Firebase",
+        "Material-UI",
+        "WebSocket",
+        "Stripe API"
+      ],
       "featured": true
     },
     {
@@ -122,7 +128,13 @@
       "url": "https://cryptoportfolio-tracker.vercel.app",
       "githubUrl": "https://github.com/alexjohnson/crypto-tracker",
       "image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=600&h=400&fit=crop",
-      "skills": ["Next.js", "TypeScript", "Chart.js", "CoinGecko API", "Tailwind CSS"],
+      "skills": [
+        "Next.js",
+        "TypeScript",
+        "Chart.js",
+        "CoinGecko API",
+        "Tailwind CSS"
+      ],
       "featured": false
     },
     {

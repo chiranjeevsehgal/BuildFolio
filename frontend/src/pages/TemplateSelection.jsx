@@ -1,23 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  Eye, ArrowRight, Palette, Monitor, Smartphone, Tablet, Check, Star, Zap, Heart,
-  Grid, Layout, Code, Briefcase, User, Crown, AlertCircle, Edit3, Sparkles,
-  Layers, Filter, Search, ChevronDown, ExternalLink, Clock, Award, Rocket, Info,
+  Eye,
+  ArrowRight,
+  Palette,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Check,
+  Star,
+  Zap,
+  Heart,
+  Grid,
+  Layout,
+  Code,
+  Briefcase,
+  User,
+  Crown,
+  AlertCircle,
+  Edit3,
+  Sparkles,
+  Layers,
+  Filter,
+  Search,
+  ChevronDown,
+  ExternalLink,
+  Clock,
+  Award,
+  Rocket,
+  Info,
   LayoutGrid,
-  List
-} from 'lucide-react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import TemplateModal from '../components/TemplateModal';
-import { getTemplates } from '../utils/templateData';
-import toast, { Toaster } from 'react-hot-toast';
+  List,
+} from "lucide-react";
+import axios from "axios";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import TemplateModal from "../components/TemplateModal";
+import { getTemplates } from "../utils/templateData";
+import toast, { Toaster } from "react-hot-toast";
 
 const TemplateSelection = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [userSelectedTemplate, setUserSelectedTemplate] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [filterCategory, setFilterCategory] = useState('all');
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
+  const [filterCategory, setFilterCategory] = useState("all");
   const [previewTemplate, setPreviewTemplate] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,25 +55,50 @@ const TemplateSelection = () => {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const categories = [
-    { id: 'all', name: 'All Templates', icon: Grid, gradient: 'from-blue-500 to-indigo-600' },
-    { id: 'minimal', name: 'Minimal', icon: Layout, gradient: 'from-slate-500 to-slate-600' },
-    { id: 'creative', name: 'Creative', icon: Palette, gradient: 'from-purple-500 to-pink-600' },
-    { id: 'professional', name: 'Professional', icon: Briefcase, gradient: 'from-emerald-500 to-teal-600' },
-    { id: 'developer', name: 'Developer', icon: Code, gradient: 'from-orange-500 to-red-600' }
+    {
+      id: "all",
+      name: "All Templates",
+      icon: Grid,
+      gradient: "from-blue-500 to-indigo-600",
+    },
+    {
+      id: "minimal",
+      name: "Minimal",
+      icon: Layout,
+      gradient: "from-slate-500 to-slate-600",
+    },
+    {
+      id: "creative",
+      name: "Creative",
+      icon: Palette,
+      gradient: "from-purple-500 to-pink-600",
+    },
+    {
+      id: "professional",
+      name: "Professional",
+      icon: Briefcase,
+      gradient: "from-emerald-500 to-teal-600",
+    },
+    {
+      id: "developer",
+      name: "Developer",
+      icon: Code,
+      gradient: "from-orange-500 to-red-600",
+    },
   ];
 
   useEffect(() => {
     // Set up axios defaults
     axios.defaults.baseURL = API_BASE_URL;
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common["Content-Type"] = "application/json";
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
 
-    loadUserSelection()
-    loadTemplates()
+    loadUserSelection();
+    loadTemplates();
   }, [API_BASE_URL]);
 
   const loadTemplates = async () => {
@@ -56,18 +106,18 @@ const TemplateSelection = () => {
       setLoading(true);
 
       const templatesResponse = await getTemplates();
-        
+
       if (templatesResponse?.success) {
         setTemplates(templatesResponse?.data);
       } else {
-        throw new Error('Failed to load templates');
+        throw new Error("Failed to load templates");
       }
-
     } catch (error) {
-      console.error('Failed to load templates:', error);
-      toast.error(error.data?.message || 'Failed to load templates. Please try again.')
-    }
-    finally {
+      console.error("Failed to load templates:", error);
+      toast.error(
+        error.data?.message || "Failed to load templates. Please try again.",
+      );
+    } finally {
       setLoading(false);
     }
   };
@@ -75,7 +125,7 @@ const TemplateSelection = () => {
   const loadUserSelection = async () => {
     try {
       setLoading(true);
-      const userResponse = await axios.get('/auth/profile');
+      const userResponse = await axios.get("/auth/profile");
 
       if (userResponse.data.success && userResponse.data.user) {
         const user = userResponse.data.user;
@@ -84,24 +134,25 @@ const TemplateSelection = () => {
           setUserSelectedTemplate(user.selectedTemplate);
         }
       }
-
     } catch (error) {
-      console.error('Failed to load user profile:', error);
+      console.error("Failed to load user profile:", error);
     } finally {
       setLoading(false);
     }
   };
 
-
-
-  const filteredTemplates = filterCategory === 'all'
-    ? templates
-    : templates.filter(template => template.category === filterCategory);
+  const filteredTemplates =
+    filterCategory === "all"
+      ? templates
+      : templates.filter((template) => template.category === filterCategory);
 
   const handleTemplateSelect = async (template) => {
     const templateId = template.templateId || template.id;
 
-    if (selectedTemplate === templateId && userSelectedTemplate === templateId) {
+    if (
+      selectedTemplate === templateId &&
+      userSelectedTemplate === templateId
+    ) {
       return;
     }
 
@@ -109,21 +160,24 @@ const TemplateSelection = () => {
     setSavingTemplate(true);
 
     try {
-      const response = await axios.patch('/profiles/template', {
-        selectedTemplate: templateId
+      const response = await axios.patch("/profiles/template", {
+        selectedTemplate: templateId,
       });
 
       if (response.data.success) {
         setUserSelectedTemplate(templateId);
-        toast.success('Template selected and saved successfully!')
+        toast.success("Template selected and saved successfully!");
         // Close modal after successful selection
         setIsModalOpen(false);
       } else {
-        throw new Error(response.data.message || 'Failed to save template');
+        throw new Error(response.data.message || "Failed to save template");
       }
     } catch (error) {
-      console.error('Failed to save template selection:', error);
-      toast.error(error.response?.data?.message || 'Failed to save template selection. Please try again.')
+      console.error("Failed to save template selection:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to save template selection. Please try again.",
+      );
       setSelectedTemplate(userSelectedTemplate);
     } finally {
       setSavingTemplate(false);
@@ -133,7 +187,7 @@ const TemplateSelection = () => {
   const handlePreview = (template) => {
     setPreviewTemplate(template);
     const templateId = template.templateId || template.id;
-    window.open(`/preview/${templateId}`, '_blank')
+    window.open(`/preview/${templateId}`, "_blank");
   };
 
   const handleTemplateClick = (template) => {
@@ -149,10 +203,10 @@ const TemplateSelection = () => {
   const handleContinue = async () => {
     if (selectedTemplate && userSelectedTemplate) {
       try {
-        window.location.href = '/portfolio';
+        window.location.href = "/portfolio";
       } catch (error) {
-        console.error('Failed to navigate to portfolio:', error);
-        toast.error('Failed to proceed. Please try again.')
+        console.error("Failed to navigate to portfolio:", error);
+        toast.error("Failed to proceed. Please try again.");
       }
     }
   };
@@ -165,8 +219,12 @@ const TemplateSelection = () => {
           <div className="text-center">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-6"></div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-2">Loading Templates</h3>
-              <p className="text-slate-600">Finding the perfect designs for you...</p>
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                Loading Templates
+              </h3>
+              <p className="text-slate-600">
+                Finding the perfect designs for you...
+              </p>
             </div>
           </div>
         </div>
@@ -193,15 +251,15 @@ const TemplateSelection = () => {
                 Choose Your Perfect Template
               </h1>
               <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-                Select a professional template that matches your style and industry.
-                All templates are fully responsive and optimized for performance.
+                Select a professional template that matches your style and
+                industry. All templates are fully responsive and optimized for
+                performance.
               </p>
             </div>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
-
           {/* Filters and Controls */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-6 mb-6 border border-white/40">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
@@ -214,10 +272,11 @@ const TemplateSelection = () => {
                     <button
                       key={category.id}
                       onClick={() => setFilterCategory(category.id)}
-                      className={`group cursor-pointer relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-medium ${isActive
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg transform scale-105'
-                        : 'bg-white/60 text-slate-600 hover:bg-white hover:shadow-md transform hover:scale-105'
-                        }`}
+                      className={`group cursor-pointer relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-medium ${
+                        isActive
+                          ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg transform scale-105"
+                          : "bg-white/60 text-slate-600 hover:bg-white hover:shadow-md transform hover:scale-105"
+                      }`}
                     >
                       <IconComponent className="w-4 h-4" />
                       <span>{category.name}</span>
@@ -231,20 +290,22 @@ const TemplateSelection = () => {
                 {/* View Mode Toggle */}
                 <div className="flex bg-white/60 rounded-xl p-1">
                   <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 cursor-pointer rounded-lg transition-all duration-200 ${viewMode === 'grid'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-white/80'
-                      }`}
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 cursor-pointer rounded-lg transition-all duration-200 ${
+                      viewMode === "grid"
+                        ? "bg-blue-500 text-white shadow-md"
+                        : "text-slate-600 hover:bg-white/80"
+                    }`}
                   >
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 cursor-pointer rounded-lg transition-all duration-200 ${viewMode === 'list'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-white/80'
-                      }`}
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 cursor-pointer rounded-lg transition-all duration-200 ${
+                      viewMode === "list"
+                        ? "bg-blue-500 text-white shadow-md"
+                        : "text-slate-600 hover:bg-white/80"
+                    }`}
                   >
                     <List className="w-4 h-4" />
                   </button>
@@ -261,7 +322,7 @@ const TemplateSelection = () => {
           </div>
 
           {/* Templates Grid/List View */}
-          {viewMode === 'grid' ? (
+          {viewMode === "grid" ? (
             // Grid View - 3 columns
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {filteredTemplates.map((template) => {
@@ -273,12 +334,13 @@ const TemplateSelection = () => {
                 return (
                   <div
                     key={templateId}
-                    className={`group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl cursor-pointer ${isCurrentlySelected
-                      ? 'border-green-500 ring-2 ring-green-200/50 bg-gradient-to-br from-green-50/50 to-emerald-50/50'
-                      : isSelected
-                        ? 'border-blue-500 ring-2 ring-blue-200/50 bg-gradient-to-br from-blue-50/50 to-indigo-50/50'
-                        : 'border-white/50 hover:border-slate-300/50'
-                      } transform hover:scale-[1.02]`}
+                    className={`group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl cursor-pointer ${
+                      isCurrentlySelected
+                        ? "border-green-500 ring-2 ring-green-200/50 bg-gradient-to-br from-green-50/50 to-emerald-50/50"
+                        : isSelected
+                          ? "border-blue-500 ring-2 ring-blue-200/50 bg-gradient-to-br from-blue-50/50 to-indigo-50/50"
+                          : "border-white/50 hover:border-slate-300/50"
+                    } transform hover:scale-[1.02]`}
                     onClick={() => handleTemplateClick(template)}
                   >
                     {/* Template Preview */}
@@ -286,19 +348,24 @@ const TemplateSelection = () => {
                       <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 via-slate-50 to-white rounded-t-2xl overflow-hidden relative">
                         <div className="w-full h-full flex items-center justify-center p-8">
                           <div className="text-center">
-                            <div className={`w-16 h-16 bg-gradient-to-r ${isCurrentlySelected
-                              ? 'from-green-500 via-emerald-500 to-teal-600'
-                              : 'from-blue-500 via-purple-500 to-indigo-600'
-                              } rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110`}>
+                            <div
+                              className={`w-16 h-16 bg-gradient-to-r ${
+                                isCurrentlySelected
+                                  ? "from-green-500 via-emerald-500 to-teal-600"
+                                  : "from-blue-500 via-purple-500 to-indigo-600"
+                              } rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110`}
+                            >
                               {isCurrentlySelected ? (
                                 <Check className="w-8 h-8 text-white" />
                               ) : (
                                 <Layout className="w-8 h-8 text-white" />
                               )}
                             </div>
-                            <h3 className="font-bold text-lg text-slate-800 mb-2">{template.name}</h3>
+                            <h3 className="font-bold text-lg text-slate-800 mb-2">
+                              {template.name}
+                            </h3>
                             <span className="bg-slate-100 px-2 py-1 rounded-lg text-xs font-medium text-slate-600">
-                              {template.category || 'Template'}
+                              {template.category || "Template"}
                             </span>
                           </div>
                         </div>
@@ -315,7 +382,6 @@ const TemplateSelection = () => {
 
                         {/* Quick Actions */}
                         <div className="absolute top-3 left-3 flex space-x-2">
-
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -355,10 +421,11 @@ const TemplateSelection = () => {
                               handleTemplateSelect(template);
                             }}
                             disabled={savingTemplate && isSelected}
-                            className={`flex-1 cursor-pointer py-2 px-4 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed ${isSelected
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg'
-                              : 'bg-white/60 backdrop-blur-sm border border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm hover:shadow-md'
-                              }`}
+                            className={`flex-1 cursor-pointer py-2 px-4 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed ${
+                              isSelected
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg"
+                                : "bg-white/60 backdrop-blur-sm border border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm hover:shadow-md"
+                            }`}
                           >
                             {savingTemplate && isSelected ? (
                               <div className="flex items-center justify-center">
@@ -371,7 +438,7 @@ const TemplateSelection = () => {
                                 Selected
                               </div>
                             ) : (
-                              'Select'
+                              "Select"
                             )}
                           </button>
                         )}
@@ -403,20 +470,24 @@ const TemplateSelection = () => {
                 return (
                   <div
                     key={templateId}
-                    className={`group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl cursor-pointer ${isCurrentlySelected
-                      ? 'border-green-500 ring-2 ring-green-200/50 bg-gradient-to-r from-green-50/50 to-emerald-50/50'
-                      : isSelected
-                        ? 'border-blue-500 ring-2 ring-blue-200/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50'
-                        : 'border-white/50 hover:border-slate-300/50'
-                      }`}
+                    className={`group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl cursor-pointer ${
+                      isCurrentlySelected
+                        ? "border-green-500 ring-2 ring-green-200/50 bg-gradient-to-r from-green-50/50 to-emerald-50/50"
+                        : isSelected
+                          ? "border-blue-500 ring-2 ring-blue-200/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
+                          : "border-white/50 hover:border-slate-300/50"
+                    }`}
                     onClick={() => handleTemplateClick(template)}
                   >
                     <div className="flex items-center p-6">
                       {/* Template Icon */}
-                      <div className={`w-16 h-16 bg-gradient-to-r ${isCurrentlySelected
-                        ? 'from-green-500 via-emerald-500 to-teal-600'
-                        : 'from-blue-500 via-purple-500 to-indigo-600'
-                        } rounded-xl flex items-center justify-center shadow-lg mr-6 flex-shrink-0`}>
+                      <div
+                        className={`w-16 h-16 bg-gradient-to-r ${
+                          isCurrentlySelected
+                            ? "from-green-500 via-emerald-500 to-teal-600"
+                            : "from-blue-500 via-purple-500 to-indigo-600"
+                        } rounded-xl flex items-center justify-center shadow-lg mr-6 flex-shrink-0`}
+                      >
                         {isCurrentlySelected ? (
                           <Check className="w-8 h-8 text-white" />
                         ) : (
@@ -427,9 +498,11 @@ const TemplateSelection = () => {
                       {/* Template Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-xl font-bold text-slate-800">{template.name}</h3>
+                          <h3 className="text-xl font-bold text-slate-800">
+                            {template.name}
+                          </h3>
                           <span className="bg-slate-100 px-3 py-1 rounded-lg text-sm font-medium text-slate-600">
-                            {template.category || 'Template'}
+                            {template.category || "Template"}
                           </span>
                           {isCurrentlySelected && (
                             <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-lg text-sm font-bold">
@@ -483,10 +556,11 @@ const TemplateSelection = () => {
                               handleTemplateSelect(template);
                             }}
                             disabled={savingTemplate && isSelected}
-                            className={`py-3 px-6 cursor-pointer rounded-xl font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed ${isSelected
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg'
-                              : 'bg-white/60 backdrop-blur-sm border border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-lg hover:shadow-xl'
-                              }`}
+                            className={`py-3 px-6 cursor-pointer rounded-xl font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed ${
+                              isSelected
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg"
+                                : "bg-white/60 backdrop-blur-sm border border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-lg hover:shadow-xl"
+                            }`}
                           >
                             {savingTemplate && isSelected ? (
                               <div className="flex items-center">
@@ -519,8 +593,12 @@ const TemplateSelection = () => {
             <div className="text-center py-20">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-2xl max-w-md mx-auto">
                 <Layout className="w-20 h-20 text-slate-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-slate-600 mb-4">No templates found</h3>
-                <p className="text-slate-500 leading-relaxed">Try adjusting your filters to discover more amazing templates.</p>
+                <h3 className="text-2xl font-bold text-slate-600 mb-4">
+                  No templates found
+                </h3>
+                <p className="text-slate-500 leading-relaxed">
+                  Try adjusting your filters to discover more amazing templates.
+                </p>
               </div>
             </div>
           )}
@@ -536,8 +614,16 @@ const TemplateSelection = () => {
                     Ready to Build Your Portfolio!
                   </h3>
                   <p className="text-green-100 leading-relaxed">
-                    Your "<span className="font-semibold">{templates.find(t => (t.templateId || t.id) === selectedTemplate)?.name}</span>" template is ready.
-                    Let's create your professional portfolio and make it live!
+                    Your "
+                    <span className="font-semibold">
+                      {
+                        templates.find(
+                          (t) => (t.templateId || t.id) === selectedTemplate,
+                        )?.name
+                      }
+                    </span>
+                    " template is ready. Let's create your professional
+                    portfolio and make it live!
                   </p>
                 </div>
                 <div className="hidden lg:block">
@@ -583,15 +669,20 @@ const TemplateSelection = () => {
         onClose={handleModalClose}
         onSelect={handleTemplateSelect}
         onPreview={handlePreview}
-        isSelected={modalTemplate && (selectedTemplate === (modalTemplate.templateId || modalTemplate.id))}
-        isCurrentlySelected={modalTemplate && (selectedTemplate === (modalTemplate.templateId || modalTemplate.id)) && (userSelectedTemplate === (modalTemplate.templateId || modalTemplate.id))}
+        isSelected={
+          modalTemplate &&
+          selectedTemplate === (modalTemplate.templateId || modalTemplate.id)
+        }
+        isCurrentlySelected={
+          modalTemplate &&
+          selectedTemplate === (modalTemplate.templateId || modalTemplate.id) &&
+          userSelectedTemplate ===
+            (modalTemplate.templateId || modalTemplate.id)
+        }
         savingTemplate={savingTemplate}
       />
 
-      <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+      <Toaster position="top-center" reverseOrder={true} />
     </>
   );
 };

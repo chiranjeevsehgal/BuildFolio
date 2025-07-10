@@ -1,24 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Github, ExternalLink, Terminal, Code, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, User, Zap, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
-import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import {
+  Github,
+  ExternalLink,
+  Terminal,
+  Code,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Twitter,
+  Globe,
+  Calendar,
+  Building,
+  GraduationCap,
+  Award,
+  User,
+  Zap,
+  X,
+  Send,
+  Palette,
+  Figma,
+  Link,
+  Briefcase,
+} from "lucide-react";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const DeveloperTemplate = ({ userData }) => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: "",
+    email: "",
+    message: "",
   });
 
   // Fixed validation helpers based on actual data structure
   const hasBasicInfo = userData?.firstName || userData?.lastName;
   const hasTitle = userData?.professional?.title;
   const hasSummary = userData?.professional?.summary;
-  const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+  const hasContactInfo =
+    userData?.personalInfo?.phone ||
+    userData?.personalInfo?.location ||
+    userData?.email;
+  const hasSocialLinks =
+    userData?.personalInfo?.socialLinks &&
     (userData?.personalInfo?.socialLinks?.linkedin ||
       userData?.personalInfo?.socialLinks?.github ||
       userData?.personalInfo?.socialLinks?.twitter ||
@@ -34,7 +61,7 @@ const DeveloperTemplate = ({ userData }) => {
   const hasCertifications = userData?.certifications?.length > 0;
 
   // Terminal typing animation state
-  const [currentCommand, setCurrentCommand] = useState('');
+  const [currentCommand, setCurrentCommand] = useState("");
   const [showCursor, setShowCursor] = useState(true);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -42,18 +69,18 @@ const DeveloperTemplate = ({ userData }) => {
   // Setting up axios defaults
   useEffect(() => {
     axios.defaults.baseURL = API_BASE_URL;
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common["Content-Type"] = "application/json";
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, [API_BASE_URL]);
 
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
     return `https://${url}`;
@@ -61,12 +88,12 @@ const DeveloperTemplate = ({ userData }) => {
 
   // Format date helper
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short'
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
       });
     } catch {
       return dateString;
@@ -78,22 +105,22 @@ const DeveloperTemplate = ({ userData }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: "", email: "", message: "" });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      toast('Please fill in all required fields.', {
-        icon: 'ℹ️',
+      toast("Please fill in all required fields.", {
+        icon: "ℹ️",
       });
       return;
     }
@@ -101,8 +128,8 @@ const DeveloperTemplate = ({ userData }) => {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast('Please enter a valid email address.', {
-        icon: 'ℹ️',
+      toast("Please enter a valid email address.", {
+        icon: "ℹ️",
       });
       return;
     }
@@ -113,24 +140,28 @@ const DeveloperTemplate = ({ userData }) => {
       // Submission data
       const portfolioContactData = {
         ...formData,
-        ownerDetail: userData?.username
+        ownerDetail: userData?.username,
       };
 
-      const response = await axios.post('/email/contact', {
-        portfolioContactData
+      const response = await axios.post("/email/contact", {
+        portfolioContactData,
       });
 
       const result = response.data;
 
       if (result.success) {
-        toast.success('Thank you! Your message has been sent successfully.');
+        toast.success("Thank you! Your message has been sent successfully.");
         closeModal();
       } else {
-        toast.error(result.message || 'Failed to send message. Please try again.');
+        toast.error(
+          result.message || "Failed to send message. Please try again.",
+        );
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('An error occurred while sending your message. Please try again later.');
+      console.error("Error sending message:", error);
+      toast.error(
+        "An error occurred while sending your message. Please try again later.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +177,7 @@ const DeveloperTemplate = ({ userData }) => {
   // Cursor blinking effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setShowCursor(prev => !prev);
+      setShowCursor((prev) => !prev);
     }, 500);
     return () => clearInterval(interval);
   }, []);
@@ -164,7 +195,9 @@ const DeveloperTemplate = ({ userData }) => {
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
-              <span className="ml-2 sm:ml-4 text-gray-400 text-sm sm:text-base truncate">terminal — developer-portfolio</span>
+              <span className="ml-2 sm:ml-4 text-gray-400 text-sm sm:text-base truncate">
+                terminal — developer-portfolio
+              </span>
               <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
                 <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                 <span className="text-gray-400 text-xs sm:text-sm">v1.0.0</span>
@@ -177,46 +210,73 @@ const DeveloperTemplate = ({ userData }) => {
         <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
           {/* Basic Info Commands */}
           <div className="space-y-2 text-sm sm:text-base">
-            <p><span className="text-blue-400">$</span> whoami</p>
+            <p>
+              <span className="text-blue-400">$</span> whoami
+            </p>
             {hasBasicInfo && (
               <p className="text-white break-words pl-2">
                 {userData?.firstName && userData?.lastName
                   ? `${userData.firstName} ${userData.lastName}`
-                  : userData?.firstName || userData?.lastName || 'developer'
-                }
+                  : userData?.firstName || userData?.lastName || "developer"}
               </p>
             )}
 
-            <p><span className="text-blue-400">$</span> cat role.txt</p>
+            <p>
+              <span className="text-blue-400">$</span> cat role.txt
+            </p>
             {hasTitle && (
-              <p className="text-white break-words pl-2">{userData.professional.title}</p>
+              <p className="text-white break-words pl-2">
+                {userData.professional.title}
+              </p>
             )}
 
             {hasSummary && (
               <>
-                <p><span className="text-blue-400">$</span> cat about.md</p>
-                <p className="text-gray-300 leading-relaxed break-words pl-2">{userData.professional.summary}</p>
+                <p>
+                  <span className="text-blue-400">$</span> cat about.md
+                </p>
+                <p className="text-gray-300 leading-relaxed break-words pl-2">
+                  {userData.professional.summary}
+                </p>
               </>
             )}
 
             {/* Contact Info */}
             {hasContactInfo && (
               <>
-                <p><span className="text-blue-400">$</span> cat contact.json</p>
+                <p>
+                  <span className="text-blue-400">$</span> cat contact.json
+                </p>
                 <div className="pl-2 text-yellow-300 text-xs sm:text-sm">
                   <p>&#123;</p>
                   {userData?.email && (
                     <p className="pl-2 break-all">
-                      "email": "<a href={`mailto:${userData.email}`} className="text-blue-300 hover:text-blue-200 underline">{userData.email}</a>",
+                      "email": "
+                      <a
+                        href={`mailto:${userData.email}`}
+                        className="text-blue-300 hover:text-blue-200 underline"
+                      >
+                        {userData.email}
+                      </a>
+                      ",
                     </p>
                   )}
                   {userData?.personalInfo?.phone && (
                     <p className="pl-2 break-all">
-                      "phone": "<a href={`tel:${userData.personalInfo.phone}`} className="text-blue-300 hover:text-blue-200 underline">{userData.personalInfo.phone}</a>",
+                      "phone": "
+                      <a
+                        href={`tel:${userData.personalInfo.phone}`}
+                        className="text-blue-300 hover:text-blue-200 underline"
+                      >
+                        {userData.personalInfo.phone}
+                      </a>
+                      ",
                     </p>
                   )}
                   {userData?.personalInfo?.location && (
-                    <p className="pl-2 break-words">"location": "{userData.personalInfo.location}"</p>
+                    <p className="pl-2 break-words">
+                      "location": "{userData.personalInfo.location}"
+                    </p>
                   )}
                   <p>&#125;</p>
                 </div>
@@ -226,11 +286,15 @@ const DeveloperTemplate = ({ userData }) => {
             {/* Social Links */}
             {hasSocialLinks && (
               <>
-                <p><span className="text-blue-400">$</span> ls social/</p>
+                <p>
+                  <span className="text-blue-400">$</span> ls social/
+                </p>
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 pl-2">
                   {userData?.personalInfo?.socialLinks?.github && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.github,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green-400 hover:text-green-300 flex items-center text-sm sm:text-base"
@@ -242,7 +306,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.linkedin && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.linkedin,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-400 hover:text-blue-300 flex items-center text-sm sm:text-base"
@@ -254,7 +320,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.twitter && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.twitter,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-cyan-400 hover:text-cyan-300 flex items-center text-sm sm:text-base"
@@ -266,7 +334,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.website && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.website,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-purple-400 hover:text-purple-300 flex items-center text-sm sm:text-base"
@@ -278,7 +348,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.portfolio && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.portfolio,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-orange-400 hover:text-orange-300 flex items-center text-sm sm:text-base"
@@ -290,7 +362,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.behance && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.behance,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-pink-400 hover:text-pink-300 flex items-center text-sm sm:text-base"
@@ -302,7 +376,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.dribbble && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.dribbble,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-red-400 hover:text-red-300 flex items-center text-sm sm:text-base"
@@ -314,7 +390,9 @@ const DeveloperTemplate = ({ userData }) => {
                   )}
                   {userData?.personalInfo?.socialLinks?.other && (
                     <a
-                      href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                      href={ensureHttpProtocol(
+                        userData.personalInfo.socialLinks.other,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-yellow-400 hover:text-yellow-300 flex items-center text-sm sm:text-base"
@@ -332,19 +410,24 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Skills */}
           {hasSkills && (
             <div className="space-y-2 text-sm sm:text-base">
-              <p><span className="text-blue-400">$</span> cat skills.js</p>
+              <p>
+                <span className="text-blue-400">$</span> cat skills.js
+              </p>
               <div className="pl-2 space-y-1">
                 <p className="text-purple-400">
-                  <span className="text-blue-400">const</span> <span className="text-white">skills</span> = [
+                  <span className="text-blue-400">const</span>{" "}
+                  <span className="text-white">skills</span> = [
                 </p>
                 {userData.professional.skills.map((skill, index) => (
                   <p key={index} className="text-yellow-300 break-words pl-4">
-                    '{skill}'{index < userData.professional.skills.length - 1 ? ',' : ''}
+                    '{skill}'
+                    {index < userData.professional.skills.length - 1 ? "," : ""}
                   </p>
                 ))}
                 <p className="text-white">];</p>
                 <p className="text-gray-400">
-                  <span className="text-green-400">//</span> Total skills: {userData.professional.skills.length}
+                  <span className="text-green-400">//</span> Total skills:{" "}
+                  {userData.professional.skills.length}
                 </p>
               </div>
             </div>
@@ -353,34 +436,49 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Experience */}
           {hasExperience && (
             <div className="space-y-4">
-              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> git log --oneline --work-experience</p>
+              <p className="text-sm sm:text-base">
+                <span className="text-blue-400">$</span> git log --oneline
+                --work-experience
+              </p>
               {userData.experience.map((exp, index) => (
                 <div key={index} className="pl-2">
                   <div className="border-l-4 border-green-500 pl-4 py-2">
                     <p className="text-green-400 font-bold text-sm sm:text-base break-words">
-                      <span className="text-yellow-400">commit:</span> {exp.title || 'Position'}
+                      <span className="text-yellow-400">commit:</span>{" "}
+                      {exp.title || "Position"}
                     </p>
                     <p className="text-blue-400 text-sm break-words">
-                      <span className="text-gray-400">Author:</span> {exp.company || 'Company'}
-                      {exp.location && <span className="text-gray-400"> • {exp.location}</span>}
+                      <span className="text-gray-400">Author:</span>{" "}
+                      {exp.company || "Company"}
+                      {exp.location && (
+                        <span className="text-gray-400"> • {exp.location}</span>
+                      )}
                     </p>
                     <p className="text-gray-400 text-xs break-words">
-                      <span className="text-gray-500">Date:</span> {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                      <span className="text-gray-500">Date:</span>{" "}
+                      {formatDate(exp.startDate)} -{" "}
+                      {exp.current ? "Present" : formatDate(exp.endDate)}
                     </p>
                     {exp.description && (
                       <p className="text-gray-300 mt-2 leading-relaxed text-sm break-words">
-                        <span className="text-green-400">//</span> {exp.description}
+                        <span className="text-green-400">//</span>{" "}
+                        {exp.description}
                       </p>
                     )}
                     {exp.achievements && exp.achievements.length > 0 && (
                       <div className="mt-3">
                         <p className="text-gray-400 text-xs mb-1">
-                          <span className="text-blue-400">$</span> git show --achievements
+                          <span className="text-blue-400">$</span> git show
+                          --achievements
                         </p>
                         <ul className="space-y-1 pl-2">
                           {exp.achievements.map((achievement, idx) => (
-                            <li key={idx} className="text-green-300 text-xs sm:text-sm break-words">
-                              <span className="text-green-500">+</span> {achievement}
+                            <li
+                              key={idx}
+                              className="text-green-300 text-xs sm:text-sm break-words"
+                            >
+                              <span className="text-green-500">+</span>{" "}
+                              {achievement}
                             </li>
                           ))}
                         </ul>
@@ -395,22 +493,30 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Projects */}
           {hasProjects && (
             <div className="space-y-4">
-              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> ls -la repositories/</p>
-              <p className="text-gray-400 text-sm pl-2">total {userData.projects.length} repositories</p>
+              <p className="text-sm sm:text-base">
+                <span className="text-blue-400">$</span> ls -la repositories/
+              </p>
+              <p className="text-gray-400 text-sm pl-2">
+                total {userData.projects.length} repositories
+              </p>
               {userData.projects.map((project, index) => (
-                <div key={index} className="pl-2 border-l-2 border-gray-700 ml-2">
+                <div
+                  key={index}
+                  className="pl-2 border-l-2 border-gray-700 ml-2"
+                >
                   <div className="flex items-center mb-2">
                     <Terminal className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
                     <h3 className="text-blue-400 text-lg font-bold break-words">
-                      {project.title || 'untitled-project'}
+                      {project.title || "untitled-project"}
                     </h3>
                   </div>
                   {project.description && (
                     <p className="text-gray-300 mb-3 leading-relaxed text-sm break-words pl-6">
-                      <span className="text-green-400">//</span> {project.description}
+                      <span className="text-green-400">//</span>{" "}
+                      {project.description}
                     </p>
                   )}
-                  
+
                   <div className="flex flex-wrap gap-2 mb-3 pl-6">
                     {project.githubUrl && (
                       <a
@@ -443,7 +549,8 @@ const DeveloperTemplate = ({ userData }) => {
                   {project.skills && project.skills.length > 0 && (
                     <div className="pl-6">
                       <p className="text-gray-400 text-xs mb-1">
-                        <span className="text-blue-400">$</span> grep -o "dependencies" package.json
+                        <span className="text-blue-400">$</span> grep -o
+                        "dependencies" package.json
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {project.skills.map((skill, skillIndex) => (
@@ -451,7 +558,8 @@ const DeveloperTemplate = ({ userData }) => {
                             key={skillIndex}
                             className="text-green-400 text-xs font-mono break-words"
                           >
-                            #{skill}{skillIndex < project.skills.length - 1 ? ' ' : ''}
+                            #{skill}
+                            {skillIndex < project.skills.length - 1 ? " " : ""}
                           </span>
                         ))}
                       </div>
@@ -465,25 +573,43 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Education */}
           {hasEducation && (
             <div className="space-y-2 text-sm sm:text-base">
-              <p><span className="text-blue-400">$</span> cat education.json</p>
+              <p>
+                <span className="text-blue-400">$</span> cat education.json
+              </p>
               <div className="pl-2">
                 <p className="text-yellow-300">&#123;</p>
                 <p className="text-blue-400 pl-2">"education": &#123;</p>
                 {userData.education.map((edu, index) => (
                   <div key={index} className="pl-4 mb-3">
-                    <p className="text-green-400 break-words">"{edu.degree || 'degree'}": &#123;</p>
-                    <p className="text-gray-300 pl-2 text-xs break-words">"institution": "{edu.school || edu.institution || 'Institution'}",</p>
-                    <p className="text-gray-300 pl-2 text-xs break-words">"duration": "{formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}",</p>
+                    <p className="text-green-400 break-words">
+                      "{edu.degree || "degree"}": &#123;
+                    </p>
+                    <p className="text-gray-300 pl-2 text-xs break-words">
+                      "institution": "
+                      {edu.school || edu.institution || "Institution"}",
+                    </p>
+                    <p className="text-gray-300 pl-2 text-xs break-words">
+                      "duration": "{formatDate(edu.startDate)} -{" "}
+                      {formatDate(edu.endDate) || "Present"}",
+                    </p>
                     {edu.location && (
-                      <p className="text-gray-300 pl-2 text-xs break-words">"location": "{edu.location}",</p>
+                      <p className="text-gray-300 pl-2 text-xs break-words">
+                        "location": "{edu.location}",
+                      </p>
                     )}
                     {edu.gpa && (
-                      <p className="text-gray-300 pl-2 text-xs break-words">"grade": "{edu.gpa}",</p>
+                      <p className="text-gray-300 pl-2 text-xs break-words">
+                        "grade": "{edu.gpa}",
+                      </p>
                     )}
                     {edu.description && (
-                      <p className="text-gray-300 pl-2 text-xs break-words">"description": "{edu.description}"</p>
+                      <p className="text-gray-300 pl-2 text-xs break-words">
+                        "description": "{edu.description}"
+                      </p>
                     )}
-                    <p className="text-green-400">&#125;{index < userData.education.length - 1 ? ',' : ''}</p>
+                    <p className="text-green-400">
+                      &#125;{index < userData.education.length - 1 ? "," : ""}
+                    </p>
                   </div>
                 ))}
                 <p className="text-blue-400 pl-2">&#125;</p>
@@ -495,12 +621,21 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Certifications */}
           {hasCertifications && (
             <div className="space-y-2">
-              <p className="text-sm sm:text-base"><span className="text-blue-400">$</span> env | grep CERT</p>
+              <p className="text-sm sm:text-base">
+                <span className="text-blue-400">$</span> env | grep CERT
+              </p>
               <div className="pl-2 space-y-1">
                 {userData.certifications.map((cert, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                  >
                     <p className="text-green-400 font-mono text-xs sm:text-sm break-all flex-1">
-                      CERT_{(cert.name || 'CERTIFICATION').toUpperCase().replace(/\s+/g, '_')}="{cert.issuer || 'Issuer'}"
+                      CERT_
+                      {(cert.name || "CERTIFICATION")
+                        .toUpperCase()
+                        .replace(/\s+/g, "_")}
+                      ="{cert.issuer || "Issuer"}"
                     </p>
                     {cert.credentialUrl && (
                       <a
@@ -522,22 +657,31 @@ const DeveloperTemplate = ({ userData }) => {
           {/* Footer Commands */}
           <div className="space-y-2 pt-8 border-t border-gray-700">
             <p className="text-purple-400 text-sm">#!/bin/bash</p>
-            <p className="text-gray-400 text-sm"># Thanks for checking out my portfolio!</p>
-            <p className="text-gray-400 text-sm"># Feel free to reach out for collaboration</p>
+            <p className="text-gray-400 text-sm">
+              # Thanks for checking out my portfolio!
+            </p>
+            <p className="text-gray-400 text-sm">
+              # Feel free to reach out for collaboration
+            </p>
             <div className="space-y-2 text-sm">
               {userData?.email && (
                 <p>
-                  <span className="text-blue-400">$</span> <span className="text-green-400">echo "Let's connect:</span>
-                  <a href={`mailto:${userData.email}`} className="text-blue-400 hover:text-blue-300 underline break-all ml-1">
+                  <span className="text-blue-400">$</span>{" "}
+                  <span className="text-green-400">echo "Let's connect:</span>
+                  <a
+                    href={`mailto:${userData.email}`}
+                    className="text-blue-400 hover:text-blue-300 underline break-all ml-1"
+                  >
                     {userData.email}
                   </a>
                   <span className="text-green-400">"</span>
                 </p>
               )}
               <p>
-                <span className="text-blue-400">$</span> <span className="text-green-400">echo "Send message:</span>
-                <button 
-                  onClick={openModal} 
+                <span className="text-blue-400">$</span>{" "}
+                <span className="text-green-400">echo "Send message:</span>
+                <button
+                  onClick={openModal}
                   className="text-yellow-400 hover:text-yellow-300 underline cursor-pointer ml-1"
                 >
                   ./contact.sh
@@ -545,9 +689,10 @@ const DeveloperTemplate = ({ userData }) => {
                 <span className="text-green-400">"</span>
               </p>
               <p>
-                <span className="text-blue-400">$</span> <span className="text-green-400">echo "Download resume:</span>
-                <button 
-                  onClick={() => window.print()} 
+                <span className="text-blue-400">$</span>{" "}
+                <span className="text-green-400">echo "Download resume:</span>
+                <button
+                  onClick={() => window.print()}
                   className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer ml-1"
                 >
                   ./print.sh
@@ -556,15 +701,17 @@ const DeveloperTemplate = ({ userData }) => {
               </p>
             </div>
             <p className="text-gray-400 text-xs break-words pt-4">
-              <span className="text-green-400">#</span> © {new Date().getFullYear()} {hasBasicInfo
-                ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
-                : 'Developer'
-              } - Built with passion and caffeine ☕
+              <span className="text-green-400">#</span> ©{" "}
+              {new Date().getFullYear()}{" "}
+              {hasBasicInfo
+                ? `${userData?.firstName || ""} ${userData?.lastName || ""}`.trim()
+                : "Developer"}{" "}
+              - Built with passion and caffeine ☕
             </p>
-            
+
             <p className="flex items-center text-sm">
               <span className="text-blue-400">$</span>
-              <span className="ml-1">{showCursor ? '|' : ' '}</span>
+              <span className="ml-1">{showCursor ? "|" : " "}</span>
             </p>
           </div>
         </div>
@@ -585,13 +732,16 @@ const DeveloperTemplate = ({ userData }) => {
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 </div>
-                <span className="text-gray-400 text-sm">terminal — contact.sh</span>
+                <span className="text-gray-400 text-sm">
+                  terminal — contact.sh
+                </span>
               </div>
               <button
                 onClick={closeModal}
                 disabled={isLoading}
-                className={`text-red-400 hover:text-red-300 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
+                className={`text-red-400 hover:text-red-300 transition-colors ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                }`}
                 aria-label="Close terminal"
               >
                 <X className="w-5 h-5" />
@@ -602,11 +752,19 @@ const DeveloperTemplate = ({ userData }) => {
             {isLoading && (
               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex items-center justify-center">
                 <div className="flex flex-col items-center">
-                  <div className="text-green-400 text-sm mb-2">Processing...</div>
+                  <div className="text-green-400 text-sm mb-2">
+                    Processing...
+                  </div>
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-green-400 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-green-400 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.4s" }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -615,9 +773,16 @@ const DeveloperTemplate = ({ userData }) => {
             <div className="p-6 space-y-4">
               {/* Terminal Header */}
               <div className="text-green-400 text-sm mb-4">
-                <p><span className="text-blue-400">$</span> ./contact.sh --initialize</p>
-                <p className="text-gray-400"># Establishing secure connection...</p>
-                <p className="text-yellow-400"># Ready to receive your message</p>
+                <p>
+                  <span className="text-blue-400">$</span> ./contact.sh
+                  --initialize
+                </p>
+                <p className="text-gray-400">
+                  # Establishing secure connection...
+                </p>
+                <p className="text-yellow-400">
+                  # Ready to receive your message
+                </p>
               </div>
 
               {/* Contact Form */}
@@ -625,7 +790,8 @@ const DeveloperTemplate = ({ userData }) => {
                 {/* Name Field */}
                 <div>
                   <p className="text-green-400 text-sm mb-2">
-                    <span className="text-blue-400">$</span> echo "Enter your name:"
+                    <span className="text-blue-400">$</span> echo "Enter your
+                    name:"
                   </p>
                   <input
                     type="text"
@@ -635,8 +801,9 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="> name_here"
                   />
                 </div>
@@ -644,7 +811,8 @@ const DeveloperTemplate = ({ userData }) => {
                 {/* Email Field */}
                 <div>
                   <p className="text-green-400 text-sm mb-2">
-                    <span className="text-blue-400">$</span> echo "Enter your email:"
+                    <span className="text-blue-400">$</span> echo "Enter your
+                    email:"
                   </p>
                   <input
                     type="email"
@@ -654,8 +822,9 @@ const DeveloperTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm transition-colors ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="> email@domain.com"
                   />
                 </div>
@@ -663,7 +832,8 @@ const DeveloperTemplate = ({ userData }) => {
                 {/* Message Field */}
                 <div>
                   <p className="text-green-400 text-sm mb-2">
-                    <span className="text-blue-400">$</span> cat &gt; message.txt
+                    <span className="text-blue-400">$</span> cat &gt;
+                    message.txt
                   </p>
                   <textarea
                     id="message"
@@ -673,8 +843,9 @@ const DeveloperTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full bg-black border border-gray-600 focus:border-green-500 rounded px-3 py-2 text-green-400 font-mono text-sm resize-none transition-colors ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="> Your message here..."
                   />
                 </div>
@@ -688,17 +859,24 @@ const DeveloperTemplate = ({ userData }) => {
                     type="button"
                     onClick={handleSend}
                     disabled={isLoading}
-                    className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${isLoading
-                      ? 'border-gray-600 bg-black text-gray-400 cursor-not-allowed'
-                      : 'border-green-500 bg-black text-green-400 hover:bg-green-500/10 cursor-pointer'
-                      }`}
+                    className={`w-full py-3 px-6 border-2 rounded transition-all font-mono text-sm flex items-center justify-center ${
+                      isLoading
+                        ? "border-gray-600 bg-black text-gray-400 cursor-not-allowed"
+                        : "border-green-500 bg-black text-green-400 hover:bg-green-500/10 cursor-pointer"
+                    }`}
                   >
                     {isLoading ? (
                       <>
                         <div className="flex space-x-1 mr-2">
                           <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
-                          <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                          <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                          <div
+                            className="w-1 h-1 bg-green-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
+                          <div
+                            className="w-1 h-1 bg-green-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.4s" }}
+                          ></div>
                         </div>
                         EXECUTING...
                       </>
@@ -715,9 +893,12 @@ const DeveloperTemplate = ({ userData }) => {
               {/* Direct Email */}
               {userData?.email && !isLoading && (
                 <div className="pt-4 border-t border-gray-700">
-                  <p className="text-gray-400 text-xs mb-2"># Alternative connection method:</p>
+                  <p className="text-gray-400 text-xs mb-2">
+                    # Alternative connection method:
+                  </p>
                   <p className="text-green-400 text-sm">
-                    <span className="text-blue-400">$</span> mail -s "Direct Contact"
+                    <span className="text-blue-400">$</span> mail -s "Direct
+                    Contact"
                     <a
                       href={`mailto:${userData.email}`}
                       className="text-yellow-400 hover:text-yellow-300 underline ml-1 break-all"
@@ -790,12 +971,12 @@ const DeveloperTemplate = ({ userData }) => {
         reverseOrder={true}
         toastOptions={{
           style: {
-            background: '#000',
-            color: '#10b981',
-            border: '1px solid #10b981',
-            fontFamily: 'monospace',
-            fontSize: '14px'
-          }
+            background: "#000",
+            color: "#10b981",
+            border: "1px solid #10b981",
+            fontFamily: "monospace",
+            fontSize: "14px",
+          },
         }}
       />
     </div>

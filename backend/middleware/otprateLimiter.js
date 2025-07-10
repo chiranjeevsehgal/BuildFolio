@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 
 // Rate limit for sending OTP (per IP)
 const otpSendLimiter = rateLimit({
@@ -6,10 +6,10 @@ const otpSendLimiter = rateLimit({
   max: 5, // 5 OTP requests per hour per IP
   message: {
     success: false,
-    message: 'Too many OTP requests. Please try again later.'
+    message: "Too many OTP requests. Please try again later.",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 // Rate limit for verifying OTP (per IP)
@@ -18,10 +18,10 @@ const otpVerifyLimiter = rateLimit({
   max: 10, // 10 verification attempts per 15 minutes per IP
   message: {
     success: false,
-    message: 'Too many verification attempts. Please try again later.'
+    message: "Too many verification attempts. Please try again later.",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 // Rate limit for registration (per IP)
@@ -30,14 +30,14 @@ const registerLimiter = rateLimit({
   max: 3, // 3 registration attempts per hour per IP
   message: {
     success: false,
-    message: 'Too many attempts. Please try again later.'
+    message: "Too many attempts. Please try again later.",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 module.exports = {
   otpSendLimiter,
   otpVerifyLimiter,
-  registerLimiter
+  registerLimiter,
 };

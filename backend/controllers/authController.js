@@ -1,11 +1,23 @@
-const User = require('../models/User');
-const { sendWelcomeEmail, sendRegisterOTP, sendPasswordResetOTP } = require('../utils/emailService');
-const generateToken = require('../utils/generateToken');
-const { validationResult } = require('express-validator');
-const passport = require('passport');
-const { verifyToken, createVerifiedToken, createTempToken, updateTokenAttempts, createPasswordResetVerifiedToken, createPasswordResetTempToken, updatePasswordResetTokenAttempts } = require('../utils/tokenUtils');
-const { generateOTP, hashOTP, verifyOTP } = require('../utils/otpUtils');
-const NotificationService = require('../utils/notificationService');
+const User = require("../models/User");
+const {
+  sendWelcomeEmail,
+  sendRegisterOTP,
+  sendPasswordResetOTP,
+} = require("../utils/emailService");
+const generateToken = require("../utils/generateToken");
+const { validationResult } = require("express-validator");
+const passport = require("passport");
+const {
+  verifyToken,
+  createVerifiedToken,
+  createTempToken,
+  updateTokenAttempts,
+  createPasswordResetVerifiedToken,
+  createPasswordResetTempToken,
+  updatePasswordResetTokenAttempts,
+} = require("../utils/tokenUtils");
+const { generateOTP, hashOTP, verifyOTP } = require("../utils/otpUtils");
+const NotificationService = require("../utils/notificationService");
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -15,20 +27,19 @@ const register = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
-          errors: errors.array()
+          message: "Validation failed",
+          errors: errors.array(),
         });
       }
-    }
-    else {
+    } else {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
+          message: "Validation failed",
         });
       }
     }
@@ -42,36 +53,32 @@ const register = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: "Invalid or expired verification token",
       });
     }
 
     // Check token type and verification status
-    if (decoded.type !== 'email_verified' || !decoded.emailVerified) {
+    if (decoded.type !== "email_verified" || !decoded.emailVerified) {
       return res.status(401).json({
         success: false,
-        message: 'Email not verified. Please verify your email first.'
+        message: "Email not verified. Please verify your email first.",
       });
     }
 
-
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [
-        { email: decoded.email },
-        { username }
-      ]
+      $or: [{ email: decoded.email }, { username }],
     });
     if (existingUser) {
       if (existingUser.email === decoded.email) {
         return res.status(400).json({
           success: false,
-          message: 'User with this email already exists'
+          message: "User with this email already exists",
         });
       } else {
         return res.status(400).json({
           success: false,
-          message: 'Username already taken.'
+          message: "Username already taken.",
         });
       }
     }
@@ -96,7 +103,7 @@ const register = async (req, res) => {
         lastName: user.lastName,
         username: user.username,
         email: user.email,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       };
 
       // Send welcome email to user
@@ -104,24 +111,24 @@ const register = async (req, res) => {
 
       const welcomeResult = await NotificationService.sendWelcomeNotification(
         user._id,
-        { firstName: user?.firstName }
+        { firstName: user?.firstName },
       );
 
       if (welcomeResult.success) {
-        console.log('Welcome notification sent successfully');
+        console.log("Welcome notification sent successfully");
       } else {
-        console.error('Failed to send welcome notification:', welcomeResult.message);
+        console.error(
+          "Failed to send welcome notification:",
+          welcomeResult.message,
+        );
       }
-
-
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
+      console.error("Failed to send welcome email:", emailError);
     }
-
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: "User registered successfully",
       //   token,
       user: {
         // id: user._id,
@@ -129,16 +136,15 @@ const register = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         username: user.username,
-        isEmailVerified: user.isEmailVerified
-      }
+        isEmailVerified: user.isEmailVerified,
+      },
     });
-
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error("Registration error:", error);
     res.status(500).json({
       success: false,
-      message: 'Registration failed',
-      error: error.message
+      message: "Registration failed",
+      error: error.message,
     });
   }
 };
@@ -152,19 +158,19 @@ const login = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
     const { email, password } = req.body;
 
     // Check if user exists and include password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -173,15 +179,15 @@ const login = async (req, res) => {
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: 'Account is deactivated. Please contact support.',
-        accountDeactivated: true
+        message: "Account is deactivated. Please contact support.",
+        accountDeactivated: true,
       });
     }
 
@@ -194,7 +200,7 @@ const login = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         firstName: user.firstName,
@@ -205,15 +211,14 @@ const login = async (req, res) => {
         selectedTemplate: user.selectedTemplate,
         isProfileCompleted: user.isProfileCompleted,
         portfolioDeployed: user.portfolioDeployed,
-      }
+      },
     });
-
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Login failed',
-      error: error.message
+      message: "Login failed",
+      error: error.message,
     });
   }
 };
@@ -241,15 +246,15 @@ const getMe = async (req, res) => {
         title: user.title,
         portfolioDeployed: user.portfolioDeployed,
         portfolioUrl: user.portfolioUrl,
-        deployedAt: user.deployedAt
-      }
+        deployedAt: user.deployedAt,
+      },
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error("Get user error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get user data',
-      error: error.message
+      message: "Failed to get user data",
+      error: error.message,
     });
   }
 };
@@ -264,30 +269,30 @@ const markProfileCompleted = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { isProfileCompleted },
-      { new: true }
+      { new: true },
     );
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Profile completion status updated',
+      message: "Profile completion status updated",
       user: {
         id: user._id,
-        isProfileCompleted: user.isProfileCompleted
-      }
+        isProfileCompleted: user.isProfileCompleted,
+      },
     });
   } catch (error) {
-    console.error('Mark profile completed error:', error);
+    console.error("Mark profile completed error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update profile completion status',
-      error: error.message
+      message: "Failed to update profile completion status",
+      error: error.message,
     });
   }
 };
@@ -300,20 +305,19 @@ const sendOtp = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
-          errors: errors.array()
+          message: "Validation failed",
+          errors: errors.array(),
         });
       }
-    }
-    else {
+    } else {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
+          message: "Validation failed",
         });
       }
     }
@@ -324,7 +328,7 @@ const sendOtp = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: "User with this email already exists",
       });
     }
 
@@ -337,7 +341,7 @@ const sendOtp = async (req, res) => {
     if (!emailResult.success) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send verification email. Please try again.'
+        message: "Failed to send verification email. Please try again.",
       });
     }
 
@@ -346,17 +350,16 @@ const sendOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Verification code sent to your email',
+      message: "Verification code sent to your email",
       tempToken,
-      expiresIn: '10 minutes'
+      expiresIn: "10 minutes",
     });
-
   } catch (error) {
-    console.error('Send OTP error:', error);
+    console.error("Send OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to send verification code',
-      error: error.message
+      message: "Failed to send verification code",
+      error: error.message,
     });
   }
 };
@@ -371,8 +374,8 @@ const verifyOtp = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -385,15 +388,15 @@ const verifyOtp = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: "Invalid or expired verification token",
       });
     }
 
     // Check token type
-    if (decoded.type !== 'email_verification') {
+    if (decoded.type !== "email_verification") {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token type'
+        message: "Invalid token type",
       });
     }
 
@@ -401,7 +404,8 @@ const verifyOtp = async (req, res) => {
     if (decoded.attempts >= decoded.maxAttempts) {
       return res.status(429).json({
         success: false,
-        message: 'Maximum verification attempts exceeded. Please request a new code.'
+        message:
+          "Maximum verification attempts exceeded. Please request a new code.",
       });
     }
 
@@ -416,7 +420,7 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Invalid verification code. ${decoded.maxAttempts - newAttempts} attempts remaining.`,
-        tempToken: updatedToken
+        tempToken: updatedToken,
       });
     }
 
@@ -425,18 +429,17 @@ const verifyOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Email verified successfully',
+      message: "Email verified successfully",
       verifiedToken,
       email: decoded.email,
-      expiresIn: '30 minutes'
+      expiresIn: "30 minutes",
     });
-
   } catch (error) {
-    console.error('Verify OTP error:', error);
+    console.error("Verify OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to verify code',
-      error: error.message
+      message: "Failed to verify code",
+      error: error.message,
     });
   }
 };
@@ -451,8 +454,8 @@ const resendOtp = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -465,15 +468,15 @@ const resendOtp = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: "Invalid or expired verification token",
       });
     }
 
     // Check token type
-    if (decoded.type !== 'email_verification') {
+    if (decoded.type !== "email_verification") {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token type'
+        message: "Invalid token type",
       });
     }
 
@@ -486,7 +489,7 @@ const resendOtp = async (req, res) => {
     if (!emailResult.success) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send verification email. Please try again.'
+        message: "Failed to send verification email. Please try again.",
       });
     }
 
@@ -495,17 +498,16 @@ const resendOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'New verification code sent to your email',
+      message: "New verification code sent to your email",
       tempToken: newTempToken,
-      expiresIn: '10 minutes'
+      expiresIn: "10 minutes",
     });
-
   } catch (error) {
-    console.error('Resend OTP error:', error);
+    console.error("Resend OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to resend verification code',
-      error: error.message
+      message: "Failed to resend verification code",
+      error: error.message,
     });
   }
 };
@@ -518,20 +520,19 @@ const forgotPassword = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
-          errors: errors.array()
+          message: "Validation failed",
+          errors: errors.array(),
         });
       }
-    }
-    else {
+    } else {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          message: 'Validation failed',
+          message: "Validation failed",
         });
       }
     }
@@ -543,7 +544,7 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'No account found with this email'
+        message: "No account found with this email",
       });
     }
 
@@ -551,7 +552,7 @@ const forgotPassword = async (req, res) => {
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: 'Account is deactivated. Please contact support.'
+        message: "Account is deactivated. Please contact support.",
       });
     }
 
@@ -564,7 +565,7 @@ const forgotPassword = async (req, res) => {
     if (!emailResult.success) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send password reset email. Please try again.'
+        message: "Failed to send password reset email. Please try again.",
       });
     }
 
@@ -573,17 +574,16 @@ const forgotPassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password reset code sent to your email',
+      message: "Password reset code sent to your email",
       tempToken,
-      expiresIn: '10 minutes'
+      expiresIn: "10 minutes",
     });
-
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error("Forgot password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to send password reset code',
-      error: error.message
+      message: "Failed to send password reset code",
+      error: error.message,
     });
   }
 };
@@ -598,8 +598,8 @@ const verifyResetOtp = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -612,15 +612,15 @@ const verifyResetOtp = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: "Invalid or expired verification token",
       });
     }
 
     // Check token type
-    if (decoded.type !== 'password_reset') {
+    if (decoded.type !== "password_reset") {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token type'
+        message: "Invalid token type",
       });
     }
 
@@ -628,7 +628,8 @@ const verifyResetOtp = async (req, res) => {
     if (decoded.attempts >= decoded.maxAttempts) {
       return res.status(429).json({
         success: false,
-        message: 'Maximum verification attempts exceeded. Please request a new code.'
+        message:
+          "Maximum verification attempts exceeded. Please request a new code.",
       });
     }
 
@@ -637,7 +638,7 @@ const verifyResetOtp = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -647,12 +648,15 @@ const verifyResetOtp = async (req, res) => {
     if (!isValidOTP) {
       // Update attempts count
       const newAttempts = decoded.attempts + 1;
-      const updatedToken = updatePasswordResetTokenAttempts(tempToken, newAttempts);
+      const updatedToken = updatePasswordResetTokenAttempts(
+        tempToken,
+        newAttempts,
+      );
 
       return res.status(400).json({
         success: false,
         message: `Invalid verification code. ${decoded.maxAttempts - newAttempts} attempts remaining.`,
-        tempToken: updatedToken
+        tempToken: updatedToken,
       });
     }
 
@@ -661,18 +665,17 @@ const verifyResetOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Code verified successfully',
+      message: "Code verified successfully",
       resetToken,
       email: decoded.email,
-      expiresIn: '15 minutes'
+      expiresIn: "15 minutes",
     });
-
   } catch (error) {
-    console.error('Verify reset OTP error:', error);
+    console.error("Verify reset OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to verify code',
-      error: error.message
+      message: "Failed to verify code",
+      error: error.message,
     });
   }
 };
@@ -687,8 +690,8 @@ const resetPassword = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -701,15 +704,15 @@ const resetPassword = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired reset token'
+        message: "Invalid or expired reset token",
       });
     }
 
     // Check token type and verification status
-    if (decoded.type !== 'password_reset_verified' || !decoded.otpVerified) {
+    if (decoded.type !== "password_reset_verified" || !decoded.otpVerified) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid reset token. Please verify your email first.'
+        message: "Invalid reset token. Please verify your email first.",
       });
     }
 
@@ -718,7 +721,7 @@ const resetPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -728,15 +731,15 @@ const resetPassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password reset successfully. You can now sign in with your new password.'
+      message:
+        "Password reset successfully. You can now sign in with your new password.",
     });
-
   } catch (error) {
-    console.error('Reset password error:', error);
+    console.error("Reset password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to reset password',
-      error: error.message
+      message: "Failed to reset password",
+      error: error.message,
     });
   }
 };
@@ -751,8 +754,8 @@ const resendPasswordResetOtp = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: "Validation failed",
+        errors: errors.array(),
       });
     }
 
@@ -765,15 +768,15 @@ const resendPasswordResetOtp = async (req, res) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: "Invalid or expired verification token",
       });
     }
 
     // Check token type
-    if (decoded.type !== 'password_reset') {
+    if (decoded.type !== "password_reset") {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token type'
+        message: "Invalid token type",
       });
     }
 
@@ -782,7 +785,7 @@ const resendPasswordResetOtp = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -795,7 +798,7 @@ const resendPasswordResetOtp = async (req, res) => {
     if (!emailResult.success) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send verification email. Please try again.'
+        message: "Failed to send verification email. Please try again.",
       });
     }
 
@@ -804,21 +807,19 @@ const resendPasswordResetOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'New verification code sent to your email',
+      message: "New verification code sent to your email",
       tempToken: newTempToken,
-      expiresIn: '10 minutes'
+      expiresIn: "10 minutes",
     });
-
   } catch (error) {
-    console.error('Resend password reset OTP error:', error);
+    console.error("Resend password reset OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to resend verification code',
-      error: error.message
+      message: "Failed to resend verification code",
+      error: error.message,
     });
   }
 };
-
 
 // OAuth Success
 const oauthSuccess = async (req, res) => {
@@ -828,7 +829,7 @@ const oauthSuccess = async (req, res) => {
     // Redirect to frontend with token
     res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token}`);
   } catch (error) {
-    console.error('OAuth success error:', error);
+    console.error("OAuth success error:", error);
     res.redirect(`${process.env.CLIENT_URL}/auth/error`);
   }
 };
@@ -851,5 +852,5 @@ module.exports = {
   forgotPassword,
   verifyResetOtp,
   resetPassword,
-  resendPasswordResetOtp
+  resendPasswordResetOtp,
 };

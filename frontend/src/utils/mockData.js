@@ -1,4 +1,4 @@
-import mockUserData from './mockPortfolioData.json';
+import mockUserData from "./mockPortfolioData.json";
 
 /**
  * Get mock data for template previews when user data is incomplete
@@ -8,7 +8,6 @@ export const getMockUserData = () => {
   return mockUserData;
 };
 
-
 export default {
-  getMockUserData
+  getMockUserData,
 };

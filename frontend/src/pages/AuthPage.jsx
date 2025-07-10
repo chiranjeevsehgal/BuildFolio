@@ -1,34 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { Eye, ArrowLeft, EyeOff, Mail, Lock, User, Sparkles, Chrome, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import axios from 'axios';
-import OTPVerification from '../components/OTPVerification';
-import toast, { Toaster } from 'react-hot-toast';
-import ForgotPasswordOTPVerification from '../components/ForgotPasswordOTPVerification';
+import React, { useEffect, useState } from "react";
+import {
+  Eye,
+  ArrowLeft,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  Sparkles,
+  Chrome,
+  Loader2,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import axios from "axios";
+import OTPVerification from "../components/OTPVerification";
+import toast, { Toaster } from "react-hot-toast";
+import ForgotPasswordOTPVerification from "../components/ForgotPasswordOTPVerification";
 
 const AuthPage = () => {
-  const [authMode, setAuthMode] = useState('signin'); // signin, signup, email-verification, otp-verification, complete-registration, forgot-password, forgot-otp-verification, reset-password
+  const [authMode, setAuthMode] = useState("signin"); // signin, signup, email-verification, otp-verification, complete-registration, forgot-password, forgot-otp-verification, reset-password
   const [showPassword, setShowPassword] = useState(false);
   const [showCnfPassword, setShowCnfPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    username: '',
-    firstName: '',
-    lastName: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
+    username: "",
+    firstName: "",
+    lastName: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   // Email verification states
-  const [tempToken, setTempToken] = useState('');
-  const [verifiedToken, setVerifiedToken] = useState('');
-  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [tempToken, setTempToken] = useState("");
+  const [verifiedToken, setVerifiedToken] = useState("");
+  const [verifiedEmail, setVerifiedEmail] = useState("");
 
   // Forgot password states
-  const [resetTempToken, setResetTempToken] = useState('');
-  const [resetToken, setResetToken] = useState('');
-  const [resetEmail, setResetEmail] = useState('');
+  const [resetTempToken, setResetTempToken] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
   const VITE_ENV = import.meta.env.VITE_ENV;
@@ -36,58 +48,62 @@ const AuthPage = () => {
   // Setting up axios defaults
   useEffect(() => {
     axios.defaults.baseURL = API_BASE_URL;
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common["Content-Type"] = "application/json";
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, [API_BASE_URL]);
 
   // Check for OAuth success/error from URL params
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const error = urlParams.get('error');
-    const message = urlParams.get('message');
+    const token = urlParams.get("token");
+    const error = urlParams.get("error");
+    const message = urlParams.get("message");
 
     if (token) {
-      localStorage.setItem('authToken', token);
-      toast.success('Successfully signed in!')
+      localStorage.setItem("authToken", token);
+      toast.success("Successfully signed in!");
 
       // Redirecting to dashboard
-      if (VITE_ENV === 'development') {
+      if (VITE_ENV === "development") {
         setTimeout(() => {
-          window.location.href = '/templates';
+          window.location.href = "/templates";
         }, 2000);
       } else {
-        window.location.href = '/templates';
+        window.location.href = "/templates";
       }
     } else if (error) {
-      if (error === 'account_deactivated') {
-        toast.error(message || 'Account is deactivated. Please contact support.');
-      } else if (error === 'server_error') {
-        toast.error(message || 'Unable to verify account status. Please try again.');
+      if (error === "account_deactivated") {
+        toast.error(
+          message || "Account is deactivated. Please contact support.",
+        );
+      } else if (error === "server_error") {
+        toast.error(
+          message || "Unable to verify account status. Please try again.",
+        );
       } else {
-        toast.error('OAuth authentication failed. Please try again.');
+        toast.error("OAuth authentication failed. Please try again.");
       }
 
-      window.history.replaceState({}, '', window.location.pathname);
+      window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear specific field error when user starts typing
     if (formErrors[name]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -95,73 +111,75 @@ const AuthPage = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (authMode === 'email-verification' || authMode === 'forgot-password') {
+    if (authMode === "email-verification" || authMode === "forgot-password") {
       // Only validate email for email verification and forgot password
       if (!formData.email) {
-        errors.email = 'Email is required';
+        errors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = 'Please enter a valid email address';
+        errors.email = "Please enter a valid email address";
       }
-    } else if (authMode === 'reset-password') {
+    } else if (authMode === "reset-password") {
       // Validate password reset fields
       if (!formData.password) {
-        errors.password = 'Password is required';
+        errors.password = "Password is required";
       } else if (formData.password.length < 6) {
-        errors.password = 'Password must be at least 6 characters long';
+        errors.password = "Password must be at least 6 characters long";
       } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-        errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+        errors.password =
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number";
       }
 
       if (!formData.confirmPassword) {
-        errors.confirmPassword = 'Please confirm your password';
+        errors.confirmPassword = "Please confirm your password";
       } else if (formData.password !== formData.confirmPassword) {
-        errors.confirmPassword = 'Passwords do not match';
+        errors.confirmPassword = "Passwords do not match";
       }
-    } else if (authMode === 'complete-registration') {
+    } else if (authMode === "complete-registration") {
       // Validate registration fields
       if (!formData.firstName.trim()) {
-        errors.firstName = 'First name is required';
+        errors.firstName = "First name is required";
       } else if (formData.firstName.length < 2) {
-        errors.firstName = 'First name must be at least 2 characters';
+        errors.firstName = "First name must be at least 2 characters";
       }
 
       if (!formData.lastName.trim()) {
-        errors.lastName = 'Last name is required';
+        errors.lastName = "Last name is required";
       } else if (formData.lastName.length < 2) {
-        errors.lastName = 'Last name must be at least 2 characters';
+        errors.lastName = "Last name must be at least 2 characters";
       }
 
       if (!formData.username.trim()) {
-        errors.username = 'Username is required';
+        errors.username = "Username is required";
       } else if (formData.username.length < 3) {
-        errors.username = 'Username must be at least 3 characters';
+        errors.username = "Username must be at least 3 characters";
       }
 
       if (!formData.password) {
-        errors.password = 'Password is required';
+        errors.password = "Password is required";
       } else if (formData.password.length < 6) {
-        errors.password = 'Password must be at least 6 characters long';
+        errors.password = "Password must be at least 6 characters long";
       } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-        errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+        errors.password =
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number";
       }
 
       if (!formData.confirmPassword) {
-        errors.confirmPassword = 'Please confirm your password';
+        errors.confirmPassword = "Please confirm your password";
       } else if (formData.password !== formData.confirmPassword) {
-        errors.confirmPassword = 'Passwords do not match';
+        errors.confirmPassword = "Passwords do not match";
       }
     } else {
       // Original validation for signin mode
       if (!formData.email) {
-        errors.email = 'Email is required';
+        errors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = 'Please enter a valid email address';
+        errors.email = "Please enter a valid email address";
       }
 
       if (!formData.password) {
-        errors.password = 'Password is required';
+        errors.password = "Password is required";
       } else if (formData.password.length < 6) {
-        errors.password = 'Password must be at least 6 characters long';
+        errors.password = "Password must be at least 6 characters long";
       }
     }
 
@@ -179,25 +197,28 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/send-otp', {
-        email: formData.email
+      const response = await axios.post("/auth/send-otp", {
+        email: formData.email,
       });
 
       if (response.data.success) {
         setTempToken(response.data.tempToken);
-        setAuthMode('otp-verification');
-        toast.success('Verification code sent to your email!')
+        setAuthMode("otp-verification");
+        toast.success("Verification code sent to your email!");
       }
     } catch (error) {
-      console.error('Send OTP error:', error);
+      console.error("Send OTP error:", error);
       if (error.response?.data?.errors) {
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.param || err.path] = err.msg;
         });
         setFormErrors(backendErrors);
       } else {
-        toast.error(error.response?.data?.message || 'Failed to send verification code. Please try again.');
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to send verification code. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -208,25 +229,28 @@ const AuthPage = () => {
   const handleOTPVerified = (verifiedToken, email) => {
     setVerifiedToken(verifiedToken);
     setVerifiedEmail(email);
-    setAuthMode('complete-registration');
-    toast.success('Email verified successfully! Complete your registration.')
+    setAuthMode("complete-registration");
+    toast.success("Email verified successfully! Complete your registration.");
   };
 
   // Handle resend OTP
   const handleResendOTP = async (currentTempToken) => {
     try {
-      const response = await axios.post('/auth/resend-otp', {
-        tempToken: currentTempToken
+      const response = await axios.post("/auth/resend-otp", {
+        tempToken: currentTempToken,
       });
 
       if (response.data.success) {
         setTempToken(response.data.tempToken);
-        toast.success('New verification code sent!');
+        toast.success("New verification code sent!");
         return response.data.tempToken;
       }
     } catch (error) {
-      console.error('Resend OTP error:', error);
-      toast.error(error.response?.data?.message || 'Failed to resend code. Please try again.');
+      console.error("Resend OTP error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to resend code. Please try again.",
+      );
       throw error;
     }
   };
@@ -241,35 +265,40 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/register', {
+      const response = await axios.post("/auth/register", {
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,
         password: formData.password,
-        verifiedToken
+        verifiedToken,
       });
 
       if (response.data.success) {
-        toast.success('Account created successfully. Please sign in using your credentials.');
+        toast.success(
+          "Account created successfully. Please sign in using your credentials.",
+        );
 
-        if (VITE_ENV === 'development') {
+        if (VITE_ENV === "development") {
           setTimeout(() => {
-            window.location.href = '/signin'
+            window.location.href = "/signin";
           }, 1500);
         } else {
-          window.location.href = '/signin'
+          window.location.href = "/signin";
         }
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       if (error.response?.data?.errors) {
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.param || err.path] = err.msg;
         });
         setFormErrors(backendErrors);
       } else {
-        toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+        toast.error(
+          error.response?.data?.message ||
+            "Registration failed. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -286,33 +315,33 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/login', {
+      const response = await axios.post("/auth/login", {
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       });
 
       if (response.data.success) {
-        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem("authToken", response.data.token);
 
         const user = response.data.user;
 
         const redirectUser = () => {
           if (!user.isProfileCompleted) {
-            window.location.href = '/profile';
+            window.location.href = "/profile";
           } else if (!user.selectedTemplate) {
-            window.location.href = '/templates';
+            window.location.href = "/templates";
           } else if (user.selectedTemplate && !user.portfolioDeployed) {
-            window.location.href = '/portfolio';
+            window.location.href = "/portfolio";
           } else if (user.portfolioDeployed) {
-            window.location.href = '/portfolio';
+            window.location.href = "/portfolio";
           } else {
-            window.location.href = '/templates';
+            window.location.href = "/templates";
           }
         };
 
-        toast.success('Welcome back!')
+        toast.success("Welcome back!");
 
-        if (VITE_ENV === 'development') {
+        if (VITE_ENV === "development") {
           setTimeout(() => {
             redirectUser();
           }, 1500);
@@ -321,15 +350,17 @@ const AuthPage = () => {
         }
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error("Authentication error:", error);
       if (error.response?.data?.errors) {
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.param || err.path] = err.msg;
         });
         setFormErrors(backendErrors);
       } else {
-        toast.error(error.response?.data?.message || 'Sign in failed. Please try again.');
+        toast.error(
+          error.response?.data?.message || "Sign in failed. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -346,26 +377,29 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/forgot-password', {
-        email: formData.email
+      const response = await axios.post("/auth/forgot-password", {
+        email: formData.email,
       });
 
       if (response.data.success) {
         setResetTempToken(response.data.tempToken);
         setResetEmail(formData.email);
-        setAuthMode('forgot-otp-verification');
-        toast.success('Password reset code sent to your email!');
+        setAuthMode("forgot-otp-verification");
+        toast.success("Password reset code sent to your email!");
       }
     } catch (error) {
-      console.error('Forgot password error:', error);
+      console.error("Forgot password error:", error);
       if (error.response?.data?.errors) {
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.param || err.path] = err.msg;
         });
         setFormErrors(backendErrors);
       } else {
-        toast.error(error.response?.data?.message || 'Failed to send reset code. Please try again.');
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to send reset code. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -376,25 +410,28 @@ const AuthPage = () => {
   const handleForgotPasswordOTPVerified = (resetTokenReceived, email) => {
     setResetToken(resetTokenReceived);
     setResetEmail(email);
-    setAuthMode('reset-password');
-    toast.success('Code verified! Set your new password.');
+    setAuthMode("reset-password");
+    toast.success("Code verified! Set your new password.");
   };
 
   // Handle forgot password resend OTP
   const handleResendForgotPasswordOTP = async (currentTempToken) => {
     try {
-      const response = await axios.post('/auth/resend-reset-otp', {
-        tempToken: currentTempToken
+      const response = await axios.post("/auth/resend-reset-otp", {
+        tempToken: currentTempToken,
       });
 
       if (response.data.success) {
         setResetTempToken(response.data.tempToken);
-        toast.success('New reset code sent!');
+        toast.success("New reset code sent!");
         return response.data.tempToken;
       }
     } catch (error) {
-      console.error('Resend reset OTP error:', error);
-      toast.error(error.response?.data?.message || 'Failed to resend code. Please try again.');
+      console.error("Resend reset OTP error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to resend code. Please try again.",
+      );
       throw error;
     }
   };
@@ -409,38 +446,43 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/reset-password', {
+      const response = await axios.post("/auth/reset-password", {
         password: formData.password,
-        resetToken
+        resetToken,
       });
 
       if (response.data.success) {
-        toast.success('Password reset successfully! Please sign in with your new password.');
-        
+        toast.success(
+          "Password reset successfully! Please sign in with your new password.",
+        );
+
         // Reset form and go back to signin
         setFormData({
-          email: '',
-          password: '',
-          confirmPassword: '',
-          username: '',
-          firstName: '',
-          lastName: ''
+          email: "",
+          password: "",
+          confirmPassword: "",
+          username: "",
+          firstName: "",
+          lastName: "",
         });
-        setAuthMode('signin');
-        setResetToken('');
-        setResetTempToken('');
-        setResetEmail('');
+        setAuthMode("signin");
+        setResetToken("");
+        setResetTempToken("");
+        setResetEmail("");
       }
     } catch (error) {
-      console.error('Reset password error:', error);
+      console.error("Reset password error:", error);
       if (error.response?.data?.errors) {
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.param || err.path] = err.msg;
         });
         setFormErrors(backendErrors);
       } else {
-        toast.error(error.response?.data?.message || 'Password reset failed. Please try again.');
+        toast.error(
+          error.response?.data?.message ||
+            "Password reset failed. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -449,37 +491,37 @@ const AuthPage = () => {
 
   // OAuth integration
   const handleOAuthLogin = (provider) => {
-    if (provider === 'linkedin') {
+    if (provider === "linkedin") {
       toast.success("Linkedin Auth will be rolled out soon!");
-      return
+      return;
     }
     window.location.href = `${API_BASE_URL}/auth/${provider}`;
   };
 
   const handleBack = () => {
-    if (authMode === 'otp-verification') {
-      setAuthMode('email-verification');
-      setTempToken('');
-    } else if (authMode === 'complete-registration') {
-      setAuthMode('otp-verification');
-      setVerifiedToken('');
-    } else if (authMode === 'email-verification') {
-      setAuthMode('signup');
-    } else if (authMode === 'forgot-otp-verification') {
-      setAuthMode('forgot-password');
-      setResetTempToken('');
-    } else if (authMode === 'reset-password') {
-      setAuthMode('forgot-otp-verification');
-      setResetToken('');
-    } else if (authMode === 'forgot-password') {
-      setAuthMode('signin');
+    if (authMode === "otp-verification") {
+      setAuthMode("email-verification");
+      setTempToken("");
+    } else if (authMode === "complete-registration") {
+      setAuthMode("otp-verification");
+      setVerifiedToken("");
+    } else if (authMode === "email-verification") {
+      setAuthMode("signup");
+    } else if (authMode === "forgot-otp-verification") {
+      setAuthMode("forgot-password");
+      setResetTempToken("");
+    } else if (authMode === "reset-password") {
+      setAuthMode("forgot-otp-verification");
+      setResetToken("");
+    } else if (authMode === "forgot-password") {
+      setAuthMode("signin");
     }
     setFormErrors({});
   };
 
   // Determine what to render based on auth mode
   const renderContent = () => {
-    if (authMode === 'otp-verification') {
+    if (authMode === "otp-verification") {
       return (
         <OTPVerification
           email={formData.email}
@@ -492,7 +534,7 @@ const AuthPage = () => {
       );
     }
 
-    if (authMode === 'forgot-otp-verification') {
+    if (authMode === "forgot-otp-verification") {
       return (
         <ForgotPasswordOTPVerification
           email={resetEmail}
@@ -508,11 +550,11 @@ const AuthPage = () => {
     return (
       <>
         {/* OAuth Buttons - Hide for forgot password flow */}
-        {!['forgot-password', 'reset-password'].includes(authMode) && (
+        {!["forgot-password", "reset-password"].includes(authMode) && (
           <>
             <div className="space-y-3 mb-6">
               <button
-                onClick={() => handleOAuthLogin('google')}
+                onClick={() => handleOAuthLogin("google")}
                 disabled={isLoading}
                 className="w-full flex items-center cursor-pointer justify-center px-4 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -527,26 +569,38 @@ const AuthPage = () => {
                 <div className="w-full border-t border-slate-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">Or continue with email</span>
+                <span className="px-4 bg-white text-slate-500">
+                  Or continue with email
+                </span>
               </div>
             </div>
           </>
         )}
 
         {/* Email Form */}
-        <form onSubmit={
-          authMode === 'signin' ? handleSignIn :
-            authMode === 'email-verification' ? handleSendOTP :
-              authMode === 'complete-registration' ? handleCompleteRegistration :
-                authMode === 'forgot-password' ? handleForgotPassword :
-                  authMode === 'reset-password' ? handleResetPassword :
-                    handleSendOTP
-        } className="space-y-4">
-
+        <form
+          onSubmit={
+            authMode === "signin"
+              ? handleSignIn
+              : authMode === "email-verification"
+                ? handleSendOTP
+                : authMode === "complete-registration"
+                  ? handleCompleteRegistration
+                  : authMode === "forgot-password"
+                    ? handleForgotPassword
+                    : authMode === "reset-password"
+                      ? handleResetPassword
+                      : handleSendOTP
+          }
+          className="space-y-4"
+        >
           {/* Email Field */}
-          {!['complete-registration', 'reset-password'].includes(authMode) && (
+          {!["complete-registration", "reset-password"].includes(authMode) && (
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-slate-700 mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -558,8 +612,11 @@ const AuthPage = () => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.email ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                    }`}
+                  className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                    formErrors.email
+                      ? "border-red-300 bg-red-50"
+                      : "border-slate-300"
+                  }`}
                   placeholder="john@example.com"
                   disabled={isLoading}
                 />
@@ -571,17 +628,21 @@ const AuthPage = () => {
           )}
 
           {/* Registration Fields - Only show in complete-registration mode */}
-          {authMode === 'complete-registration' && (
+          {authMode === "complete-registration" && (
             <>
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700">
-                  ✓ Email verified: <span className="font-semibold">{verifiedEmail}</span>
+                  ✓ Email verified:{" "}
+                  <span className="font-semibold">{verifiedEmail}</span>
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-2">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-medium text-slate-700 mb-2"
+                  >
                     First Name
                   </label>
                   <div className="relative">
@@ -593,19 +654,27 @@ const AuthPage = () => {
                       required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 placeholder:!text-gray-400 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.firstName ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                        }`}
+                      className={`w-full pl-10 placeholder:!text-gray-400 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                        formErrors.firstName
+                          ? "border-red-300 bg-red-50"
+                          : "border-slate-300"
+                      }`}
                       placeholder="John"
                       disabled={isLoading}
                     />
                   </div>
                   {formErrors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.firstName}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {formErrors.firstName}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 mb-2">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-slate-700 mb-2"
+                  >
                     Last Name
                   </label>
                   <div className="relative">
@@ -617,20 +686,28 @@ const AuthPage = () => {
                       required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.lastName ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                        }`}
+                      className={`w-full pl-10 pr-4 placeholder:!text-gray-400 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                        formErrors.lastName
+                          ? "border-red-300 bg-red-50"
+                          : "border-slate-300"
+                      }`}
                       placeholder="Doe"
                       disabled={isLoading}
                     />
                   </div>
                   {formErrors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.lastName}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {formErrors.lastName}
+                    </p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-2">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-slate-700 mb-2"
+                >
                   Username
                 </label>
                 <div className="relative">
@@ -642,30 +719,39 @@ const AuthPage = () => {
                     required
                     value={formData.username}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 placeholder:!text-gray-400 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.username ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                      }`}
+                    className={`w-full pl-10 pr-4 py-3 placeholder:!text-gray-400 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                      formErrors.username
+                        ? "border-red-300 bg-red-50"
+                        : "border-slate-300"
+                    }`}
                     placeholder="john_doe"
                     disabled={isLoading}
                   />
                 </div>
                 {formErrors.username && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.username}
+                  </p>
                 )}
               </div>
             </>
           )}
 
           {/* Reset Password Fields */}
-          {authMode === 'reset-password' && (
+          {authMode === "reset-password" && (
             <>
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700">
-                  ✓ Email verified: <span className="font-semibold">{resetEmail}</span>
+                  ✓ Email verified:{" "}
+                  <span className="font-semibold">{resetEmail}</span>
                 </p>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-slate-700 mb-2"
+                >
                   New Password
                 </label>
                 <div className="relative">
@@ -673,12 +759,15 @@ const AuthPage = () => {
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                      }`}
+                    className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                      formErrors.password
+                        ? "border-red-300 bg-red-50"
+                        : "border-slate-300"
+                    }`}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -688,16 +777,25 @@ const AuthPage = () => {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
                 {formErrors.password && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.password}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-slate-700 mb-2"
+                >
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -705,12 +803,15 @@ const AuthPage = () => {
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type={showCnfPassword ? 'text' : 'password'}
+                    type={showCnfPassword ? "text" : "password"}
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                      }`}
+                    className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                      formErrors.confirmPassword
+                        ? "border-red-300 bg-red-50"
+                        : "border-slate-300"
+                    }`}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -720,20 +821,29 @@ const AuthPage = () => {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                     disabled={isLoading}
                   >
-                    {showCnfPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showCnfPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
                 {formErrors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.confirmPassword}
+                  </p>
                 )}
               </div>
             </>
           )}
 
           {/* Password Field - Show in signin and complete-registration */}
-          {(authMode === 'signin' || authMode === 'complete-registration') && (
+          {(authMode === "signin" || authMode === "complete-registration") && (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-slate-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -741,12 +851,15 @@ const AuthPage = () => {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                    }`}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl placeholder:!text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                    formErrors.password
+                      ? "border-red-300 bg-red-50"
+                      : "border-slate-300"
+                  }`}
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -756,19 +869,28 @@ const AuthPage = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                   disabled={isLoading}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {formErrors.password && (
-                <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.password}
+                </p>
               )}
             </div>
           )}
 
           {/* Confirm Password - Only in complete-registration */}
-          {authMode === 'complete-registration' && (
+          {authMode === "complete-registration" && (
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-slate-700 mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
@@ -776,12 +898,15 @@ const AuthPage = () => {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showCnfPassword ? 'text' : 'password'}
+                  type={showCnfPassword ? "text" : "password"}
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${formErrors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-slate-300'
-                    }`}
+                  className={`w-full pl-10 pr-12 py-3 border placeholder:!text-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white ${
+                    formErrors.confirmPassword
+                      ? "border-red-300 bg-red-50"
+                      : "border-slate-300"
+                  }`}
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -791,17 +916,23 @@ const AuthPage = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                   disabled={isLoading}
                 >
-                  {showCnfPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showCnfPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {formErrors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.confirmPassword}
+                </p>
               )}
             </div>
           )}
 
           {/* Remember Me, Forget password - Only in signin */}
-          {authMode === 'signin' && (
+          {authMode === "signin" && (
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
                 <input
@@ -816,7 +947,7 @@ const AuthPage = () => {
                 className="text-blue-600 hover:text-blue-800 hover:underline"
                 onClick={(e) => {
                   e.preventDefault();
-                  setAuthMode('forgot-password');
+                  setAuthMode("forgot-password");
                   setFormErrors({});
                 }}
               >
@@ -834,23 +965,40 @@ const AuthPage = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                {authMode === 'signin' ? 'Signing In...' :
-                  authMode === 'email-verification' ? 'Sending Code...' :
-                    authMode === 'complete-registration' ? 'Creating Account...' :
-                      authMode === 'forgot-password' ? 'Sending Reset Code...' :
-                        authMode === 'reset-password' ? 'Resetting Password...' : 'Processing...'}
+                {authMode === "signin"
+                  ? "Signing In..."
+                  : authMode === "email-verification"
+                    ? "Sending Code..."
+                    : authMode === "complete-registration"
+                      ? "Creating Account..."
+                      : authMode === "forgot-password"
+                        ? "Sending Reset Code..."
+                        : authMode === "reset-password"
+                          ? "Resetting Password..."
+                          : "Processing..."}
               </>
+            ) : authMode === "signin" ? (
+              "Sign In"
+            ) : authMode === "email-verification" ? (
+              "Send Verification Code"
+            ) : authMode === "complete-registration" ? (
+              "Create Account"
+            ) : authMode === "forgot-password" ? (
+              "Send Reset Code"
+            ) : authMode === "reset-password" ? (
+              "Reset Password"
             ) : (
-              authMode === 'signin' ? 'Sign In' :
-                authMode === 'email-verification' ? 'Send Verification Code' :
-                  authMode === 'complete-registration' ? 'Create Account' :
-                    authMode === 'forgot-password' ? 'Send Reset Code' :
-                      authMode === 'reset-password' ? 'Reset Password' : 'Continue'
+              "Continue"
             )}
           </button>
 
           {/* Back Button for registration and forgot password flows */}
-          {['email-verification', 'complete-registration', 'forgot-password', 'reset-password'].includes(authMode) && (
+          {[
+            "email-verification",
+            "complete-registration",
+            "forgot-password",
+            "reset-password",
+          ].includes(authMode) && (
             <button
               type="button"
               onClick={handleBack}
@@ -864,32 +1012,33 @@ const AuthPage = () => {
         </form>
 
         {/* Toggle Auth Mode - Only show in signin/signup */}
-        {(authMode === 'signin' || authMode === 'signup') && (
+        {(authMode === "signin" || authMode === "signup") && (
           <div className="mt-6 text-center">
             <p className="text-slate-600">
-              {authMode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
-              {' '}
+              {authMode === "signin"
+                ? "Don't have an account?"
+                : "Already have an account?"}{" "}
               <button
                 onClick={() => {
-                  if (authMode === 'signin') {
-                    setAuthMode('email-verification');
+                  if (authMode === "signin") {
+                    setAuthMode("email-verification");
                   } else {
-                    setAuthMode('signin');
+                    setAuthMode("signin");
                   }
                   setFormErrors({});
                   setFormData({
-                    email: '',
-                    password: '',
-                    confirmPassword: '',
-                    username: '',
-                    firstName: '',
-                    lastName: ''
+                    email: "",
+                    password: "",
+                    confirmPassword: "",
+                    username: "",
+                    firstName: "",
+                    lastName: "",
                   });
                 }}
                 className="text-blue-600 hover:text-blue-700 font-semibold transition-colors cursor-pointer"
                 disabled={isLoading}
               >
-                {authMode === 'signin' ? 'Sign up' : 'Sign in'}
+                {authMode === "signin" ? "Sign up" : "Sign in"}
               </button>
             </p>
           </div>
@@ -903,27 +1052,46 @@ const AuthPage = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center flex flex-col items-center">
-          <a href='/' className='cursor-pointer'>
-            <img src="logo.svg" className='align-middle justify-center' alt="BuildFolio Logo" />
+          <a href="/" className="cursor-pointer">
+            <img
+              src="logo.svg"
+              className="align-middle justify-center"
+              alt="BuildFolio Logo"
+            />
           </a>
           <h2 className="text-3xl font-bold text-slate-800 mb-2">
-            {authMode === 'signin' ? 'Welcome back!' :
-              authMode === 'email-verification' ? 'Create your account' :
-                authMode === 'otp-verification' ? 'Check your email' :
-                  authMode === 'complete-registration' ? 'Complete your registration' :
-                    authMode === 'forgot-password' ? 'Reset your password' :
-                      authMode === 'forgot-otp-verification' ? 'Check your email' :
-                        authMode === 'reset-password' ? 'Set new password' : 'Welcome!'}
+            {authMode === "signin"
+              ? "Welcome back!"
+              : authMode === "email-verification"
+                ? "Create your account"
+                : authMode === "otp-verification"
+                  ? "Check your email"
+                  : authMode === "complete-registration"
+                    ? "Complete your registration"
+                    : authMode === "forgot-password"
+                      ? "Reset your password"
+                      : authMode === "forgot-otp-verification"
+                        ? "Check your email"
+                        : authMode === "reset-password"
+                          ? "Set new password"
+                          : "Welcome!"}
           </h2>
           <p className="text-slate-600">
-            {authMode === 'signin' ? 'Sign in to access your dashboard' :
-              authMode === 'email-verification' ? 'Start by verifying your email address' :
-                authMode === 'otp-verification' ? 'Enter the verification code we sent you' :
-                  authMode === 'complete-registration' ? 'Fill in your details to complete registration' :
-                    authMode === 'forgot-password' ? 'Enter your email to receive a reset code' :
-                      authMode === 'forgot-otp-verification' ? 'Enter the reset code we sent you' :
-                        authMode === 'reset-password' ? 'Enter your new password' :
-                          'Start building your professional portfolio today'}
+            {authMode === "signin"
+              ? "Sign in to access your dashboard"
+              : authMode === "email-verification"
+                ? "Start by verifying your email address"
+                : authMode === "otp-verification"
+                  ? "Enter the verification code we sent you"
+                  : authMode === "complete-registration"
+                    ? "Fill in your details to complete registration"
+                    : authMode === "forgot-password"
+                      ? "Enter your email to receive a reset code"
+                      : authMode === "forgot-otp-verification"
+                        ? "Enter the reset code we sent you"
+                        : authMode === "reset-password"
+                          ? "Enter your new password"
+                          : "Start building your professional portfolio today"}
           </p>
         </div>
 
@@ -932,10 +1100,7 @@ const AuthPage = () => {
           {renderContent()}
         </div>
       </div>
-      <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+      <Toaster position="top-center" reverseOrder={true} />
     </div>
   );
 };

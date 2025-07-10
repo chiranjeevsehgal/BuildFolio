@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, X, Check } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, X, Check } from "lucide-react";
 
 // Custom Confirmation Modal Component
-const ConfirmationModal = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
+const ConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
   title = "Confirm Action",
   message = "Are you sure you want to continue?",
   confirmText = "Confirm",
   cancelText = "Cancel",
   type = "warning", // warning, danger, info
-  isLoading = false 
+  isLoading = false,
 }) => {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -29,23 +29,26 @@ const ConfirmationModal = ({
 
   const getTypeStyles = () => {
     switch (type) {
-      case 'danger':
+      case "danger":
         return {
           icon: <AlertTriangle className="w-6 h-6 text-red-500" />,
-          confirmButton: "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white",
-          iconBg: "bg-red-100"
+          confirmButton:
+            "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white",
+          iconBg: "bg-red-100",
         };
-      case 'info':
+      case "info":
         return {
           icon: <Check className="w-6 h-6 text-blue-500" />,
-          confirmButton: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
-          iconBg: "bg-blue-100"
+          confirmButton:
+            "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
+          iconBg: "bg-blue-100",
         };
       default: // warning
         return {
           icon: <AlertTriangle className="w-6 h-6 text-amber-500" />,
-          confirmButton: "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white",
-          iconBg: "bg-amber-100"
+          confirmButton:
+            "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white",
+          iconBg: "bg-amber-100",
         };
     }
   };
@@ -55,8 +58,11 @@ const ConfirmationModal = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-white/20 bg-opacity-30 backdrop-blur-md transition-all" onClick={onClose} />
-      
+      <div
+        className="fixed inset-0 bg-white/20 bg-opacity-30 backdrop-blur-md transition-all"
+        onClick={onClose}
+      />
+
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto transform transition-all">
@@ -82,9 +88,7 @@ const ConfirmationModal = ({
 
           {/* Content */}
           <div className="px-6 pb-6">
-            <p className="text-slate-600 mb-6 leading-relaxed">
-              {message}
-            </p>
+            <p className="text-slate-600 mb-6 leading-relaxed">{message}</p>
 
             {/* Actions */}
             <div className="flex space-x-3 justify-end">
@@ -121,11 +125,11 @@ const ConfirmationModal = ({
 export const useConfirmationModal = () => {
   const [modalState, setModalState] = useState({
     isOpen: false,
-    title: '',
-    message: '',
-    confirmText: 'Confirm',
-    cancelText: 'Cancel',
-    type: 'warning',
+    title: "",
+    message: "",
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    type: "warning",
     isLoading: false,
     onConfirm: () => {},
   });
@@ -136,7 +140,7 @@ export const useConfirmationModal = () => {
     confirmText = "Confirm",
     cancelText = "Cancel",
     type = "warning",
-    onConfirm = () => {}
+    onConfirm = () => {},
   }) => {
     return new Promise((resolve, reject) => {
       setModalState({
@@ -149,21 +153,25 @@ export const useConfirmationModal = () => {
         isLoading: false,
         onConfirm: async () => {
           try {
-            setModalState(prev => ({ ...prev, isLoading: true }));
+            setModalState((prev) => ({ ...prev, isLoading: true }));
             await onConfirm();
             resolve(true);
-            setModalState(prev => ({ ...prev, isOpen: false, isLoading: false }));
+            setModalState((prev) => ({
+              ...prev,
+              isOpen: false,
+              isLoading: false,
+            }));
           } catch (error) {
-            setModalState(prev => ({ ...prev, isLoading: false }));
+            setModalState((prev) => ({ ...prev, isLoading: false }));
             reject(error);
           }
-        }
+        },
       });
     });
   };
 
   const hideConfirmation = () => {
-    setModalState(prev => ({ ...prev, isOpen: false, isLoading: false }));
+    setModalState((prev) => ({ ...prev, isOpen: false, isLoading: false }));
   };
 
   return {
@@ -176,7 +184,7 @@ export const useConfirmationModal = () => {
         onClose={hideConfirmation}
         {...props}
       />
-    )
+    ),
   };
 };
 

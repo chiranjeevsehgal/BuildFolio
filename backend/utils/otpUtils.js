@@ -1,5 +1,5 @@
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 
 const generateOTP = () => {
   return crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
@@ -17,5 +17,5 @@ const verifyOTP = async (otp, hashedOTP) => {
 module.exports = {
   generateOTP,
   hashOTP,
-  verifyOTP
+  verifyOTP,
 };

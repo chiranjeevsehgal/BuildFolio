@@ -1,23 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { ExternalLink, Github, Star, Mail, Phone, MapPin, Linkedin, Twitter, Globe, Calendar, Building, GraduationCap, Award, X, Send, Palette, Figma, Link, Briefcase } from 'lucide-react';
-import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import React, { useEffect, useState } from "react";
+import {
+  ExternalLink,
+  Github,
+  Star,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Twitter,
+  Globe,
+  Calendar,
+  Building,
+  GraduationCap,
+  Award,
+  X,
+  Send,
+  Palette,
+  Figma,
+  Link,
+  Briefcase,
+} from "lucide-react";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const CreativeGradientTemplate = ({ userData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: "",
+    email: "",
+    message: "",
   });
 
   // Fixed validation helpers based on actual data structure
   const hasBasicInfo = userData?.firstName || userData?.lastName;
   const hasTitle = userData?.professional?.title;
   const hasSummary = userData?.professional?.summary;
-  const hasContactInfo = userData?.personalInfo?.phone || userData?.personalInfo?.location || userData?.email;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+  const hasContactInfo =
+    userData?.personalInfo?.phone ||
+    userData?.personalInfo?.location ||
+    userData?.email;
+  const hasSocialLinks =
+    userData?.personalInfo?.socialLinks &&
     (userData?.personalInfo?.socialLinks?.linkedin ||
       userData?.personalInfo?.socialLinks?.github ||
       userData?.personalInfo?.socialLinks?.twitter ||
@@ -37,19 +61,18 @@ const CreativeGradientTemplate = ({ userData }) => {
   // Setting up axios defaults
   useEffect(() => {
     axios.defaults.baseURL = API_BASE_URL;
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common["Content-Type"] = "application/json";
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, [API_BASE_URL]);
 
-
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
     return `https://${url}`;
@@ -57,12 +80,12 @@ const CreativeGradientTemplate = ({ userData }) => {
 
   // Format date helper
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short'
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
       });
     } catch {
       return dateString;
@@ -74,22 +97,22 @@ const CreativeGradientTemplate = ({ userData }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: "", email: "", message: "" });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      toast('Please fill in all required fields.', {
-        icon: 'ℹ️',
+      toast("Please fill in all required fields.", {
+        icon: "ℹ️",
       });
       return;
     }
@@ -97,8 +120,8 @@ const CreativeGradientTemplate = ({ userData }) => {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast('Please enter a valid email address.', {
-        icon: 'ℹ️',
+      toast("Please enter a valid email address.", {
+        icon: "ℹ️",
       });
 
       return;
@@ -110,24 +133,28 @@ const CreativeGradientTemplate = ({ userData }) => {
       // Submission data
       const portfolioContactData = {
         ...formData,
-        ownerDetail: userData?.username
+        ownerDetail: userData?.username,
       };
 
-      const response = await axios.post('/email/contact', {
-        portfolioContactData
+      const response = await axios.post("/email/contact", {
+        portfolioContactData,
       });
 
       const result = response.data;
 
       if (result.success) {
-        toast.success('Thank you! Your message has been sent successfully.');
+        toast.success("Thank you! Your message has been sent successfully.");
         closeModal();
       } else {
-        toast.error(result.message || 'Failed to send message. Please try again.');
+        toast.error(
+          result.message || "Failed to send message. Please try again.",
+        );
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('An error occurred while sending your message. Please try again later.');
+      console.error("Error sending message:", error);
+      toast.error(
+        "An error occurred while sending your message. Please try again later.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -170,10 +197,10 @@ const CreativeGradientTemplate = ({ userData }) => {
           {hasBasicInfo && (
             <>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-300 leading-tight">
-                {userData?.firstName || 'Creative'}
+                {userData?.firstName || "Creative"}
               </h1>
               <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 sm:mb-8 leading-tight">
-                {userData?.lastName || 'Professional'}
+                {userData?.lastName || "Professional"}
               </h2>
             </>
           )}
@@ -214,7 +241,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               {userData?.personalInfo?.location && (
                 <div className="flex items-center justify-center bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-2">
                   <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">{userData.personalInfo.location}</span>
+                  <span className="truncate">
+                    {userData.personalInfo.location}
+                  </span>
                 </div>
               )}
             </div>
@@ -225,7 +254,9 @@ const CreativeGradientTemplate = ({ userData }) => {
             <div className="flex justify-center space-x-4 sm:space-x-6 px-4 mb-4">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.linkedin,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -236,7 +267,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.github && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.github,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -247,7 +280,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.twitter && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.twitter,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -258,7 +293,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.website && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.website,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -269,7 +306,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.portfolio && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.portfolio,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -280,7 +319,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.behance && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.behance,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -291,7 +332,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.dribbble && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.dribbble,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -302,7 +345,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               )}
               {userData?.personalInfo?.socialLinks?.other && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.other,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 p-2 sm:p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -321,25 +366,29 @@ const CreativeGradientTemplate = ({ userData }) => {
         {hasSkills && (
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">My Superpowers</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
+                My Superpowers
+              </h2>
               <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {userData.professional.skills.map((skill, index) => {
                   const gradients = [
-                    'from-purple-500 to-pink-500',
-                    'from-pink-500 to-red-500',
-                    'from-red-500 to-orange-500',
-                    'from-orange-500 to-yellow-500',
-                    'from-yellow-500 to-green-500',
-                    'from-green-500 to-blue-500',
-                    'from-blue-500 to-indigo-500',
-                    'from-indigo-500 to-purple-500'
+                    "from-purple-500 to-pink-500",
+                    "from-pink-500 to-red-500",
+                    "from-red-500 to-orange-500",
+                    "from-orange-500 to-yellow-500",
+                    "from-yellow-500 to-green-500",
+                    "from-green-500 to-blue-500",
+                    "from-blue-500 to-indigo-500",
+                    "from-indigo-500 to-purple-500",
                   ];
                   return (
                     <div
                       key={index}
                       className={`bg-gradient-to-r ${gradients[index % gradients.length]} p-4 sm:p-6 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl`}
                     >
-                      <h3 className="font-bold text-sm sm:text-base lg:text-lg break-words">{skill}</h3>
+                      <h3 className="font-bold text-sm sm:text-base lg:text-lg break-words">
+                        {skill}
+                      </h3>
                     </div>
                   );
                 })}
@@ -352,17 +401,26 @@ const CreativeGradientTemplate = ({ userData }) => {
         {hasExperience && (
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-purple-50 to-pink-50">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">My Journey</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
+                My Journey
+              </h2>
               <div className="space-y-6 sm:space-y-8">
                 {userData.experience.map((exp, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                       <div className="mb-4 lg:mb-0">
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{exp.title || 'Position'}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                          {exp.title || "Position"}
+                        </h3>
                         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600">
                           <div className="flex items-center">
                             <Building className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-500 flex-shrink-0" />
-                            <span className="font-medium">{exp.company || 'Company'}</span>
+                            <span className="font-medium">
+                              {exp.company || "Company"}
+                            </span>
                           </div>
                           {exp.location && (
                             <div className="flex items-center">
@@ -375,19 +433,24 @@ const CreativeGradientTemplate = ({ userData }) => {
                       <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium text-center flex-shrink-0">
                         <Calendar className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
                         <span className="break-words">
-                          {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                          {formatDate(exp.startDate)} -{" "}
+                          {exp.current ? "Present" : formatDate(exp.endDate)}
                         </span>
                       </div>
                     </div>
                     {exp.description && (
-                      <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{exp.description}</p>
+                      <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">
+                        {exp.description}
+                      </p>
                     )}
                     {exp.achievements && exp.achievements.length > 0 && (
                       <ul className="space-y-2">
                         {exp.achievements.map((achievement, idx) => (
                           <li key={idx} className="flex items-start">
                             <Star className="w-4 h-4 text-yellow-500 mr-2 mt-1 flex-shrink-0" />
-                            <span className="text-gray-700 text-sm sm:text-base">{achievement}</span>
+                            <span className="text-gray-700 text-sm sm:text-base">
+                              {achievement}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -403,45 +466,57 @@ const CreativeGradientTemplate = ({ userData }) => {
         {hasProjects && (
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-100">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Featured Work</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
+                Featured Work
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {userData.projects.map((project, index) => {
                   const gradients = [
-                    'from-purple-400 to-pink-400',
-                    'from-pink-400 to-red-400',
-                    'from-red-400 to-orange-400',
-                    'from-orange-400 to-yellow-400',
-                    'from-yellow-400 to-green-400',
-                    'from-green-400 to-blue-400'
+                    "from-purple-400 to-pink-400",
+                    "from-pink-400 to-red-400",
+                    "from-red-400 to-orange-400",
+                    "from-orange-400 to-yellow-400",
+                    "from-yellow-400 to-green-400",
+                    "from-green-400 to-blue-400",
                   ];
                   return (
-                    <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div
+                      key={index}
+                      className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                    >
                       {project.image ? (
                         <div className="h-40 sm:h-48 overflow-hidden">
                           <img
                             src={project.image}
-                            alt={project.title || 'Project'}
+                            alt={project.title || "Project"}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                       ) : (
-                        <div className={`h-40 sm:h-48 bg-gradient-to-r ${gradients[index % gradients.length]} flex items-center justify-center`}>
+                        <div
+                          className={`h-40 sm:h-48 bg-gradient-to-r ${gradients[index % gradients.length]} flex items-center justify-center`}
+                        >
                           <h3 className="text-white font-bold text-lg sm:text-xl text-center px-4 break-words">
-                            {project.title || 'Untitled Project'}
+                            {project.title || "Untitled Project"}
                           </h3>
                         </div>
                       )}
                       <div className="p-4 sm:p-6">
                         <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 break-words">
-                          {project.title || 'Untitled Project'}
+                          {project.title || "Untitled Project"}
                         </h3>
                         {project.description && (
-                          <p className="text-gray-600 mb-4 leading-relaxed text-sm sm:text-base">{project.description}</p>
+                          <p className="text-gray-600 mb-4 leading-relaxed text-sm sm:text-base">
+                            {project.description}
+                          </p>
                         )}
                         {project.skills && project.skills.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {project.skills.map((skill, idx) => (
-                              <span key={idx} className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-2 py-1 rounded-full break-words">
+                              <span
+                                key={idx}
+                                className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-2 py-1 rounded-full break-words"
+                              >
                                 {skill}
                               </span>
                             ))}
@@ -484,26 +559,40 @@ const CreativeGradientTemplate = ({ userData }) => {
         {hasEducation && (
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Education</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
+                Education
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 {userData.education.map((edu, index) => (
-                  <div key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border border-purple-200 hover:shadow-lg transition-shadow duration-300">
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border border-purple-200 hover:shadow-lg transition-shadow duration-300"
+                  >
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">
-                      {edu.degree || 'Degree'}
+                      {edu.degree || "Degree"}
                     </h3>
                     <div className="flex items-center text-gray-600 mb-3">
                       <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-500 flex-shrink-0" />
-                      <span className="font-medium break-words">{edu.school || edu.institution || 'Institution'}</span>
+                      <span className="font-medium break-words">
+                        {edu.school || edu.institution || "Institution"}
+                      </span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500 mb-3">
                       <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span>{formatDate(edu.startDate)} - {formatDate(edu.endDate) || 'Present'}</span>
+                      <span>
+                        {formatDate(edu.startDate)} -{" "}
+                        {formatDate(edu.endDate) || "Present"}
+                      </span>
                     </div>
                     {edu.description && (
-                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{edu.description}</p>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+                        {edu.description}
+                      </p>
                     )}
                     {edu.gpa && (
-                      <p className="text-purple-600 font-medium mt-2 text-sm sm:text-base">Grade: {edu.gpa}</p>
+                      <p className="text-purple-600 font-medium mt-2 text-sm sm:text-base">
+                        Grade: {edu.gpa}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -516,17 +605,30 @@ const CreativeGradientTemplate = ({ userData }) => {
         {hasCertifications && (
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-purple-50 to-pink-50">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">Certifications</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
+                Certifications
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {userData.certifications.map((cert, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
                     <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1 mr-2">{cert.name || 'Certification'}</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1 mr-2">
+                        {cert.name || "Certification"}
+                      </h3>
                       {cert.badge && (
-                        <img src={cert.badge} alt="Badge" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0" />
+                        <img
+                          src={cert.badge}
+                          alt="Badge"
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0"
+                        />
                       )}
                     </div>
-                    <p className="text-purple-600 font-medium mb-3 text-sm sm:text-base break-words">{cert.issuer || 'Issuer'}</p>
+                    <p className="text-purple-600 font-medium mb-3 text-sm sm:text-base break-words">
+                      {cert.issuer || "Issuer"}
+                    </p>
                     <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-4">
                       <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
                       <span className="break-words">
@@ -561,7 +663,8 @@ const CreativeGradientTemplate = ({ userData }) => {
               Let's Create Magic Together
             </h3>
             <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">
-              Ready to bring your wildest ideas to life? Let's collaborate and make something extraordinary!
+              Ready to bring your wildest ideas to life? Let's collaborate and
+              make something extraordinary!
             </p>
           </div>
 
@@ -585,10 +688,11 @@ const CreativeGradientTemplate = ({ userData }) => {
 
           <div className="border-t border-gray-800 pt-6 sm:pt-8">
             <p className="text-gray-400 text-sm sm:text-base px-4">
-              © {new Date().getFullYear()} {hasBasicInfo
-                ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim()
-                : 'Creative Professional'}.
-              Designed with passion and creativity.
+              © {new Date().getFullYear()}{" "}
+              {hasBasicInfo
+                ? `${userData?.firstName || ""} ${userData?.lastName || ""}`.trim()
+                : "Creative Professional"}
+              . Designed with passion and creativity.
             </p>
           </div>
         </div>
@@ -609,7 +713,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
                 <div className="flex flex-col items-center">
                   <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-3"></div>
-                  <p className="text-gray-600 text-sm font-medium">Sending your message...</p>
+                  <p className="text-gray-600 text-sm font-medium">
+                    Sending your message...
+                  </p>
                 </div>
               </div>
             )}
@@ -618,13 +724,16 @@ const CreativeGradientTemplate = ({ userData }) => {
             <button
               onClick={closeModal}
               disabled={isLoading}
-              className={`absolute top-4 right-4 z-20 rounded-full p-2 transition-all duration-300 shadow-lg hover:shadow-xl ${isLoading
-                ? 'bg-gray-200 cursor-not-allowed opacity-50'
-                : 'bg-white/80 hover:bg-white cursor-pointer'
-                }`}
+              className={`absolute top-4 right-4 z-20 rounded-full p-2 transition-all duration-300 shadow-lg hover:shadow-xl ${
+                isLoading
+                  ? "bg-gray-200 cursor-not-allowed opacity-50"
+                  : "bg-white/80 hover:bg-white cursor-pointer"
+              }`}
               aria-label="Close modal"
             >
-              <X className={`w-5 h-5 ${isLoading ? 'text-gray-400' : 'text-gray-600'}`} />
+              <X
+                className={`w-5 h-5 ${isLoading ? "text-gray-400" : "text-gray-600"}`}
+              />
             </button>
 
             <div className="relative z-10 p-6 sm:p-8">
@@ -633,14 +742,19 @@ const CreativeGradientTemplate = ({ userData }) => {
                 <h3 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 mb-2">
                   Let's Connect
                 </h3>
-                <p className="text-gray-600">Ready to start something amazing together?</p>
+                <p className="text-gray-600">
+                  Ready to start something amazing together?
+                </p>
               </div>
 
               {/* Contact Form */}
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Name *
                   </label>
                   <input
@@ -651,15 +765,19 @@ const CreativeGradientTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your name?"
                   />
                 </div>
 
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Email *
                   </label>
                   <input
@@ -670,15 +788,19 @@ const CreativeGradientTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your email?"
                   />
                 </div>
 
                 {/* Message Field */}
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Message *
                   </label>
                   <textarea
@@ -689,8 +811,9 @@ const CreativeGradientTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your message?"
                   />
                 </div>
@@ -700,10 +823,11 @@ const CreativeGradientTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group ${isLoading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer'
-                    } text-white`}
+                  className={`w-full py-3 px-6 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl flex items-center justify-center group ${
+                    isLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer"
+                  } text-white`}
                 >
                   {isLoading ? (
                     <>
@@ -722,7 +846,9 @@ const CreativeGradientTemplate = ({ userData }) => {
               {/* Email */}
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                  <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Or reach out directly:
+                  </p>
                   <a
                     href={`mailto:${userData.email}`}
                     className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium text-sm transition-colors duration-300"
@@ -790,10 +916,7 @@ const CreativeGradientTemplate = ({ userData }) => {
           }
         }
       `}</style>
-      <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+      <Toaster position="top-center" reverseOrder={true} />
     </div>
   );
 };

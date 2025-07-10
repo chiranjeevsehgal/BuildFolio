@@ -6,21 +6,23 @@ const User = require("../models/User");
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .select('_id firstName lastName username email role portfolioDeployed isProfileCompleted isActive createdAt selectedTemplate subscriptionType')
+      .select(
+        "_id firstName lastName username email role portfolioDeployed isProfileCompleted isActive createdAt selectedTemplate subscriptionType",
+      )
       .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      users
+      users,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch users'
+      message: "Failed to fetch users",
     });
   }
 };
 
 module.exports = {
-  getAllUsers
+  getAllUsers,
 };

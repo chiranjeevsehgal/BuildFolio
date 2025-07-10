@@ -1,24 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  MapPin, Phone, Mail, Github, Linkedin, Twitter, ExternalLink,
-  Download, Calendar, Building, GraduationCap, Award, Star,
-  Code, Briefcase, User, Globe, ChevronRight, ArrowUpRight,
-  Clock, Users, Zap, Target, Eye, Heart, X, Send, Palette, Figma, Link
-} from 'lucide-react';
-import toast, { Toaster } from 'react-hot-toast';
+  MapPin,
+  Phone,
+  Mail,
+  Github,
+  Linkedin,
+  Twitter,
+  ExternalLink,
+  Download,
+  Calendar,
+  Building,
+  GraduationCap,
+  Award,
+  Star,
+  Code,
+  Briefcase,
+  User,
+  Globe,
+  ChevronRight,
+  ArrowUpRight,
+  Clock,
+  Users,
+  Zap,
+  Target,
+  Eye,
+  Heart,
+  X,
+  Send,
+  Palette,
+  Figma,
+  Link,
+} from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const ModernTemplate = ({ userData }) => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: "",
+    email: "",
+    message: "",
   });
 
   // Fixed comprehensive validation helpers based on actual data structure
-  const hasBasicInfo = userData?.firstName || userData?.lastName || userData?.email;
+  const hasBasicInfo =
+    userData?.firstName || userData?.lastName || userData?.email;
   const hasTitle = userData?.professional?.title;
   const hasSummary = userData?.professional?.summary;
   const hasSkills = userData?.professional?.skills?.length > 0;
@@ -26,7 +53,8 @@ const ModernTemplate = ({ userData }) => {
   const hasEducation = userData?.education?.length > 0;
   const hasProjects = userData?.projects?.length > 0;
   const hasCertifications = userData?.certifications?.length > 0;
-  const hasSocialLinks = userData?.personalInfo?.socialLinks &&
+  const hasSocialLinks =
+    userData?.personalInfo?.socialLinks &&
     (userData?.personalInfo?.socialLinks?.linkedin ||
       userData?.personalInfo?.socialLinks?.github ||
       userData?.personalInfo?.socialLinks?.twitter ||
@@ -35,7 +63,8 @@ const ModernTemplate = ({ userData }) => {
       userData?.personalInfo?.socialLinks?.behance ||
       userData?.personalInfo?.socialLinks?.dribbble ||
       userData?.personalInfo?.socialLinks?.other);
-  const hasContactInfo = userData?.personalInfo?.phone ||
+  const hasContactInfo =
+    userData?.personalInfo?.phone ||
     userData?.personalInfo?.location ||
     userData?.email;
 
@@ -43,22 +72,22 @@ const ModernTemplate = ({ userData }) => {
 
   // Setting up API configuration
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
 
     // Store config for later use
     window.apiConfig = {
       baseURL: API_BASE_URL,
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-      }
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     };
   }, [API_BASE_URL]);
 
   // Helper function to ensure URLs have proper protocol
   const ensureHttpProtocol = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
     return `https://${url}`;
@@ -66,12 +95,12 @@ const ModernTemplate = ({ userData }) => {
 
   // Format date helper
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short'
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
       });
     } catch {
       return dateString;
@@ -83,22 +112,22 @@ const ModernTemplate = ({ userData }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: "", email: "", message: "" });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSend = async () => {
     // Validate form data
     if (!formData.name || !formData.email || !formData.message) {
-      toast('Please fill in all required fields.', {
-        icon: 'ℹ️',
+      toast("Please fill in all required fields.", {
+        icon: "ℹ️",
       });
       return;
     }
@@ -106,8 +135,8 @@ const ModernTemplate = ({ userData }) => {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast('Please enter a valid email address.', {
-        icon: 'ℹ️',
+      toast("Please enter a valid email address.", {
+        icon: "ℹ️",
       });
       return;
     }
@@ -118,27 +147,31 @@ const ModernTemplate = ({ userData }) => {
       // Submission data
       const portfolioContactData = {
         ...formData,
-        ownerDetail: userData?.username
+        ownerDetail: userData?.username,
       };
 
       const config = window.apiConfig || {};
-      const response = await fetch(`${config.baseURL || ''}/email/contact`, {
-        method: 'POST',
-        headers: config.headers || { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ portfolioContactData })
+      const response = await fetch(`${config.baseURL || ""}/email/contact`, {
+        method: "POST",
+        headers: config.headers || { "Content-Type": "application/json" },
+        body: JSON.stringify({ portfolioContactData }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Thank you! Your message has been sent successfully.');
+        toast.success("Thank you! Your message has been sent successfully.");
         closeModal();
       } else {
-        toast.error(result.message || 'Failed to send message. Please try again.');
+        toast.error(
+          result.message || "Failed to send message. Please try again.",
+        );
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('An error occurred while sending your message. Please try again later.');
+      console.error("Error sending message:", error);
+      toast.error(
+        "An error occurred while sending your message. Please try again later.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -156,21 +189,38 @@ const ModernTemplate = ({ userData }) => {
     <section className={`mb-16 sm:mb-20 ${className}`}>{children}</section>
   );
 
-  const SectionTitle = ({ icon: Icon, title, subtitle, gradient = "from-blue-500 to-purple-600" }) => (
+  const SectionTitle = ({
+    icon: Icon,
+    title,
+    subtitle,
+    gradient = "from-blue-500 to-purple-600",
+  }) => (
     <div className="text-center mb-12 sm:mb-16">
-      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${gradient} rounded-2xl shadow-lg mb-4 sm:mb-6`}>
+      <div
+        className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${gradient} rounded-2xl shadow-lg mb-4 sm:mb-6`}
+      >
         <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
       </div>
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 break-words">{title}</h2>
-      {subtitle && <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">{subtitle}</p>}
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 break-words">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 
   const SkillCard = ({ skill, level = 85, category = "Technical" }) => (
     <div className="group relative bg-white/80 backdrop-blur-sm hover:bg-white border border-gray-200 hover:border-blue-300 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="flex items-center justify-between mb-4 gap-2">
-        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words flex-1">{skill}</h3>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">{category}</span>
+        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words flex-1">
+          {skill}
+        </h3>
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">
+          {category}
+        </span>
       </div>
 
       <div className="space-y-2">
@@ -194,7 +244,9 @@ const ModernTemplate = ({ userData }) => {
     <div className="relative group">
       <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-300 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2">
         <div className="absolute -left-4 sm:-left-6 top-6 sm:top-8 w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center">
-          <span className="text-white font-bold text-xs sm:text-sm">{index + 1}</span>
+          <span className="text-white font-bold text-xs sm:text-sm">
+            {index + 1}
+          </span>
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 sm:mb-6 gap-4">
@@ -205,7 +257,9 @@ const ModernTemplate = ({ userData }) => {
             <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600 mb-3">
               <div className="flex items-center">
                 <Building className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                <span className="font-medium break-words">{experience.company}</span>
+                <span className="font-medium break-words">
+                  {experience.company}
+                </span>
               </div>
               {experience.location && (
                 <div className="flex items-center">
@@ -219,18 +273,23 @@ const ModernTemplate = ({ userData }) => {
           <div className="flex items-center bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm text-gray-700 font-medium flex-shrink-0">
             <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
             <span className="break-words">
-              {formatDate(experience.startDate)} - {experience.current ? 'Present' : formatDate(experience.endDate)}
+              {formatDate(experience.startDate)} -{" "}
+              {experience.current ? "Present" : formatDate(experience.endDate)}
             </span>
           </div>
         </div>
 
         {experience.description && (
-          <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">{experience.description}</p>
+          <p className="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">
+            {experience.description}
+          </p>
         )}
 
         {experience.achievements && experience.achievements.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Key Achievements</h4>
+            <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">
+              Key Achievements
+            </h4>
             {experience.achievements.map((achievement, idx) => (
               <div key={idx} className="flex items-start">
                 <ChevronRight className="w-4 h-4 text-blue-500 mr-2 mt-1 flex-shrink-0" />
@@ -249,7 +308,7 @@ const ModernTemplate = ({ userData }) => {
         <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden">
           <img
             src={project.image}
-            alt={project.title || 'Project'}
+            alt={project.title || "Project"}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -258,7 +317,7 @@ const ModernTemplate = ({ userData }) => {
       <div className="p-6 sm:p-8">
         <div className="flex items-start justify-between mb-4 gap-4">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors break-words flex-1">
-            {project.title || 'Untitled Project'}
+            {project.title || "Untitled Project"}
           </h3>
           {project.featured && (
             <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 sm:px-3 py-1 rounded-full font-medium flex items-center flex-shrink-0">
@@ -269,7 +328,9 @@ const ModernTemplate = ({ userData }) => {
         </div>
 
         {project.description && (
-          <p className="text-gray-600 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">{project.description}</p>
+          <p className="text-gray-600 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+            {project.description}
+          </p>
         )}
 
         {project.skills && project.skills.length > 0 && (
@@ -317,11 +378,15 @@ const ModernTemplate = ({ userData }) => {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-blue-300 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 gap-4">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">{education.degree || 'Degree'}</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">
+            {education.degree || "Degree"}
+          </h3>
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600">
             <div className="flex items-center">
               <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-              <span className="font-medium break-words">{education.school || education.institution || 'Institution'}</span>
+              <span className="font-medium break-words">
+                {education.school || education.institution || "Institution"}
+              </span>
             </div>
             {education.location && (
               <div className="flex items-center">
@@ -334,18 +399,22 @@ const ModernTemplate = ({ userData }) => {
 
         <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 text-green-800 text-xs sm:text-sm px-3 py-1 rounded-full font-medium flex-shrink-0 text-center">
           <span className="break-words">
-            {formatDate(education.startDate)} - {formatDate(education.endDate) || 'Present'}
+            {formatDate(education.startDate)} -{" "}
+            {formatDate(education.endDate) || "Present"}
           </span>
         </div>
       </div>
 
       {education.description && (
-        <p className="text-gray-600 leading-relaxed text-sm sm:text-base mb-3">{education.description}</p>
+        <p className="text-gray-600 leading-relaxed text-sm sm:text-base mb-3">
+          {education.description}
+        </p>
       )}
 
       {education.gpa && (
         <div className="text-sm text-gray-600">
-          <span className="font-medium">Grade: </span>{education.gpa}
+          <span className="font-medium">Grade: </span>
+          {education.gpa}
         </div>
       )}
     </div>
@@ -354,19 +423,28 @@ const ModernTemplate = ({ userData }) => {
   const CertificationCard = ({ certification }) => (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-gray-200 hover:border-purple-300 p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between mb-3 gap-4">
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1">{certification.name || 'Certification'}</h3>
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 break-words flex-1">
+          {certification.name || "Certification"}
+        </h3>
         {certification.badge && (
-          <img src={certification.badge} alt="Badge" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0" />
+          <img
+            src={certification.badge}
+            alt="Badge"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0"
+          />
         )}
       </div>
 
-      <p className="text-gray-600 mb-3 text-sm sm:text-base break-words">{certification.issuer || 'Issuer'}</p>
+      <p className="text-gray-600 mb-3 text-sm sm:text-base break-words">
+        {certification.issuer || "Issuer"}
+      </p>
 
       <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-3">
         <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
         <span className="break-words">
           {certification.issueDate && formatDate(certification.issueDate)}
-          {certification.expiryDate && ` - ${formatDate(certification.expiryDate)}`}
+          {certification.expiryDate &&
+            ` - ${formatDate(certification.expiryDate)}`}
         </span>
       </div>
 
@@ -417,8 +495,9 @@ const ModernTemplate = ({ userData }) => {
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 leading-tight pb-2 break-words">
                 {userData?.firstName && userData?.lastName
                   ? `${userData.firstName} ${userData.lastName}`
-                  : userData?.firstName || userData?.lastName || 'Professional Portfolio'
-                }
+                  : userData?.firstName ||
+                    userData?.lastName ||
+                    "Professional Portfolio"}
               </h1>
 
               {hasTitle && (
@@ -447,7 +526,9 @@ const ModernTemplate = ({ userData }) => {
                   className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base break-all">{userData.email}</span>
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base break-all">
+                    {userData.email}
+                  </span>
                 </a>
               )}
 
@@ -457,14 +538,18 @@ const ModernTemplate = ({ userData }) => {
                   className="group flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base">{userData.personalInfo.phone}</span>
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium text-sm sm:text-base">
+                    {userData.personalInfo.phone}
+                  </span>
                 </a>
               )}
 
               {userData?.personalInfo?.location && (
                 <div className="flex items-center justify-center bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium text-sm sm:text-base break-words">{userData.personalInfo.location}</span>
+                  <span className="text-gray-700 font-medium text-sm sm:text-base break-words">
+                    {userData.personalInfo.location}
+                  </span>
                 </div>
               )}
             </div>
@@ -475,7 +560,9 @@ const ModernTemplate = ({ userData }) => {
             <div className="flex justify-center space-x-3 sm:space-x-4 mb-8 sm:mb-12">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.linkedin,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -487,7 +574,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.github && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.github,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -499,7 +588,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.twitter && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.twitter,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-300 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -511,7 +602,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.website && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.website,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-green-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -523,7 +616,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.portfolio && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.portfolio,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-purple-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -535,7 +630,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.behance && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.behance,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-blue-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -547,7 +644,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.dribbble && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.dribbble,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-pink-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -559,7 +658,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.other && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.other,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-white/80 backdrop-blur-sm hover:bg-white border border-white/50 hover:border-gray-400 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
@@ -608,7 +709,13 @@ const ModernTemplate = ({ userData }) => {
                   key={index}
                   skill={skill}
                   level={Math.floor(Math.random() * 20) + 80} // Random level between 80-100
-                  category={index % 3 === 0 ? 'Frontend' : index % 3 === 1 ? 'Backend' : 'Tools'}
+                  category={
+                    index % 3 === 0
+                      ? "Frontend"
+                      : index % 3 === 1
+                        ? "Backend"
+                        : "Tools"
+                  }
                 />
               ))}
             </div>
@@ -691,10 +798,13 @@ const ModernTemplate = ({ userData }) => {
       <footer className="relative z-10 bg-gray-900 text-white py-12 sm:py-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="mb-6 sm:mb-8">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Let's Create Something Amazing Together</h3>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+              Let's Create Something Amazing Together
+            </h3>
             <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              I'm always excited to take on new challenges and collaborate with innovative teams.
-              Let's discuss how we can bring your ideas to life.
+              I'm always excited to take on new challenges and collaborate with
+              innovative teams. Let's discuss how we can bring your ideas to
+              life.
             </p>
           </div>
 
@@ -721,7 +831,9 @@ const ModernTemplate = ({ userData }) => {
             <div className="flex justify-center space-x-4 sm:space-x-6 mb-6 sm:mb-8">
               {userData?.personalInfo?.socialLinks?.linkedin && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.linkedin)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.linkedin,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-blue-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -733,7 +845,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.github && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.github)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.github,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-gray-700 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -745,7 +859,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.twitter && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.twitter)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.twitter,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-blue-500 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -757,7 +873,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.website && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.website)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.website,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-green-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -769,7 +887,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.portfolio && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.portfolio)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.portfolio,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-purple-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -781,7 +901,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.behance && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.behance)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.behance,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-blue-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -793,7 +915,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.dribbble && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.dribbble)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.dribbble,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-pink-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -805,7 +929,9 @@ const ModernTemplate = ({ userData }) => {
 
               {userData?.personalInfo?.socialLinks?.other && (
                 <a
-                  href={ensureHttpProtocol(userData.personalInfo.socialLinks.other)}
+                  href={ensureHttpProtocol(
+                    userData.personalInfo.socialLinks.other,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-gray-800 hover:bg-gray-600 p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-110"
@@ -819,10 +945,11 @@ const ModernTemplate = ({ userData }) => {
 
           <div className="border-t border-gray-800 pt-6 sm:pt-8">
             <p className="text-gray-400 text-sm sm:text-base break-words">
-              © {new Date().getFullYear()} {userData?.firstName && userData?.lastName
+              © {new Date().getFullYear()}{" "}
+              {userData?.firstName && userData?.lastName
                 ? `${userData.firstName} ${userData.lastName}`
-                : 'Professional Portfolio'}.
-              Crafted with passion and attention to detail.
+                : "Professional Portfolio"}
+              . Crafted with passion and attention to detail.
             </p>
           </div>
         </div>
@@ -846,15 +973,22 @@ const ModernTemplate = ({ userData }) => {
                     <Mail className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">Let's Connect</h3>
-                    <p className="text-gray-600 text-sm">I'd love to hear about your project</p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Let's Connect
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      I'd love to hear about your project
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={closeModal}
                   disabled={isLoading}
-                  className={`text-gray-400 hover:text-gray-600 transition-colors rounded-xl p-2 hover:bg-gray-100 ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                    }`}
+                  className={`text-gray-400 hover:text-gray-600 transition-colors rounded-xl p-2 hover:bg-gray-100 ${
+                    isLoading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
                   aria-label="Close modal"
                 >
                   <X className="w-6 h-6" />
@@ -867,7 +1001,9 @@ const ModernTemplate = ({ userData }) => {
               <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 flex items-center justify-center">
                 <div className="flex flex-col items-center">
                   <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-                  <p className="text-gray-600 font-medium">Sending your message...</p>
+                  <p className="text-gray-600 font-medium">
+                    Sending your message...
+                  </p>
                 </div>
               </div>
             )}
@@ -877,7 +1013,10 @@ const ModernTemplate = ({ userData }) => {
               <div className="space-y-6">
                 {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Your Name *
                   </label>
                   <input
@@ -888,15 +1027,19 @@ const ModernTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your name?"
                   />
                 </div>
 
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Email Address *
                   </label>
                   <input
@@ -907,15 +1050,19 @@ const ModernTemplate = ({ userData }) => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     required
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your email?"
                   />
                 </div>
 
                 {/* Message Field */}
                 <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Your Message *
                   </label>
                   <textarea
@@ -926,8 +1073,9 @@ const ModernTemplate = ({ userData }) => {
                     disabled={isLoading}
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     placeholder="What's your message?"
                   />
                 </div>
@@ -937,10 +1085,11 @@ const ModernTemplate = ({ userData }) => {
                   type="button"
                   onClick={handleSend}
                   disabled={isLoading}
-                  className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${isLoading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5'
-                    }`}
+                  className={`w-full py-4 px-6 rounded-xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center ${
+                    isLoading
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 cursor-pointer hover:shadow-xl transform hover:-translate-y-0.5"
+                  }`}
                 >
                   {isLoading ? (
                     <>
@@ -959,7 +1108,9 @@ const ModernTemplate = ({ userData }) => {
               {/* Direct Email */}
               {userData?.email && !isLoading && (
                 <div className="mt-6 pt-6 border-t border-gray-200/60 text-center">
-                  <p className="text-sm text-gray-600 mb-3">Or reach out directly:</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Or reach out directly:
+                  </p>
                   <a
                     href={`mailto:${userData.email}`}
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
@@ -1122,10 +1273,7 @@ const ModernTemplate = ({ userData }) => {
           }
         }
       `}</style>
-      <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+      <Toaster position="top-center" reverseOrder={true} />
     </div>
   );
 };

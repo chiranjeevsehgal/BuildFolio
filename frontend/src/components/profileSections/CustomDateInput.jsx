@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Calendar, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { Calendar, ChevronDown } from "lucide-react";
 
 const CustomDateInput = ({
   value,
@@ -9,27 +9,37 @@ const CustomDateInput = ({
   disabled = false,
   hasError = false,
   className = "",
-  required = false
+  required = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const inputRef = useRef(null);
 
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const years = Array.from({ length: 50 }, (_, i) => currentYear - 25 + i);
 
   const formatDisplayValue = (value) => {
-    if (!value) return '';
-    const [year, month] = value.split('-');
+    if (!value) return "";
+    const [year, month] = value.split("-");
     return `${months[parseInt(month) - 1]} ${year}`;
   };
 
   const handleMonthSelect = (year, monthIndex) => {
-    const monthValue = String(monthIndex + 1).padStart(2, '0');
+    const monthValue = String(monthIndex + 1).padStart(2, "0");
     const dateValue = `${year}-${monthValue}`;
     onChange({ target: { value: dateValue } });
     setIsOpen(false);
@@ -61,7 +71,7 @@ const CustomDateInput = ({
         tabIndex={0}
         onBlur={handleBlur}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             handleInputClick();
           }
@@ -69,12 +79,16 @@ const CustomDateInput = ({
       >
         <div className="flex items-center space-x-2 flex-1">
           <Calendar className="w-4 h-4 text-slate-400 placeholder:!text-gray-500" />
-          <span className={`${value ? 'text-slate-900' : 'text-slate-500'} text-sm`}>
+          <span
+            className={`${value ? "text-slate-900" : "text-slate-500"} text-sm`}
+          >
             {value ? formatDisplayValue(value) : placeholder}
           </span>
           {required && !value && <span className="text-red-500">*</span>}
         </div>
-        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+        />
       </div>
 
       {isOpen && !disabled && (
@@ -87,12 +101,14 @@ const CustomDateInput = ({
                 onChange={(e) => setCurrentYear(parseInt(e.target.value))}
                 className="w-full px-2 py-1 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                {years.map(year => (
-                  <option key={year} value={year}>{year}</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             {/* Month grid */}
             <div className="grid grid-cols-3 gap-1">
               {months.map((month, index) => (

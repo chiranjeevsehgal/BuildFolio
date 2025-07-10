@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Send, Users, User, CheckCircle, AlertCircle, X } from 'lucide-react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { Send, Users, User, CheckCircle, AlertCircle, X } from "lucide-react";
+import axios from "axios";
 
 const AdminNotificationSender = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    message: '',
-    type: 'info',
+    title: "",
+    message: "",
+    type: "info",
     isGlobal: false,
-    userIds: '',
-    actionUrl: '',
-    actionText: '',
-    priority: 'medium',
-    expiresIn: ''
+    userIds: "",
+    actionUrl: "",
+    actionText: "",
+    priority: "medium",
+    expiresIn: "",
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', content: '' });
+  const [message, setMessage] = useState({ type: "", content: "" });
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [showUserSelector, setShowUserSelector] = useState(false);
@@ -28,13 +28,13 @@ const AdminNotificationSender = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/admin/users');
+      const response = await axios.get("/admin/users");
       if (response.data.success) {
         setAllUsers(response.data.users);
         setFilteredUsers(response.data.users);
       }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
@@ -45,35 +45,35 @@ const AdminNotificationSender = () => {
     try {
       const payload = {
         ...formData,
-        userIds: formData.isGlobal ? [] : selectedUsers.map(user => user._id)
+        userIds: formData.isGlobal ? [] : selectedUsers.map((user) => user._id),
       };
 
-      const response = await axios.post('/notifications/send', payload);
+      const response = await axios.post("/notifications/send", payload);
 
       if (response.data.success) {
         setMessage({
-          type: 'success',
-          content: response.data.message
+          type: "success",
+          content: response.data.message,
         });
-        
+
         // Reset form
         setFormData({
-          title: '',
-          message: '',
-          type: 'info',
+          title: "",
+          message: "",
+          type: "info",
           isGlobal: false,
-          userIds: '',
-          actionUrl: '',
-          actionText: '',
-          priority: 'medium',
-          expiresIn: ''
+          userIds: "",
+          actionUrl: "",
+          actionText: "",
+          priority: "medium",
+          expiresIn: "",
         });
         setSelectedUsers([]);
       }
     } catch (error) {
       setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to send notification'
+        type: "error",
+        content: error.response?.data?.message || "Failed to send notification",
       });
     } finally {
       setLoading(false);
@@ -81,9 +81,9 @@ const AdminNotificationSender = () => {
   };
 
   const handleUserSelect = (user) => {
-    const isSelected = selectedUsers.find(u => u._id === user._id);
+    const isSelected = selectedUsers.find((u) => u._id === user._id);
     if (isSelected) {
-      setSelectedUsers(selectedUsers.filter(u => u._id !== user._id));
+      setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
     } else {
       setSelectedUsers([...selectedUsers, user]);
     }
@@ -92,26 +92,27 @@ const AdminNotificationSender = () => {
   const sendBulkNotification = async (filters) => {
     try {
       setLoading(true);
-      const response = await axios.post('/notifications/bulk', {
+      const response = await axios.post("/notifications/bulk", {
         title: formData.title,
         message: formData.message,
         type: formData.type,
         filters,
         actionUrl: formData.actionUrl,
         actionText: formData.actionText,
-        priority: formData.priority
+        priority: formData.priority,
       });
 
       if (response.data.success) {
         setMessage({
-          type: 'success',
-          content: response.data.message
+          type: "success",
+          content: response.data.message,
         });
       }
     } catch (error) {
       setMessage({
-        type: 'error',
-        content: error.response?.data?.message || 'Failed to send bulk notification'
+        type: "error",
+        content:
+          error.response?.data?.message || "Failed to send bulk notification",
       });
     } finally {
       setLoading(false);
@@ -127,19 +128,23 @@ const AdminNotificationSender = () => {
 
       {/* Message Toast */}
       {message.content && (
-        <div className={`mb-6 p-4 rounded-xl flex items-center justify-between ${
-          message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
+        <div
+          className={`mb-6 p-4 rounded-xl flex items-center justify-between ${
+            message.type === "success"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           <div className="flex items-center">
-            {message.type === 'success' ? (
+            {message.type === "success" ? (
               <CheckCircle className="w-5 h-5 mr-2" />
             ) : (
               <AlertCircle className="w-5 h-5 mr-2" />
             )}
             {message.content}
           </div>
-          <button 
-            onClick={() => setMessage({ type: '', content: '' })}
+          <button
+            onClick={() => setMessage({ type: "", content: "" })}
             className="text-gray-500 hover:text-gray-700"
           >
             <X className="w-4 h-4" />
@@ -156,7 +161,9 @@ const AdminNotificationSender = () => {
           <input
             type="text"
             value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, title: e.target.value }))
+            }
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Notification title"
             required
@@ -171,7 +178,9 @@ const AdminNotificationSender = () => {
           </label>
           <textarea
             value={formData.message}
-            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, message: e.target.value }))
+            }
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Notification message"
@@ -188,7 +197,9 @@ const AdminNotificationSender = () => {
             </label>
             <select
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, type: e.target.value }))
+              }
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="info">Info</option>
@@ -205,7 +216,9 @@ const AdminNotificationSender = () => {
             </label>
             <select
               value={formData.priority}
-              onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, priority: e.target.value }))
+              }
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="low">Low</option>
@@ -227,7 +240,9 @@ const AdminNotificationSender = () => {
                 type="radio"
                 name="audience"
                 checked={formData.isGlobal}
-                onChange={() => setFormData(prev => ({ ...prev, isGlobal: true }))}
+                onChange={() =>
+                  setFormData((prev) => ({ ...prev, isGlobal: true }))
+                }
                 className="mr-3"
               />
               <Users className="w-5 h-5 mr-2 text-blue-500" />
@@ -238,7 +253,9 @@ const AdminNotificationSender = () => {
                 type="radio"
                 name="audience"
                 checked={!formData.isGlobal}
-                onChange={() => setFormData(prev => ({ ...prev, isGlobal: false }))}
+                onChange={() =>
+                  setFormData((prev) => ({ ...prev, isGlobal: false }))
+                }
                 className="mr-3"
               />
               <User className="w-5 h-5 mr-2 text-green-500" />
@@ -260,7 +277,7 @@ const AdminNotificationSender = () => {
                     Selected Users ({selectedUsers.length})
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedUsers.map(user => (
+                    {selectedUsers.map((user) => (
                       <span
                         key={user._id}
                         className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
@@ -278,22 +295,29 @@ const AdminNotificationSender = () => {
                   </div>
                 </div>
               )}
-              
+
               <button
                 type="button"
                 onClick={() => setShowUserSelector(!showUserSelector)}
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium"
               >
-                {showUserSelector ? 'Hide' : 'Show'} User List
+                {showUserSelector ? "Hide" : "Show"} User List
               </button>
-              
+
               {showUserSelector && (
                 <div className="mt-3 max-h-40 overflow-y-auto">
-                  {allUsers.map(user => (
-                    <label key={user._id} className="flex items-center py-2 hover:bg-gray-50">
+                  {allUsers.map((user) => (
+                    <label
+                      key={user._id}
+                      className="flex items-center py-2 hover:bg-gray-50"
+                    >
                       <input
                         type="checkbox"
-                        checked={selectedUsers.find(u => u._id === user._id) ? true : false}
+                        checked={
+                          selectedUsers.find((u) => u._id === user._id)
+                            ? true
+                            : false
+                        }
                         onChange={() => handleUserSelect(user)}
                         className="mr-3"
                       />
@@ -322,7 +346,9 @@ const AdminNotificationSender = () => {
             <input
               type="url"
               value={formData.actionUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, actionUrl: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, actionUrl: e.target.value }))
+              }
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="https://example.com"
             />
@@ -335,7 +361,9 @@ const AdminNotificationSender = () => {
             <input
               type="text"
               value={formData.actionText}
-              onChange={(e) => setFormData(prev => ({ ...prev, actionText: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, actionText: e.target.value }))
+              }
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Learn More"
             />
@@ -349,7 +377,9 @@ const AdminNotificationSender = () => {
           </label>
           <select
             value={formData.expiresIn}
-            onChange={(e) => setFormData(prev => ({ ...prev, expiresIn: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, expiresIn: e.target.value }))
+            }
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Never</option>
@@ -366,15 +396,15 @@ const AdminNotificationSender = () => {
             type="button"
             onClick={() => {
               setFormData({
-                title: '',
-                message: '',
-                type: 'info',
+                title: "",
+                message: "",
+                type: "info",
                 isGlobal: false,
-                userIds: '',
-                actionUrl: '',
-                actionText: '',
-                priority: 'medium',
-                expiresIn: ''
+                userIds: "",
+                actionUrl: "",
+                actionText: "",
+                priority: "medium",
+                expiresIn: "",
               });
               setSelectedUsers([]);
             }}
@@ -382,7 +412,7 @@ const AdminNotificationSender = () => {
           >
             Reset
           </button>
-          
+
           <button
             type="submit"
             disabled={loading || !formData.title || !formData.message}
@@ -405,7 +435,9 @@ const AdminNotificationSender = () => {
 
       {/* Quick Actions */}
       <div className="mt-8 border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Quick Actions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => sendBulkNotification({ portfolioDeployed: true })}
@@ -414,7 +446,7 @@ const AdminNotificationSender = () => {
           >
             Send to Users with Live Portfolios
           </button>
-          
+
           <button
             onClick={() => sendBulkNotification({ portfolioDeployed: false })}
             disabled={loading || !formData.title || !formData.message}
@@ -422,7 +454,7 @@ const AdminNotificationSender = () => {
           >
             Send to Users without Portfolios
           </button>
-          
+
           <button
             onClick={() => sendBulkNotification({ isProfileCompleted: false })}
             disabled={loading || !formData.title || !formData.message}

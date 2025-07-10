@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const Profile = require('../models/Profile');
-const PortfolioDeployment = require('../models/PortfolioDeployment');
-const { validationResult } = require('express-validator');
+const User = require("../models/User");
+const Profile = require("../models/Profile");
+const PortfolioDeployment = require("../models/PortfolioDeployment");
+const { validationResult } = require("express-validator");
 
 // @desc    Deploy user's portfolio
 // @route   POST /api/portfolio/deploy
@@ -10,13 +10,12 @@ const deployPortfolio = async (req, res) => {
   try {
     const { templateId, username, customDomain } = req.body;
     const userId = req.user._id;
-    
-    
+
     // Validate required fields
     if (!templateId || !username) {
       return res.status(400).json({
         success: false,
-        message: 'Template ID and username are required'
+        message: "Template ID and username are required",
       });
     }
 
@@ -25,51 +24,52 @@ const deployPortfolio = async (req, res) => {
     if (!usernameRegex.test(username)) {
       return res.status(400).json({
         success: false,
-        message: 'Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens'
+        message:
+          "Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens",
       });
     }
 
     // Check if username is available
-    const existingUser = await User.findOne({ 
-      username: username.toLowerCase(), 
-      _id: { $ne: userId } 
+    const existingUser = await User.findOne({
+      username: username.toLowerCase(),
+      _id: { $ne: userId },
     });
-    
+
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Username is already taken'
+        message: "Username is already taken",
       });
     }
 
     // Check if username is in existing deployments
     const existingDeployment = await PortfolioDeployment.findOne({
       username: username.toLowerCase(),
-      userId: { $ne: userId }
+      userId: { $ne: userId },
     });
 
     if (existingDeployment) {
       return res.status(400).json({
         success: false,
-        message: 'Username is already taken'
+        message: "Username is already taken",
       });
     }
 
     // Get user and profile data
     const user = await User.findById(userId);
-    const profile = await Profile.findOne({ user:userId });
-    
+    const profile = await Profile.findOne({ user: userId });
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     if (!profile) {
       return res.status(404).json({
         success: false,
-        message: 'Profile not found. Please complete your profile first.'
+        message: "Profile not found. Please complete your profile first.",
       });
     }
 
@@ -77,12 +77,14 @@ const deployPortfolio = async (req, res) => {
     if (!user.isProfileCompleted) {
       return res.status(400).json({
         success: false,
-        message: 'Please complete your profile before deploying portfolio'
+        message: "Please complete your profile before deploying portfolio",
       });
     }
 
     // Generate portfolio URL
-    const portfolioUrl = customDomain || `${process.env.CLIENT_URL}/portfolio/${username.toLowerCase()}`;
+    const portfolioUrl =
+      customDomain ||
+      `${process.env.CLIENT_URL}/portfolio/${username.toLowerCase()}`;
 
     // Update user with deployment info
     await User.findByIdAndUpdate(userId, {
@@ -90,7 +92,7 @@ const deployPortfolio = async (req, res) => {
       selectedTemplate: templateId,
       portfolioDeployed: true,
       portfolioUrl: portfolioUrl,
-      deployedAt: new Date()
+      deployedAt: new Date(),
     });
 
     // Prepare user data for deployment
@@ -104,17 +106,17 @@ const deployPortfolio = async (req, res) => {
         phone: profile.phone,
         location: profile.location,
         website: profile.website,
-        socialLinks: profile.socialLinks || {}
+        socialLinks: profile.socialLinks || {},
       },
       professional: {
         title: profile.title,
         summary: profile.summary,
-        skills: profile.skills || []
+        skills: profile.skills || [],
       },
       experience: profile.experience || [],
       education: profile.education || [],
       projects: profile.projects || [],
-      certifications: profile.certifications || []
+      certifications: profile.certifications || [],
     };
 
     // Create or update portfolio deployment record
@@ -127,36 +129,37 @@ const deployPortfolio = async (req, res) => {
         customDomain,
         isActive: true,
         isPublic: true,
-        status: 'active',
+        status: "active",
         deployedAt: new Date(),
         userData: userData,
         seoData: {
           title: `${user.firstName} ${user.lastName} - Portfolio`,
-          description: profile.summary || `Professional portfolio of ${user.firstName} ${user.lastName}`,
-          keywords: (profile.skills || []).join(', ')
-        }
+          description:
+            profile.summary ||
+            `Professional portfolio of ${user.firstName} ${user.lastName}`,
+          keywords: (profile.skills || []).join(", "),
+        },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     res.status(201).json({
       success: true,
-      message: 'Portfolio deployed successfully',
+      message: "Portfolio deployed successfully",
       portfolioUrl: portfolioUrl,
       data: {
         username: username.toLowerCase(),
         templateId: templateId,
         deploymentId: deployment._id,
-        deployedAt: deployment.deployedAt
-      }
+        deployedAt: deployment.deployedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Deploy portfolio error:', error);
+    console.error("Deploy portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to deploy portfolio',
-      error: error.message
+      message: "Failed to deploy portfolio",
+      error: error.message,
     });
   }
 };
@@ -174,7 +177,7 @@ const unpublishPortfolio = async (req, res) => {
     if (!deployment) {
       return res.status(404).json({
         success: false,
-        message: 'No portfolio deployment found'
+        message: "No portfolio deployment found",
       });
     }
 
@@ -182,45 +185,42 @@ const unpublishPortfolio = async (req, res) => {
     if (!deployment.isActive && !deployment.isPublic) {
       return res.status(400).json({
         success: false,
-        message: 'Portfolio is already unpublished'
+        message: "Portfolio is already unpublished",
       });
     }
 
     // Update deployment to unpublished state
     deployment.isActive = false;
     // deployment.isPublic = false;
-    deployment.status = 'inactive',
-    deployment.unpublishedAt = new Date();
+    ((deployment.status = "inactive"), (deployment.unpublishedAt = new Date()));
     deployment.updatedAt = new Date();
     await deployment.save();
 
     // Update user record
     await User.findByIdAndUpdate(userId, {
-      portfolioDeployed: false
+      portfolioDeployed: false,
     });
 
     res.json({
       success: true,
-      message: 'Portfolio unpublished successfully',
+      message: "Portfolio unpublished successfully",
       data: {
         username: deployment.username,
         isActive: deployment.isActive,
         isPublic: deployment.isPublic,
         unpublishedAt: deployment.unpublishedAt,
-        updatedAt: deployment.updatedAt
-      }
+        updatedAt: deployment.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Unpublish portfolio error:', error);
+    console.error("Unpublish portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to unpublish portfolio',
-      error: error.message
+      message: "Failed to unpublish portfolio",
+      error: error.message,
     });
   }
 };
-
 
 // @desc    Redeploy/update user's portfolio
 // @route   POST /api/portfolio/redeploy
@@ -232,22 +232,22 @@ const redeployPortfolio = async (req, res) => {
 
     // Get existing deployment
     const existingDeployment = await PortfolioDeployment.findOne({ userId });
-    
+
     if (!existingDeployment) {
       return res.status(404).json({
         success: false,
-        message: 'No existing portfolio deployment found'
+        message: "No existing portfolio deployment found",
       });
     }
 
     // Get fresh user and profile data
     const user = await User.findById(userId);
-    const profile = await Profile.findOne({ user:userId });
+    const profile = await Profile.findOne({ user: userId });
 
     if (!user || !profile) {
       return res.status(404).json({
         success: false,
-        message: 'User or profile not found'
+        message: "User or profile not found",
       });
     }
 
@@ -262,17 +262,17 @@ const redeployPortfolio = async (req, res) => {
         phone: profile.phone,
         location: profile.location,
         website: profile.website,
-        socialLinks: profile.socialLinks || {}
+        socialLinks: profile.socialLinks || {},
       },
       professional: {
         title: profile.title,
         summary: profile.summary,
-        skills: profile.skills || []
+        skills: profile.skills || [],
       },
       experience: profile.experience || [],
       education: profile.education || [],
       projects: profile.projects || [],
-      certifications: profile.certifications || []
+      certifications: profile.certifications || [],
     };
 
     // Update deployment with fresh data
@@ -280,10 +280,12 @@ const redeployPortfolio = async (req, res) => {
       userData: userData,
       updatedAt: new Date(),
       seoData: {
-          title: `${user.firstName} ${user.lastName} - Portfolio`,
-          description: profile.summary || `Professional portfolio of ${user.firstName} ${user.lastName}`,
-          keywords: (profile.skills || []).join(', ')
-        }
+        title: `${user.firstName} ${user.lastName} - Portfolio`,
+        description:
+          profile.summary ||
+          `Professional portfolio of ${user.firstName} ${user.lastName}`,
+        keywords: (profile.skills || []).join(", "),
+      },
     };
 
     // Update template if provided
@@ -295,26 +297,25 @@ const redeployPortfolio = async (req, res) => {
     const updatedDeployment = await PortfolioDeployment.findOneAndUpdate(
       { userId },
       updateData,
-      { new: true }
+      { new: true },
     );
 
     res.json({
       success: true,
-      message: 'Portfolio updated successfully',
+      message: "Portfolio updated successfully",
       data: {
         portfolioUrl: `${process.env.FRONTEND_URL}/${updatedDeployment.username}`,
         username: updatedDeployment.username,
         templateId: updatedDeployment.templateId,
-        updatedAt: updatedDeployment.updatedAt
-      }
+        updatedAt: updatedDeployment.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Redeploy portfolio error:', error);
+    console.error("Redeploy portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update portfolio',
-      error: error.message
+      message: "Failed to update portfolio",
+      error: error.message,
     });
   }
 };
@@ -327,16 +328,16 @@ const getPublicPortfolio = async (req, res) => {
     const { username } = req.params;
 
     // Find active deployment by username
-    const deployment = await PortfolioDeployment.findOne({ 
+    const deployment = await PortfolioDeployment.findOne({
       username: username.toLowerCase(),
       isActive: true,
-      isPublic: true
+      isPublic: true,
     });
 
     if (!deployment) {
       return res.status(404).json({
         success: false,
-        message: 'Portfolio not found'
+        message: "Portfolio not found",
       });
     }
 
@@ -351,25 +352,23 @@ const getPublicPortfolio = async (req, res) => {
         ...deployment.userData,
         selectedTemplate: deployment.templateId,
         username: deployment.username,
-        seoData: deployment.seoData
+        seoData: deployment.seoData,
       },
       meta: {
         views: deployment.views,
         deployedAt: deployment.deployedAt,
-        lastUpdated: deployment.updatedAt
-      }
+        lastUpdated: deployment.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Get public portfolio error:', error);
+    console.error("Get public portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to load portfolio',
-      error: error.message
+      message: "Failed to load portfolio",
+      error: error.message,
     });
   }
 };
-
 
 // @desc    Get user's own portfolio info
 // @route   GET /api/portfolio/me
@@ -379,7 +378,9 @@ const getUserPortfolio = async (req, res) => {
     const userId = req.user.id;
 
     const deployment = await PortfolioDeployment.findOne({ userId });
-    const user = await User.findById(userId).select('portfolioDeployed portfolioUrl selectedTemplate username');
+    const user = await User.findById(userId).select(
+      "portfolioDeployed portfolioUrl selectedTemplate username",
+    );
 
     if (!deployment) {
       return res.json({
@@ -388,8 +389,8 @@ const getUserPortfolio = async (req, res) => {
           isDeployed: false,
           portfolioUrl: null,
           username: user?.username || null,
-          selectedTemplate: user?.selectedTemplate || null
-        }
+          selectedTemplate: user?.selectedTemplate || null,
+        },
       });
     }
 
@@ -404,16 +405,15 @@ const getUserPortfolio = async (req, res) => {
         views: deployment.views || 0,
         deployedAt: deployment.deployedAt,
         lastUpdated: deployment.updatedAt,
-        customDomain: deployment.customDomain
-      }
+        customDomain: deployment.customDomain,
+      },
     });
-
   } catch (error) {
-    console.error('Get user portfolio error:', error);
+    console.error("Get user portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get portfolio information',
-      error: error.message
+      message: "Failed to get portfolio information",
+      error: error.message,
     });
   }
 };
@@ -431,7 +431,7 @@ const deletePortfolio = async (req, res) => {
     if (!deployment) {
       return res.status(404).json({
         success: false,
-        message: 'No portfolio deployment found'
+        message: "No portfolio deployment found",
       });
     }
 
@@ -439,20 +439,19 @@ const deletePortfolio = async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       portfolioDeployed: false,
       portfolioUrl: null,
-      deployedAt: null
+      deployedAt: null,
     });
 
     res.json({
       success: true,
-      message: 'Portfolio deleted successfully'
+      message: "Portfolio deleted successfully",
     });
-
   } catch (error) {
-    console.error('Delete portfolio error:', error);
+    console.error("Delete portfolio error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete portfolio',
-      error: error.message
+      message: "Failed to delete portfolio",
+      error: error.message,
     });
   }
 };
@@ -470,15 +469,15 @@ const updatePortfolioStatus = async (req, res) => {
     if (!deployment) {
       return res.status(404).json({
         success: false,
-        message: 'No portfolio deployment found'
+        message: "No portfolio deployment found",
       });
     }
 
     // Update status
-    if (typeof isActive === 'boolean') {
+    if (typeof isActive === "boolean") {
       deployment.isActive = isActive;
     }
-    if (typeof isPublic === 'boolean') {
+    if (typeof isPublic === "boolean") {
       deployment.isPublic = isPublic;
     }
 
@@ -487,20 +486,19 @@ const updatePortfolioStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Portfolio status updated successfully',
+      message: "Portfolio status updated successfully",
       data: {
         isActive: deployment.isActive,
         isPublic: deployment.isPublic,
-        updatedAt: deployment.updatedAt
-      }
+        updatedAt: deployment.updatedAt,
+      },
     });
-
   } catch (error) {
-    console.error('Update portfolio status error:', error);
+    console.error("Update portfolio status error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update portfolio status',
-      error: error.message
+      message: "Failed to update portfolio status",
+      error: error.message,
     });
   }
 };
@@ -511,29 +509,29 @@ const updatePortfolioStatus = async (req, res) => {
 const getPortfolioAnalytics = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { period = '30d' } = req.query; // 7d, 30d, 90d, 1y
+    const { period = "30d" } = req.query; // 7d, 30d, 90d, 1y
 
     const deployment = await PortfolioDeployment.findOne({ userId });
 
     if (!deployment) {
       return res.status(404).json({
         success: false,
-        message: 'No portfolio deployment found'
+        message: "No portfolio deployment found",
       });
     }
 
     // Calculate date range based on period
     const now = new Date();
     let startDate;
-    
+
     switch (period) {
-      case '7d':
+      case "7d":
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
-      case '90d':
+      case "90d":
         startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
         break;
-      case '1y':
+      case "1y":
         startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
         break;
       default: // 30d
@@ -549,20 +547,19 @@ const getPortfolioAnalytics = async (req, res) => {
       isActive: deployment.isActive,
       isPublic: deployment.isPublic,
       portfolioUrl: `${process.env.FRONTEND_URL}/${deployment.username}`,
-      period: period
+      period: period,
     };
 
     res.json({
       success: true,
-      data: analytics
+      data: analytics,
     });
-
   } catch (error) {
-    console.error('Get portfolio analytics error:', error);
+    console.error("Get portfolio analytics error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get portfolio analytics',
-      error: error.message
+      message: "Failed to get portfolio analytics",
+      error: error.message,
     });
   }
 };
@@ -580,37 +577,60 @@ const checkUsernameAvailability = async (req, res) => {
     if (!usernameRegex.test(username)) {
       return res.status(400).json({
         success: false,
-        message: 'Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens',
-        available: false
+        message:
+          "Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens",
+        available: false,
       });
     }
 
     // Check reserved usernames
     const reservedUsernames = [
-      'admin', 'api', 'www', 'mail', 'ftp', 'localhost', 'root', 'support',
-      'help', 'blog', 'shop', 'store', 'app', 'mobile', 'dev', 'test',
-      'signin', 'signup', 'login', 'register', 'profile', 'settings',
-      'dashboard', 'portfolio', 'templates', 'preview'
+      "admin",
+      "api",
+      "www",
+      "mail",
+      "ftp",
+      "localhost",
+      "root",
+      "support",
+      "help",
+      "blog",
+      "shop",
+      "store",
+      "app",
+      "mobile",
+      "dev",
+      "test",
+      "signin",
+      "signup",
+      "login",
+      "register",
+      "profile",
+      "settings",
+      "dashboard",
+      "portfolio",
+      "templates",
+      "preview",
     ];
 
     if (reservedUsernames.includes(username.toLowerCase())) {
       return res.json({
         success: true,
         available: false,
-        message: 'This username is reserved'
+        message: "This username is reserved",
       });
     }
 
     // Check if username exists in users collection (excluding current user)
-    const existingUser = await User.findOne({ 
-      username: username.toLowerCase(), 
-      _id: { $ne: userId } 
+    const existingUser = await User.findOne({
+      username: username.toLowerCase(),
+      _id: { $ne: userId },
     });
 
     // Check if username exists in deployments (excluding current user)
     const existingDeployment = await PortfolioDeployment.findOne({
       username: username.toLowerCase(),
-      userId: { $ne: userId }
+      userId: { $ne: userId },
     });
 
     const isAvailable = !existingUser && !existingDeployment;
@@ -618,15 +638,16 @@ const checkUsernameAvailability = async (req, res) => {
     res.json({
       success: true,
       available: isAvailable,
-      message: isAvailable ? 'Username is available' : 'Username is already taken'
+      message: isAvailable
+        ? "Username is available"
+        : "Username is already taken",
     });
-
   } catch (error) {
-    console.error('Check username availability error:', error);
+    console.error("Check username availability error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to check username availability',
-      error: error.message
+      message: "Failed to check username availability",
+      error: error.message,
     });
   }
 };
@@ -640,5 +661,5 @@ module.exports = {
   deletePortfolio,
   updatePortfolioStatus,
   getPortfolioAnalytics,
-  checkUsernameAvailability
+  checkUsernameAvailability,
 };

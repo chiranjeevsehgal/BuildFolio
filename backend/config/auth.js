@@ -1,22 +1,22 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
-const GitHubStrategy = require('passport-github2').Strategy;
-const User = require('../models/User');
-const { sendWelcomeEmail } = require('../utils/emailService');
-const NotificationService = require('../utils/notificationService');
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const LinkedInStrategy = require("passport-linkedin-oauth2").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
+const User = require("../models/User");
+const { sendWelcomeEmail } = require("../utils/emailService");
+const NotificationService = require("../utils/notificationService");
 
 // Function to generate unique username
 async function generateUniqueUsername(baseUsername) {
   let username = baseUsername;
   let counter = 1;
-  
+
   // Keep checking until we find a unique username
   while (await User.findOne({ username })) {
     username = `${baseUsername}${counter}`;
     counter++;
   }
-  
+
   return username;
 }
 
@@ -36,78 +36,89 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Google Auth Strategy
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACK_URL
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ oauthId: profile.id, oauthProvider: 'google' });
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({
+          oauthId: profile.id,
+          oauthProvider: "google",
+        });
 
-    if (user) {
-      user.lastLogin = new Date();
-      await user.save();
-      return done(null, user);
-    }
-    // Check if email exists
-    user = await User.findOne({ email: profile.emails[0].value });
-    if (user) {
-      // Link accounts
-      user.oauthProvider = 'google';
-      user.oauthId = profile.id;
-      user.lastLogin = new Date();
-      await user.save();
-      return done(null, user);
-    }
-    
-    const emailPrefix = profile.emails[0].value.split('@')[0];
-    const baseUsername = emailPrefix.replace(/\./g, '-');
-    const uniqueUsername = await generateUniqueUsername(baseUsername);
+        if (user) {
+          user.lastLogin = new Date();
+          await user.save();
+          return done(null, user);
+        }
+        // Check if email exists
+        user = await User.findOne({ email: profile.emails[0].value });
+        if (user) {
+          // Link accounts
+          user.oauthProvider = "google";
+          user.oauthId = profile.id;
+          user.lastLogin = new Date();
+          await user.save();
+          return done(null, user);
+        }
 
-    // Create new user
-    user = await User.create({
-      firstName: profile.name.givenName,
-      lastName: profile.name.familyName || '',
-      email: profile.emails[0].value,
-      username: uniqueUsername,
-      oauthProvider: 'google',
-      oauthId: profile.id,
-      lastLogin: new Date(),
-      isEmailVerified: true,
-      // profilePhoto: profile.photos[0]?.value
-    });
+        const emailPrefix = profile.emails[0].value.split("@")[0];
+        const baseUsername = emailPrefix.replace(/\./g, "-");
+        const uniqueUsername = await generateUniqueUsername(baseUsername);
 
-    // Send welcome email
-    try {
-      const emailData = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        email: user.email,
-        createdAt: user.createdAt
-      };
+        // Create new user
+        user = await User.create({
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName || "",
+          email: profile.emails[0].value,
+          username: uniqueUsername,
+          oauthProvider: "google",
+          oauthId: profile.id,
+          lastLogin: new Date(),
+          isEmailVerified: true,
+          // profilePhoto: profile.photos[0]?.value
+        });
 
-      // Send welcome email to user
-      await sendWelcomeEmail(emailData);
+        // Send welcome email
+        try {
+          const emailData = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt,
+          };
 
-      const welcomeResult = await NotificationService.sendWelcomeNotification(
-        user._id,
-        { firstName: user?.firstName }
-      );
+          // Send welcome email to user
+          await sendWelcomeEmail(emailData);
 
-      if (welcomeResult.success) {
-        console.log('Welcome notification sent successfully');
-      } else {
-        console.error('Failed to send welcome notification:', welcomeResult.message);
+          const welcomeResult =
+            await NotificationService.sendWelcomeNotification(user._id, {
+              firstName: user?.firstName,
+            });
+
+          if (welcomeResult.success) {
+            console.log("Welcome notification sent successfully");
+          } else {
+            console.error(
+              "Failed to send welcome notification:",
+              welcomeResult.message,
+            );
+          }
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError);
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error, null);
       }
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
-    }
-
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-}));
+    },
+  ),
+);
 
 module.exports = passport;

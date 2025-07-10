@@ -1,12 +1,12 @@
-const express = require('express');
-const session = require('express-session');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const connectDB = require('./config/database');
-require('dotenv').config();
-const passport = require('./config/auth');
+const express = require("express");
+const session = require("express-session");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
+const connectDB = require("./config/database");
+require("dotenv").config();
+const passport = require("./config/auth");
 
 const app = express();
 
@@ -15,20 +15,24 @@ connectDB();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // Set to true in production with HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }),
+);
 
 // Passport
 app.use(passport.initialize());
@@ -37,52 +41,54 @@ app.use(passport.session());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000 // limiting each IP to 100 requests per windowMs
+  max: 1000, // limiting each IP to 100 requests per windowMs
 });
-app.use('/api/', limiter);
+app.use("/api/", limiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
 
 // Routes
-app.get('/', (req, res) => {
-    res.send('BuildFolio Backend is running!');
+app.get("/", (req, res) => {
+  res.send("BuildFolio Backend is running!");
 });
 
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/profiles', require('./routes/profile'));
-app.use('/api/portfolio', require('./routes/portfolio'));
-app.use('/api/templates', require('./routes/template'));
-app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/email', require('./routes/email'));
-app.use('/api/jobs', require('./routes/jobTracker'));
-app.use('/api/ai-insights', require('./routes/aiInsights'));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/profiles", require("./routes/profile"));
+app.use("/api/portfolio", require("./routes/portfolio"));
+app.use("/api/templates", require("./routes/template"));
+app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/email", require("./routes/email"));
+app.use("/api/jobs", require("./routes/jobTracker"));
+app.use("/api/ai-insights", require("./routes/aiInsights"));
 
 // Admin routes
-app.use('/api/admin', require('./routes/admin'));
+app.use("/api/admin", require("./routes/admin"));
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
-    message: 'Server Error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    message: "Server Error",
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Something went wrong",
   });
 });
 
 const PORT = process.env.PORT;
-if (process.env.NODE_ENV === 'development') {
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-}
-else{
+if (process.env.NODE_ENV === "development") {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+} else {
   module.exports = app;
 }

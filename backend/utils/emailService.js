@@ -1,14 +1,23 @@
-const { MailtrapClient } = require('mailtrap');
+const { MailtrapClient } = require("mailtrap");
 
 // Initialize Mailtrap client
 const client = new MailtrapClient({
-  token: process.env.MAILTRAP_API_TOKEN
+  token: process.env.MAILTRAP_API_TOKEN,
 });
 
 // Send feedback notification to admind
 const sendFeedbackNotification = async (feedbackData) => {
   try {
-    const { name, email, subject, message, type, rating, userAgent, timestamp } = feedbackData;
+    const {
+      name,
+      email,
+      subject,
+      message,
+      type,
+      rating,
+      userAgent,
+      timestamp,
+    } = feedbackData;
 
     // Prepare template variables
     const templateVariables = {
@@ -18,37 +27,35 @@ const sendFeedbackNotification = async (feedbackData) => {
       subject: subject,
       type: type,
       message: message,
-      rating: rating || 'Not provided',
-      userAgent: userAgent
+      rating: rating || "Not provided",
+      userAgent: userAgent,
     };
 
     // Send email using template
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email: process.env.ADMIN_EMAIL
-        }
+          email: process.env.ADMIN_EMAIL,
+        },
       ],
       template_uuid: process.env.FEEDBACK_ADMIN_TEMPLATE_ID,
-      template_variables: templateVariables
+      template_variables: templateVariables,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: response.message_ids?.[0],
-      details: response
+      details: response,
     };
-
   } catch (error) {
-    console.error('Failed to send feedback email:', error);
+    console.error("Failed to send feedback email:", error);
     throw error;
   }
 };
-
 
 // Send feedback notification to admind
 const sendContactNotification = async (contactData) => {
@@ -60,7 +67,6 @@ const sendContactNotification = async (contactData) => {
     const ownerName = ownerDetail.fullName || ownerDetail.username;
     const ownerUsername = ownerDetail.username;
 
-
     // Prepare template variables
     const templateVariables = {
       sender_name: name,
@@ -68,32 +74,31 @@ const sendContactNotification = async (contactData) => {
       timestamp: new Date(timestamp).toLocaleString(),
       message_content: message,
       owner_name: ownerName,
-      owner_username: ownerUsername
+      owner_username: ownerUsername,
     };
 
     // Send email using template
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email: ownerEmail
-        }
+          email: ownerEmail,
+        },
       ],
       template_uuid: process.env.PORTFOLIO_CONTACT_TEMPLATE_ID,
-      template_variables: templateVariables
+      template_variables: templateVariables,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: response.message_ids?.[0],
-      details: response
+      details: response,
     };
-
   } catch (error) {
-    console.error('Failed to send portfolio contact email:', error);
+    console.error("Failed to send portfolio contact email:", error);
     throw error;
   }
 };
@@ -105,46 +110,44 @@ const sendWelcomeEmail = async (userData) => {
 
     // Prepare template variables
     const templateVariables = {
-      user_name: firstName || username || 'New User',
+      user_name: firstName || username || "New User",
       getting_started_url: `${process.env.CLIENT_URL}/profile`,
       templates_url: `${process.env.CLIENT_URL}/templates`,
-      support_email: process.env.ADMIN_EMAIL
+      support_email: process.env.ADMIN_EMAIL,
     };
 
     // Send welcome email using template
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email: email
-        }
+          email: email,
+        },
       ],
       template_uuid: process.env.WELCOME_EMAIL_TEMPLATE_ID,
-      template_variables: templateVariables
+      template_variables: templateVariables,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: response.message_ids?.[0],
-      details: response
+      details: response,
     };
-
   } catch (error) {
-    console.error('Failed to send welcome email:', error);
+    console.error("Failed to send welcome email:", error);
     throw error;
   }
 };
-
 
 // Send OTP while registering to new users
 const sendRegisterOTP = async (email, otp) => {
   try {
     // Prepare template variables
     const templateVariables = {
-      email:email,
+      email: email,
       otp: otp,
       expiry_minutes: `10`,
     };
@@ -153,25 +156,24 @@ const sendRegisterOTP = async (email, otp) => {
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email
-        }
+          email,
+        },
       ],
       template_uuid: process.env.REGISTER_OTP_TEMPLATE_ID,
-      template_variables: templateVariables
+      template_variables: templateVariables,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: response.message_ids?.[0],
-      details: response
+      details: response,
     };
-
   } catch (error) {
-    console.error('Failed to send registration email:', error);
+    console.error("Failed to send registration email:", error);
     throw error;
   }
 };
@@ -181,7 +183,7 @@ const sendPasswordResetOTP = async (email, otp) => {
   try {
     // Prepare template variables
     const templateVariables = {
-      email:email,
+      email: email,
       otp: otp,
       expiry_minutes: `10`,
     };
@@ -190,29 +192,27 @@ const sendPasswordResetOTP = async (email, otp) => {
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email
-        }
+          email,
+        },
       ],
       template_uuid: process.env.RESET_PASSWORD_OTP_TEMPLATE_ID,
-      template_variables: templateVariables
+      template_variables: templateVariables,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       messageId: response.message_ids?.[0],
-      details: response
+      details: response,
     };
-
   } catch (error) {
-    console.error('Failed to send password reset email:', error);
+    console.error("Failed to send password reset email:", error);
     throw error;
   }
 };
-
 
 // Test connection to Mailtrap
 const testConnection = async () => {
@@ -221,21 +221,21 @@ const testConnection = async () => {
     const response = await client.send({
       from: {
         email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
+        name: process.env.FROM_NAME,
       },
       to: [
         {
-          email: process.env.ADMIN_EMAIL
-        }
+          email: process.env.ADMIN_EMAIL,
+        },
       ],
-      subject: 'Mailtrap Connection Test',
-      text: 'This is a test email to verify Mailtrap connection.',
-      html: '<p>This is a test email to verify Mailtrap connection.</p>'
+      subject: "Mailtrap Connection Test",
+      text: "This is a test email to verify Mailtrap connection.",
+      html: "<p>This is a test email to verify Mailtrap connection.</p>",
     });
 
     return true;
   } catch (error) {
-    console.error('❌ Mailtrap connection failed:', error);
+    console.error("❌ Mailtrap connection failed:", error);
     return false;
   }
 };
@@ -246,5 +246,5 @@ module.exports = {
   sendWelcomeEmail,
   sendRegisterOTP,
   sendPasswordResetOTP,
-  testConnection
+  testConnection,
 };

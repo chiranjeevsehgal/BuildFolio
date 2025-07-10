@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 // Location Autocomplete using Nominatim (OpenStreetMap)
 const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
@@ -21,25 +21,39 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
     try {
       // Focus on cities, towns, and administrative areas
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&featureType=city,town,village,administrative&countrycodes=us,ca,gb,au,de,fr,in,sg,ae,nl,se,no,dk,fi,ch,at,be,ie,it,es,pt,pl,cz,hu,ro,bg,hr,si,sk,lt,lv,ee,lu,mt,cy`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&featureType=city,town,village,administrative&countrycodes=us,ca,gb,au,de,fr,in,sg,ae,nl,se,no,dk,fi,ch,at,be,ie,it,es,pt,pl,cz,hu,ro,bg,hr,si,sk,lt,lv,ee,lu,mt,cy`,
       );
       const data = await response.json();
 
       const formattedSuggestions = data
-        .filter(item => {
+        .filter((item) => {
           // Filter for places that are cities, towns, or administrative areas
           const placeType = item.type;
-          return ['city', 'town', 'village', 'municipality', 'administrative'].includes(placeType) ||
-            item.class === 'place' ||
-            item.class === 'boundary';
+          return (
+            [
+              "city",
+              "town",
+              "village",
+              "municipality",
+              "administrative",
+            ].includes(placeType) ||
+            item.class === "place" ||
+            item.class === "boundary"
+          );
         })
-        .map(item => {
+        .map((item) => {
           const address = item.address || {};
-          const city = address.city || address.town || address.village || address.municipality || '';
-          const state = address.state || address.province || address.region || '';
-          const country = address.country || '';
+          const city =
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            "";
+          const state =
+            address.state || address.province || address.region || "";
+          const country = address.country || "";
 
-          let formatted = '';
+          let formatted = "";
           if (city && state && country) {
             formatted = `${city}, ${state}, ${country}`;
           } else if (city && country) {
@@ -53,7 +67,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
           return {
             display_name: item.display_name,
             formatted: formatted,
-            type: item.type
+            type: item.type,
           };
         })
         .slice(0, 8); // Limit to 8 suggestions
@@ -61,7 +75,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
       setSuggestions(formattedSuggestions);
       setHasSearched(true);
     } catch (error) {
-      console.error('Error fetching locations:', error);
+      console.error("Error fetching locations:", error);
       setSuggestions([]);
       setHasSearched(true);
     } finally {
@@ -111,9 +125,11 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
   };
 
   const shouldShowDropdown = showSuggestions && value && value.length >= 3;
-  const shouldShowNoResults = hasSearched && suggestions.length === 0 && !loading;
+  const shouldShowNoResults =
+    hasSearched && suggestions.length === 0 && !loading;
   const shouldShowSuggestions = suggestions.length > 0;
-  const shouldShowMinChars = showSuggestions && value && value.length > 0 && value.length < 3;
+  const shouldShowMinChars =
+    showSuggestions && value && value.length > 0 && value.length < 3;
 
   return (
     <div className="relative">
@@ -124,8 +140,9 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         placeholder={placeholder}
-        className={`px-3 py-2 border placeholder:!text-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all duration-200 ${hasError ? "border-red-500" : "border-slate-300"
-          }`}
+        className={`px-3 py-2 border placeholder:!text-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all duration-200 ${
+          hasError ? "border-red-500" : "border-slate-300"
+        }`}
       />
 
       {loading && (
@@ -140,7 +157,9 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
             <div className="px-3 py-4 text-center">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-sm text-slate-500">Searching locations...</span>
+                <span className="text-sm text-slate-500">
+                  Searching locations...
+                </span>
               </div>
             </div>
           )}
@@ -169,7 +188,9 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
             <div className="px-3 py-4">
               <div className="text-sm text-slate-500 text-center">
                 <div className="mb-1">🔍 No locations found</div>
-                <div className="text-xs">Try a different city or check spelling</div>
+                <div className="text-xs">
+                  Try a different city or check spelling
+                </div>
               </div>
             </div>
           )}
@@ -189,7 +210,13 @@ const LocationAutocomplete = ({ value, onChange, placeholder, hasError }) => {
 };
 
 // University Autocomplete using HipoLabs University API
-const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, country = '' }) => {
+const UniversityAutocomplete = ({
+  value,
+  onChange,
+  placeholder,
+  hasError,
+  country = "",
+}) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -219,17 +246,20 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
         url += `&country=${encodeURIComponent(country)}`;
       }
 
-      const timeoutId = setTimeout(() => abortControllerRef.current.abort(), 8000);
+      const timeoutId = setTimeout(
+        () => abortControllerRef.current.abort(),
+        8000,
+      );
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         signal: abortControllerRef.current.signal,
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-        mode: 'cors',
-        cache: 'default'
+        mode: "cors",
+        cache: "default",
       });
 
       clearTimeout(timeoutId);
@@ -240,21 +270,21 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
 
       const text = await response.text();
       if (!text.trim()) {
-        throw new Error('Empty response');
+        throw new Error("Empty response");
       }
 
       const data = JSON.parse(text);
 
       if (Array.isArray(data) && data.length > 0) {
         const formattedSuggestions = data
-          .filter(university => university.name && university.name.trim())
+          .filter((university) => university.name && university.name.trim())
           .slice(0, 12)
-          .map(university => ({
+          .map((university) => ({
             name: university.name.trim(),
-            country: university.country || 'Unknown',
-            domain: university.domain || '',
-            website: university.web_pages?.[0] || university.website || '',
-            display: `${university.name.trim()}${university.country ? `, ${university.country}` : ''}`
+            country: university.country || "Unknown",
+            domain: university.domain || "",
+            website: university.web_pages?.[0] || university.website || "",
+            display: `${university.name.trim()}${university.country ? `, ${university.country}` : ""}`,
           }))
           .sort((a, b) => {
             const queryLower = query.toLowerCase();
@@ -263,8 +293,10 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
 
             if (aName === queryLower) return -1;
             if (bName === queryLower) return 1;
-            if (aName.startsWith(queryLower) && !bName.startsWith(queryLower)) return -1;
-            if (bName.startsWith(queryLower) && !aName.startsWith(queryLower)) return 1;
+            if (aName.startsWith(queryLower) && !bName.startsWith(queryLower))
+              return -1;
+            if (bName.startsWith(queryLower) && !aName.startsWith(queryLower))
+              return 1;
 
             return a.name.localeCompare(b.name);
           });
@@ -275,8 +307,8 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
       }
       setHasSearched(true);
     } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Error fetching universities:', error.message);
+      if (error.name !== "AbortError") {
+        console.error("Error fetching universities:", error.message);
         setSuggestions([]);
         setHasSearched(true);
       }
@@ -338,15 +370,17 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setShowSuggestions(false);
     }
   };
 
   const shouldShowDropdown = showSuggestions && value && value.length >= 2;
-  const shouldShowNoResults = hasSearched && suggestions.length === 0 && !loading;
+  const shouldShowNoResults =
+    hasSearched && suggestions.length === 0 && !loading;
   const shouldShowSuggestions = suggestions.length > 0;
-  const shouldShowMinChars = showSuggestions && value && value.length > 0 && value.length < 2;
+  const shouldShowMinChars =
+    showSuggestions && value && value.length > 0 && value.length < 2;
 
   return (
     <div className="relative">
@@ -362,8 +396,9 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all duration-200 placeholder:!text-gray-500 ${hasError ? "border-red-500" : "border-slate-300"
-          }`}
+        className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all duration-200 placeholder:!text-gray-500 ${
+          hasError ? "border-red-500" : "border-slate-300"
+        }`}
         autoComplete="off"
       />
 
@@ -379,7 +414,9 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
             <div className="px-3 py-4 text-center">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-sm text-slate-500">Searching universities...</span>
+                <span className="text-sm text-slate-500">
+                  Searching universities...
+                </span>
               </div>
             </div>
           )}
@@ -397,7 +434,8 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
                     {suggestion.name}
                   </div>
                   <div className="text-xs text-slate-500 truncate mt-1">
-                    {suggestion.country}{suggestion.domain ? ` • ${suggestion.domain}` : ''}
+                    {suggestion.country}
+                    {suggestion.domain ? ` • ${suggestion.domain}` : ""}
                   </div>
                 </button>
               ))}
@@ -408,7 +446,9 @@ const UniversityAutocomplete = ({ value, onChange, placeholder, hasError, countr
             <div className="px-3 py-4">
               <div className="text-sm text-slate-500 text-center">
                 <div className="mb-1">🎓 No universities found</div>
-                <div className="text-xs">Try a different name or check spelling</div>
+                <div className="text-xs">
+                  Try a different name or check spelling
+                </div>
               </div>
             </div>
           )}

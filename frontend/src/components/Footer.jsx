@@ -1,5 +1,5 @@
-import { ExternalLink, Zap } from 'lucide-react'
-import React from 'react'
+import { ExternalLink, Zap } from "lucide-react";
+import React from "react";
 
 function Footer() {
   return (
@@ -19,19 +19,21 @@ function Footer() {
             Ready to showcase your work?
           </h3>
           <p className="text-base sm:text-lg lg:text-xl text-blue-100 max-w-xs sm:max-w-lg lg:max-w-2xl mx-auto leading-relaxed px-2">
-            Your portfolio is the key to unlocking new opportunities. Make it count.
+            Your portfolio is the key to unlocking new opportunities. Make it
+            count.
           </p>
         </div>
 
         <div className="text-center mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-white/10">
           <p className="text-blue-200 text-xs sm:text-sm px-2">
-            © 2025 BuildFolio. Empowering professionals to showcase their best work.
+            © 2025 BuildFolio. Empowering professionals to showcase their best
+            work.
           </p>
           <p className="text-blue-200 text-xs sm:text-sm mt-2 px-2">
-            Developed by 
-            <a 
-              href='https://www.linkedin.com/in/chiranjeevsehgal/' 
-              target='_blank' 
+            Developed by
+            <a
+              href="https://www.linkedin.com/in/chiranjeevsehgal/"
+              target="_blank"
               rel="noopener noreferrer"
               className="font-bold inline-flex items-center gap-1 ml-1 hover:text-white transition-colors"
             >
@@ -42,7 +44,7 @@ function Footer() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Footer
+export default Footer;

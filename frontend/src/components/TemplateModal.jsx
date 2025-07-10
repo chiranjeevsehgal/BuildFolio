@@ -1,19 +1,37 @@
-import React, { useEffect } from 'react';
-import { 
-  X, Eye, Check, Star, Layers, Sparkles, ExternalLink, Code, 
-  Palette, Layout, Monitor, Smartphone, Tablet, Award, Rocket,
-  Calendar, Users, Zap, Heart, Crown, ChevronRight
-} from 'lucide-react';
+import React, { useEffect } from "react";
+import {
+  X,
+  Eye,
+  Check,
+  Star,
+  Layers,
+  Sparkles,
+  ExternalLink,
+  Code,
+  Palette,
+  Layout,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Award,
+  Rocket,
+  Calendar,
+  Users,
+  Zap,
+  Heart,
+  Crown,
+  ChevronRight,
+} from "lucide-react";
 
-const TemplateModal = ({ 
-  template, 
-  isOpen, 
-  onClose, 
-  onSelect, 
-  onPreview, 
-  isSelected, 
-  isCurrentlySelected, 
-  savingTemplate 
+const TemplateModal = ({
+  template,
+  isOpen,
+  onClose,
+  onSelect,
+  onPreview,
+  isSelected,
+  isCurrentlySelected,
+  savingTemplate,
 }) => {
   if (!isOpen || !template) return null;
 
@@ -30,15 +48,15 @@ const TemplateModal = ({
   useEffect(() => {
     return () => {
       // Ensure styles are cleared on unmount
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
     };
   }, []);
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
       onClick={handleBackdropClick}
     >
@@ -47,11 +65,13 @@ const TemplateModal = ({
         <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-3 sm:p-4 lg:p-6 rounded-t-2xl sm:rounded-t-3xl">
           <div className="flex items-start sm:items-center justify-between space-x-3">
             <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
-              <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r ${
-                isCurrentlySelected
-                  ? 'from-green-500 via-emerald-500 to-teal-600'
-                  : 'from-blue-500 via-purple-500 to-indigo-600'
-              } rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+              <div
+                className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r ${
+                  isCurrentlySelected
+                    ? "from-green-500 via-emerald-500 to-teal-600"
+                    : "from-blue-500 via-purple-500 to-indigo-600"
+                } rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}
+              >
                 {isCurrentlySelected ? (
                   <Check className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
                 ) : (
@@ -59,10 +79,12 @@ const TemplateModal = ({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">{template.name}</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
+                  {template.name}
+                </h2>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                   <span className="bg-gray-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-gray-600">
-                    {template.category || 'Template'}
+                    {template.category || "Template"}
                   </span>
                   {template.featured && (
                     <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center">
@@ -97,18 +119,22 @@ const TemplateModal = ({
             <div className="aspect-video bg-gradient-to-br from-slate-100 via-slate-50 to-white rounded-xl sm:rounded-2xl overflow-hidden relative border border-gray-200">
               <div className="w-full h-full flex items-center justify-center p-4 sm:p-8 lg:p-12">
                 <div className="text-center">
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gradient-to-r ${
-                    isCurrentlySelected
-                      ? 'from-green-500 via-emerald-500 to-teal-600'
-                      : 'from-blue-500 via-purple-500 to-indigo-600'
-                  } rounded-2xl sm:rounded-3xl mx-auto mb-3 sm:mb-4 lg:mb-6 flex items-center justify-center shadow-2xl`}>
+                  <div
+                    className={`w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gradient-to-r ${
+                      isCurrentlySelected
+                        ? "from-green-500 via-emerald-500 to-teal-600"
+                        : "from-blue-500 via-purple-500 to-indigo-600"
+                    } rounded-2xl sm:rounded-3xl mx-auto mb-3 sm:mb-4 lg:mb-6 flex items-center justify-center shadow-2xl`}
+                  >
                     {isCurrentlySelected ? (
                       <Check className="w-6 h-6 sm:w-8 sm:h-8 lg:w-12 lg:h-12 text-white" />
                     ) : (
                       <Layout className="w-6 h-6 sm:w-8 sm:h-8 lg:w-12 lg:h-12 text-white" />
                     )}
                   </div>
-                  <h3 className="font-bold text-lg sm:text-xl lg:text-2xl text-slate-800 mb-2 sm:mb-4">{template.name}</h3>
+                  <h3 className="font-bold text-lg sm:text-xl lg:text-2xl text-slate-800 mb-2 sm:mb-4">
+                    {template.name}
+                  </h3>
                   {template.colors && (
                     <div className="flex justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-6">
                       {template.colors.map((color, index) => (
@@ -140,8 +166,12 @@ const TemplateModal = ({
           {/* Template Description */}
           {template.description && (
             <div className="mb-6 sm:mb-8">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">About This Template</h3>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base lg:text-lg">{template.description}</p>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">
+                About This Template
+              </h3>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base lg:text-lg">
+                {template.description}
+              </p>
             </div>
           )}
 
@@ -156,9 +186,14 @@ const TemplateModal = ({
                 </h4>
                 <div className="space-y-1 sm:space-y-2">
                   {template.sections.map((section, index) => (
-                    <div key={index} className="flex items-center text-gray-700 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl">
+                    <div
+                      key={index}
+                      className="flex items-center text-gray-700 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl"
+                    >
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-2 sm:mr-3 flex-shrink-0" />
-                      <span className="font-medium text-sm sm:text-base">{section}</span>
+                      <span className="font-medium text-sm sm:text-base">
+                        {section}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -187,7 +222,9 @@ const TemplateModal = ({
           {/* Template Tags */}
           {template.tags && template.tags.length > 0 && (
             <div className="mb-6 sm:mb-8">
-              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Template Tags</h4>
+              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+                Template Tags
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {template.tags.map((tag, index) => (
                   <span
@@ -204,12 +241,18 @@ const TemplateModal = ({
           {/* Template Stats */}
           {(template.downloads || template.rating || template.lastUpdated) && (
             <div className="mb-6 sm:mb-8">
-              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Template Statistics</h4>
+              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+                Template Statistics
+              </h4>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {template.downloads && (
                   <div className="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-1">{template.downloads}</div>
-                    <div className="text-blue-700 text-xs sm:text-sm font-medium">Downloads</div>
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-1">
+                      {template.downloads}
+                    </div>
+                    <div className="text-blue-700 text-xs sm:text-sm font-medium">
+                      Downloads
+                    </div>
                   </div>
                 )}
                 {template.rating && (
@@ -218,13 +261,19 @@ const TemplateModal = ({
                       {template.rating}
                       <Star className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                     </div>
-                    <div className="text-yellow-700 text-xs sm:text-sm font-medium">Rating</div>
+                    <div className="text-yellow-700 text-xs sm:text-sm font-medium">
+                      Rating
+                    </div>
                   </div>
                 )}
                 {template.views && (
                   <div className="bg-green-50 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">{template.views}</div>
-                    <div className="text-green-700 text-xs sm:text-sm font-medium">Views</div>
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">
+                      {template.views}
+                    </div>
+                    <div className="text-green-700 text-xs sm:text-sm font-medium">
+                      Views
+                    </div>
                   </div>
                 )}
                 {template.lastUpdated && (
@@ -232,8 +281,12 @@ const TemplateModal = ({
                     <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600 mb-1">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mx-auto" />
                     </div>
-                    <div className="text-purple-700 text-xs sm:text-sm font-medium">Updated</div>
-                    <div className="text-purple-600 text-xs">{template.lastUpdated}</div>
+                    <div className="text-purple-700 text-xs sm:text-sm font-medium">
+                      Updated
+                    </div>
+                    <div className="text-purple-600 text-xs">
+                      {template.lastUpdated}
+                    </div>
                   </div>
                 )}
               </div>
@@ -250,15 +303,21 @@ const TemplateModal = ({
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 lg:gap-6 bg-green-50 rounded-xl sm:rounded-2xl p-4 sm:p-6">
                 <div className="flex items-center space-x-2 text-green-700">
                   <Monitor className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-                  <span className="font-medium text-sm sm:text-base">Desktop</span>
+                  <span className="font-medium text-sm sm:text-base">
+                    Desktop
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2 text-green-700">
                   <Tablet className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-                  <span className="font-medium text-sm sm:text-base">Tablet</span>
+                  <span className="font-medium text-sm sm:text-base">
+                    Tablet
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2 text-green-700">
                   <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-                  <span className="font-medium text-sm sm:text-base">Mobile</span>
+                  <span className="font-medium text-sm sm:text-base">
+                    Mobile
+                  </span>
                 </div>
                 <div className="text-green-600 text-xs sm:text-sm">
                   ✨ Optimized for all devices
@@ -270,14 +329,22 @@ const TemplateModal = ({
           {/* Template Creator/Author */}
           {template.author && (
             <div className="mb-6 sm:mb-8">
-              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Template Creator</h4>
+              <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+                Template Creator
+              </h4>
               <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex items-center space-x-3 sm:space-x-4">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-sm sm:text-base lg:text-lg">{template.author[0]}</span>
+                  <span className="text-white font-bold text-sm sm:text-base lg:text-lg">
+                    {template.author[0]}
+                  </span>
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-gray-900 text-sm sm:text-base truncate">{template.author}</div>
-                  <div className="text-gray-600 text-xs sm:text-sm">Template Designer</div>
+                  <div className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                    {template.author}
+                  </div>
+                  <div className="text-gray-600 text-xs sm:text-sm">
+                    Template Designer
+                  </div>
                 </div>
               </div>
             </div>
@@ -304,8 +371,8 @@ const TemplateModal = ({
                 disabled={savingTemplate && isSelected}
                 className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl'
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl hover:from-blue-700 hover:to-indigo-800'
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl hover:from-blue-700 hover:to-indigo-800"
                 }`}
               >
                 {savingTemplate && isSelected ? (
@@ -323,7 +390,9 @@ const TemplateModal = ({
                 ) : (
                   <div className="cursor-pointer flex items-center justify-center">
                     <Rocket className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 sm:mr-3" />
-                    <span className="hidden sm:inline">Select This Template</span>
+                    <span className="hidden sm:inline">
+                      Select This Template
+                    </span>
                     <span className="sm:hidden">Select</span>
                   </div>
                 )}

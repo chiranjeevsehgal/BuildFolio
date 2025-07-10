@@ -1,23 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, RefreshCw, Shield, Clock, AlertCircle, CheckCircle } from 'lucide-react';
-import toast, { Toaster } from 'react-hot-toast';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ArrowLeft,
+  RefreshCw,
+  Shield,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
-const OTPVerification = ({ 
-  email, 
-  onVerified, 
-  onBack, 
+const OTPVerification = ({
+  email,
+  onVerified,
+  onBack,
   tempToken,
   onResend,
-  axios 
+  axios,
 }) => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [canResend, setCanResend] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  
+
   const inputRefs = useRef([]);
 
   // Timer effect
@@ -33,7 +40,10 @@ const OTPVerification = ({
   // Resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      const timer = setTimeout(
+        () => setResendCooldown(resendCooldown - 1),
+        1000,
+      );
       return () => clearTimeout(timer);
     } else {
       setCanResend(true);
@@ -43,7 +53,7 @@ const OTPVerification = ({
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleInputChange = (index, value) => {
@@ -53,7 +63,7 @@ const OTPVerification = ({
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    setError(''); // Clear error when user types
+    setError(""); // Clear error when user types
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -61,36 +71,39 @@ const OTPVerification = ({
     }
 
     // Auto-submit when all fields are filled
-    if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 6) {
-      handleVerifyOTP(newOtp.join(''));
+    if (newOtp.every((digit) => digit !== "") && newOtp.join("").length === 6) {
+      handleVerifyOTP(newOtp.join(""));
     }
   };
 
   const handleKeyDown = (index, e) => {
     // Handle backspace
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
-    
+
     // Handle paste
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
-      handleVerifyOTP(otp.join(''));
+      handleVerifyOTP(otp.join(""));
     }
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    
+    const pasteData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
     if (pasteData.length === 6) {
-      const newOtp = pasteData.split('');
+      const newOtp = pasteData.split("");
       setOtp(newOtp);
-      setError('');
-      
+      setError("");
+
       // Focus last input
       inputRefs.current[5]?.focus();
-      
+
       // Auto-submit
       handleVerifyOTP(pasteData);
     }
@@ -98,38 +111,38 @@ const OTPVerification = ({
 
   const handleVerifyOTP = async (otpValue) => {
     if (otpValue.length !== 6) {
-      setError('Please enter all 6 digits');
+      setError("Please enter all 6 digits");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await axios.post('/auth/verify-otp', {
+      const response = await axios.post("/auth/verify-otp", {
         otp: otpValue,
-        tempToken
+        tempToken,
       });
 
       if (response.data.success) {
         onVerified(response.data.verifiedToken, response.data.email);
       } else {
-        toast.error(response.data.message || 'Invalid verification code')
-        
+        toast.error(response.data.message || "Invalid verification code");
+
         // Clear OTP inputs on error
-        setOtp(['', '', '', '', '', '']);
+        setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
-      
+      console.error("OTP verification error:", error);
+
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message)
+        toast.error(error.response.data.message);
       } else {
-        toast.error('Failed to verify code. Please try again.')
+        toast.error("Failed to verify code. Please try again.");
       }
-      
-      setOtp(['', '', '', '', '', '']);
+
+      setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
@@ -140,29 +153,29 @@ const OTPVerification = ({
     if (!canResend || isResending) return;
 
     setIsResending(true);
-    setError('');
+    setError("");
 
     try {
       const newTempToken = await onResend(tempToken);
-      
+
       if (newTempToken) {
         // Reset timer and disable resend for 60 seconds
         setTimeLeft(600);
         setResendCooldown(60);
         setCanResend(false);
-        setOtp(['', '', '', '', '', '']);
+        setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      setError('Failed to resend code. Please try again.');
+      setError("Failed to resend code. Please try again.");
     } finally {
       setIsResending(false);
     }
   };
 
   const clearOTP = () => {
-    setOtp(['', '', '', '', '', '']);
-    setError('');
+    setOtp(["", "", "", "", "", ""]);
+    setError("");
     inputRefs.current[0]?.focus();
   };
 
@@ -194,7 +207,7 @@ const OTPVerification = ({
           {otp.map((digit, index) => (
             <input
               key={index}
-              ref={el => inputRefs.current[index] = el}
+              ref={(el) => (inputRefs.current[index] = el)}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -206,8 +219,8 @@ const OTPVerification = ({
               className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl 
                 focus:ring-2 focus:ring-blue-500 focus:border-transparent 
                 transition-all duration-200 bg-slate-50 focus:bg-white placeholder:!text-gray-400
-                ${error ? 'border-red-300 bg-red-50' : 'border-slate-300'}
-                ${digit ? 'border-blue-400 bg-blue-50' : ''}
+                ${error ? "border-red-300 bg-red-50" : "border-slate-300"}
+                ${digit ? "border-blue-400 bg-blue-50" : ""}
                 disabled:opacity-50 disabled:cursor-not-allowed`}
               placeholder="-"
             />
@@ -223,8 +236,8 @@ const OTPVerification = ({
       {/* Action Buttons */}
       <div className="space-y-3">
         <button
-          onClick={() => handleVerifyOTP(otp.join(''))}
-          disabled={isLoading || otp.join('').length !== 6}
+          onClick={() => handleVerifyOTP(otp.join(""))}
+          disabled={isLoading || otp.join("").length !== 6}
           className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 cursor-pointer text-white py-3 px-4 
             rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 
             font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed 
@@ -236,7 +249,7 @@ const OTPVerification = ({
               Verifying...
             </>
           ) : (
-            'Verify Code'
+            "Verify Code"
           )}
         </button>
 
@@ -277,7 +290,7 @@ const OTPVerification = ({
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </button>
-          
+
           <button
             onClick={clearOTP}
             disabled={isLoading}
@@ -296,14 +309,14 @@ const OTPVerification = ({
           <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-800">
             <p className="font-medium mb-1">Security Note</p>
-            <p>Never share this verification code with anyone. Our team will never ask for this code.</p>
+            <p>
+              Never share this verification code with anyone. Our team will
+              never ask for this code.
+            </p>
           </div>
         </div>
       </div>
-      <Toaster
-        position="top-center"
-        reverseOrder={true}
-      />
+      <Toaster position="top-center" reverseOrder={true} />
     </div>
   );
 };

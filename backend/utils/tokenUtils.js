@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const createTempToken = (email, otpHash) => {
@@ -7,13 +7,13 @@ const createTempToken = (email, otpHash) => {
     {
       email,
       otpHash,
-      type: 'email_verification',
+      type: "email_verification",
       attempts: 0,
       maxAttempts: 3,
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     },
     JWT_SECRET,
-    { expiresIn: '10m' } // 10 minutes for OTP verification
+    { expiresIn: "10m" }, // 10 minutes for OTP verification
   );
 };
 
@@ -22,11 +22,11 @@ const createVerifiedToken = (email) => {
     {
       email,
       emailVerified: true,
-      type: 'email_verified',
-      iat: Math.floor(Date.now() / 1000)
+      type: "email_verified",
+      iat: Math.floor(Date.now() / 1000),
     },
     JWT_SECRET,
-    { expiresIn: '10m' } // 30 minutes to complete registration
+    { expiresIn: "10m" }, // 30 minutes to complete registration
   );
 };
 
@@ -34,7 +34,7 @@ const verifyToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    throw new Error('Invalid or expired token');
+    throw new Error("Invalid or expired token");
   }
 };
 
@@ -52,14 +52,10 @@ const updateTokenAttempts = (token, newAttempts) => {
     type: decoded.type,
     attempts: newAttempts,
     maxAttempts: decoded.maxAttempts,
-    iat: currentTime
+    iat: currentTime,
   };
 
-  return jwt.sign(
-    payload,
-    JWT_SECRET,
-    { expiresIn: remainingTime + 's' }
-  );
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: remainingTime + "s" });
 };
 
 // Create temporary token for password reset
@@ -67,23 +63,23 @@ const createPasswordResetTempToken = (email, otpHash) => {
   const payload = {
     email,
     otpHash,
-    type: 'password_reset',
+    type: "password_reset",
     attempts: 0,
-    maxAttempts: 3
+    maxAttempts: 3,
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10m' });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "10m" });
 };
 
 // Create verified token for password reset
 const createPasswordResetVerifiedToken = (email) => {
   const payload = {
     email,
-    type: 'password_reset_verified',
-    otpVerified: true
+    type: "password_reset_verified",
+    otpVerified: true,
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "15m" });
 };
 
 // Update attempts for password reset token
@@ -93,13 +89,13 @@ const updatePasswordResetTokenAttempts = (token, newAttempts) => {
     const newPayload = {
       ...decoded,
       attempts: newAttempts,
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     };
 
     delete newPayload.exp;
-    return jwt.sign(newPayload, process.env.JWT_SECRET, { expiresIn: '10m' });
+    return jwt.sign(newPayload, process.env.JWT_SECRET, { expiresIn: "10m" });
   } catch (error) {
-    throw new Error('Invalid token');
+    throw new Error("Invalid token");
   }
 };
 
@@ -110,5 +106,5 @@ module.exports = {
   updateTokenAttempts,
   createPasswordResetTempToken,
   createPasswordResetVerifiedToken,
-  updatePasswordResetTokenAttempts
+  updatePasswordResetTokenAttempts,
 };
