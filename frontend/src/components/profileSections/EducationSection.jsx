@@ -134,7 +134,7 @@ const EducationSection = ({
   // Memoized function to get current data
   const getCurrentData = useCallback(
     () => createEducationCopy(profileData.education),
-    [profileData.education],
+    [profileData.education]
   );
 
   // Check for changes when profileData changes
@@ -331,7 +331,7 @@ const EducationSection = ({
     setProfileData((prev) => ({
       ...prev,
       education: prev.education.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
+        i === index ? { ...item, [field]: value } : item
       ),
     }));
   };
@@ -558,8 +558,8 @@ const EducationSection = ({
                 !hasChanges
                   ? "You haven't made any changes"
                   : !formsValid.education
-                    ? "Click to see validation errors"
-                    : "Ready to save your changes"
+                  ? "Click to see validation errors"
+                  : "Ready to save your changes"
               }
             >
               <button
@@ -585,10 +585,10 @@ const EducationSection = ({
                   {saveButtonState.text.includes("Saving")
                     ? "Saving..."
                     : saveButtonState.text.includes("Saved")
-                      ? "Saved"
-                      : saveButtonState.text.includes("Save")
-                        ? "Save"
-                        : "Save"}
+                    ? "Saved"
+                    : saveButtonState.text.includes("Save")
+                    ? "Save"
+                    : "Save"}
                 </span>
               </button>
             </SaveButtonTooltip>
@@ -733,7 +733,10 @@ const EducationSection = ({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    End Date <span className="text-red-500">*</span>
+                    {edu.endDate && new Date(edu.endDate + "-01") > new Date()
+                      ? "Expected End Date"
+                      : "End Date"}{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <CustomDateInput
                     value={edu.endDate}
