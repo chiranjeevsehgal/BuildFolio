@@ -351,7 +351,7 @@ class AIInsightsController {
       try {
         const GEMINI_API_KEY = geminiKeyManager.getNextApiKey();
         const GEMINI_API_URL =
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
         console.log(
           `AI Analysis attempt ${attempt + 1}: Using API key index ${(geminiKeyManager.getCurrentIndex() - 1 + geminiKeyManager.apiKeys.length) % geminiKeyManager.apiKeys.length}`,
@@ -539,7 +539,7 @@ Extract and categorize the requirements accurately. Return ONLY the JSON object.
       try {
         const GEMINI_API_KEY = geminiKeyManager.getNextApiKey();
         const GEMINI_API_URL =
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
         const requestBody = {
           contents: [{ parts: [{ text: jobAnalysisPrompt }] }],
