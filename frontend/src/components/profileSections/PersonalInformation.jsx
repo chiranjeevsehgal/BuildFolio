@@ -125,6 +125,26 @@ const PersonalInfoSection = ({
     return !!validationErrors[fieldName] && touchedFields[fieldName];
   };
 
+  // NEW: Helper function to check if field should show error immediately
+  const shouldShowFieldError = (fieldName) => {
+    // Show error if field is touched OR if save was attempted OR if in edit mode and field has value with error
+    return (
+      !!validationErrors[fieldName] && 
+      (
+        touchedFields[fieldName] || 
+        saveAttempted || 
+        (editingSections.personalInfo && 
+         profileData.personalInfo.socialLinks[fieldName] && 
+         validationErrors[fieldName])
+      )
+    );
+  };
+
+  // NEW: Get error message that shows immediately when appropriate
+  const getVisibleFieldError = (fieldName) => {
+    return shouldShowFieldError(fieldName) ? validationErrors[fieldName][0] : "";
+  };
+
   const handleUploadButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -619,17 +639,17 @@ const PersonalInfoSection = ({
                       handleInputChange("personalInfo", "phone", e.target.value)
                     }
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 text-sm sm:text-base ${
-                      hasFieldError("phone")
+                      shouldShowFieldError("phone")
                         ? "border-red-500 focus:ring-red-500"
                         : "border-slate-300"
                     }`}
                     placeholder="9988776655"
                   />
                 </div>
-                {hasFieldError("phone") && (
+                {shouldShowFieldError("phone") && (
                   <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                     <Info className="w-3 h-3 flex-shrink-0" />
-                    <span>{getFieldError("phone")}</span>
+                    <span>{getVisibleFieldError("phone")}</span>
                   </p>
                 )}
               </div>
@@ -651,17 +671,17 @@ const PersonalInfoSection = ({
                       )
                     }
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 text-sm sm:text-base ${
-                      hasFieldError("location")
+                      shouldShowFieldError("location")
                         ? "border-red-500 focus:ring-red-500"
                         : "border-slate-300"
                     }`}
                     placeholder="Bangalore, India"
                   />
                 </div>
-                {hasFieldError("location") && (
+                {shouldShowFieldError("location") && (
                   <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                     <Info className="w-3 h-3 flex-shrink-0" />
-                    <span>{getFieldError("location")}</span>
+                    <span>{getVisibleFieldError("location")}</span>
                   </p>
                 )}
               </div>
@@ -699,18 +719,18 @@ const PersonalInfoSection = ({
                         handleSocialChange(config.key, e.target.value)
                       }
                       className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:!text-gray-500 text-sm sm:text-base ${
-                        hasFieldError(config.key)
+                        shouldShowFieldError(config.key)
                           ? "border-red-500 focus:ring-red-500"
                           : "border-slate-300"
                       }`}
                       placeholder={config.placeholder}
                     />
                   </div>
-                  {hasFieldError(config.key) && (
+                  {shouldShowFieldError(config.key) && (
                     <p className="mt-1 text-sm text-red-600 flex items-center space-x-1 animate-slide-down">
                       <Info className="w-3 h-3 flex-shrink-0" />
                       <span className="break-words">
-                        {getFieldError(config.key)}
+                        {getVisibleFieldError(config.key)}
                       </span>
                     </p>
                   )}
